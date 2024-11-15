@@ -4,7 +4,11 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.github.lhogie</groupId>
 	<artifactId>byransha</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2-SNAPSHOT</version>
+	<properties>
+		<maven.compiler.target>21</maven.compiler.target>
+		<maven.compiler.source>21</maven.compiler.source>
+	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>io.github.lhogie</groupId>
@@ -19,9 +23,13 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.1</version>
 				<configuration>
-					<release>19</release>
+					<source>23</source>
+					<target>23</target>
+					<release>23</release>
 				</configuration>
 			</plugin>
+
 		</plugins>
 	</build>
+
 </project>

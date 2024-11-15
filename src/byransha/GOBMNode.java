@@ -2,6 +2,7 @@ package byransha;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,6 +17,7 @@ import java.util.function.Function;
 import byransha.DB.Ref;
 import byransha.view.BasicView;
 import byransha.view.ToStringView;
+import toools.reflect.Clazz;
 
 public abstract class GOBMNode {
 	public String comment;
@@ -27,8 +29,35 @@ public abstract class GOBMNode {
 		return refs == null ? DB.defaultDB.findRefsTO(this) : refs;
 	}
 
-	public abstract void forEachOut(BiConsumer<String, GOBMNode> consumer);
+	private void forEachOutField(Consumer<Field> consumer) {
+		for (var c : Clazz.bfs(getClass())) {
+			for (var f : c.getDeclaredFields()) {
+				if (GOBMNode.class.isAssignableFrom(f.getType())) {
+					try {
+						f.setAccessible(true);
+						consumer.accept(f);
+					} catch (IllegalArgumentException err) {
+						throw new IllegalStateException(err);
+					}
+				}
+			}
+		}
+	}
 
+	public void forEachOut(BiConsumer<String, GOBMNode> consumer) {
+		forEachOutField(f -> {
+			try {
+				var outNode = (GOBMNode) f.get(this);
+
+				if (outNode != null) {
+					consumer.accept(f.getName(), outNode);
+				}
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				throw new IllegalStateException(e);
+			}
+		});
+	}
+	
 	public void forEachIn(BiConsumer<String, GOBMNode> consumer) {
 		refs().forEach(r -> consumer.accept(r.role, r.c));
 	}
