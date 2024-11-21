@@ -15,11 +15,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import byransha.DB.Ref;
-import byransha.view.BasicView;
-import byransha.view.ToStringView;
 import toools.reflect.Clazz;
 
-public abstract class GOBMNode {
+public class GOBMNode {
 	public String comment;
 	private List<Ref> refs;
 	static long idCount = 0;
@@ -57,7 +55,7 @@ public abstract class GOBMNode {
 			}
 		});
 	}
-	
+
 	public void forEachIn(BiConsumer<String, GOBMNode> consumer) {
 		refs().forEach(r -> consumer.accept(r.role, r.c));
 	}
@@ -129,11 +127,14 @@ public abstract class GOBMNode {
 		return user.isAdmin();
 	}
 
-	public List<View> views() {
-		List<View> r = new ArrayList<>();
-		r.add(new BasicView());
-		r.add(new ToStringView());
-		return r;
+	public List<View<?>> compliantViews() {
+		// gets only the views that can be used for this class of node
+		return View.views.stream().filter(v -> matches(v)).toList();
+	}
+
+	public boolean matches(View<?> v) {
+		var viewTarget = Clazz.getGenericTypes(v.getClass()).get(0);
+		return viewTarget.isAssignableFrom(getClass());
 	}
 
 	@Override

@@ -139,6 +139,10 @@ public class DB {
 		}
 
 		m.put(n.id(), n);
+
+		if (root == null) {
+			root = n;
+		}
 	}
 
 	public void delete() {

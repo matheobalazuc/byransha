@@ -2,7 +2,6 @@ package byransha;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.HashMap;
@@ -18,55 +17,65 @@ import toools.text.TextUtilities;
 
 public class WebServer {
 
+	static class Response {
+		int code;
+		String s;
+		String contentType;
+
+		void send(HttpExchange e) throws IOException {
+			OutputStream output = e.getResponseBody();
+			e.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+
+			e.getResponseHeaders().set("Content-type", contentType);
+			e.sendResponseHeaders(code, s.length());
+			output.write(s.getBytes());
+			output.flush();
+			output.close();
+			System.out.println("sent: " + s);
+		}
+	}
+
 	public static void main(String[] args) throws IOException {
 		User user = null;
-		DB db;
+		var node = new GOBMNode();
+		DB.defaultDB.accept(node);
+		GOBMNode currentNode = DB.defaultDB.root;
 
-		var httpServer = HttpServer.create(new InetSocketAddress(5643), 0);
-		httpServer.createContext("/api", e -> {
-			OutputStream output = e.getResponseBody();
+		var httpServer = HttpServer.create(new InetSocketAddress(8080), 0);
+		httpServer.createContext("/", e -> {
+			var response = new Response();
 
 			try {
 				URI uri = e.getRequestURI();
-				System.out.println(uri.getPath());
 				List<String> path = path(uri.getPath());
 				System.out.println(path);
-				Map<String, String> query = query(uri.getQuery());
-				e.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
-			} catch (Throwable err) {
-				try {
-					System.err.println("The following error will be sent to the Web client");
-					err.printStackTrace();
-					singleHTTPResponse(HttpURLConnection.HTTP_INTERNAL_ERROR, "text/plain",
-							TextUtilities.exception2string(err).getBytes(), e, output);
+				var context = path.getFirst();
 
-				} catch (IOException ee) {
-					// ee.printStackTrace();
+				if (false){//user == null) {
+					response.contentType = "text/html";
+					response.s = "<html>login page";
+				} else if (context.equals("html")) {
+					response.contentType = "text/html";
+					response.s = "<html>logged : " + user + "\nNODE VIEWS";
+				} else if (context.equals("api")) {
+					Map<String, String> query = query(uri.getQuery());
+					response.contentType = "text/json";
+					response.s = currentNode.compliantViews().stream().map(v -> v.toJSONNode(currentNode, user)).toList()
+							.toString();
+				} else {
+					response.contentType = "text/plain";
+					response.s = "Error: " + context;
 				}
-			} finally {
-				output.close();
+			} catch (Throwable err) {
+				response.contentType = "text/plain";
+				response.s = "Error: " + err;
+				err.printStackTrace();
 			}
+
+			response.send(e);
 		});
 
-		httpServer.createContext("/html", e -> {
-			URI uri = e.getRequestURI();
-			System.out.println(uri);
-			OutputStream output = e.getResponseBody();
-
-			if (user == null) {
-				output.write("login page".getBytes());
-			}else {
-				e.getResponseHeaders().set("Content-type", "text/html");
-				var s= ("logged " + user).getBytes();
-				e.sendResponseHeaders(0, s.length);
-				output.write(s);
-				output.close();
-			}
-			
-			
-		});
-
-		httpServer.setExecutor(Executors.newFixedThreadPool(1));
+		httpServer.setExecutor(Executors.newCachedThreadPool());
 		httpServer.start();
 	}
 

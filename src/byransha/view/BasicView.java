@@ -26,4 +26,15 @@ final public class BasicView extends View<GOBMNode> {
 		}
 		return n;
 	}
+
+	@Override
+	protected String contentType() {
+		return "text/json";
+	}
+
+	@Override
+	protected Object content() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

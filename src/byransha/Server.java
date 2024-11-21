@@ -39,11 +39,12 @@ public class Server {
 			@Override
 			void f(PrintStream out, List<String> parms, Socket client) {
 				if (parms.isEmpty()) {
-					out.println(node.views().stream().map(v -> v.name()).toList());
+					out.println(node.compliantViews().stream().map(v -> v.name()).toList());
 				} else if (parms.size() == 1 && parms.get(0).equals("*")) {
-					node.views().forEach(v -> out.println(v.name() + "\n" + v.toJSONNode(node, null).toPrettyString()));
+					node.compliantViews()
+							.forEach(v -> out.println(v.name() + "\n" + v.toJSONNode(node, null).toPrettyString()));
 				} else {
-					node.views().stream().filter(v -> parms.contains(v.name()))
+					node.compliantViews().stream().filter(v -> parms.contains(v.name()))
 							.forEach(v -> out.println(v.toJSONNode(node, null).toPrettyString()));
 				}
 			}
