@@ -160,4 +160,20 @@ public class DB {
 		d.delete();
 	}
 
+	public GOBMNode findByID(String id) {
+		class R {
+			GOBMNode r;
+		}
+
+		R r = new R();
+
+		forEachNode(n -> {
+			if (n.id().equals(id)) {
+				r.r = n;
+			}
+		});
+
+		return r.r;
+	}
+
 }

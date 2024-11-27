@@ -10,6 +10,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
@@ -18,57 +21,79 @@ import toools.text.TextUtilities;
 public class WebServer {
 
 	static class Response {
-		int code;
-		String s;
-		String contentType;
+		int code = 404;
+		String content = "default content";
+		String contentType = "text/html";
+
+		public Response(int i, String contentType, String content) {
+			this.code = i;
+			this.content = content;
+			this.contentType = contentType;
+		}
 
 		void send(HttpExchange e) throws IOException {
 			OutputStream output = e.getResponseBody();
 			e.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
 
 			e.getResponseHeaders().set("Content-type", contentType);
-			e.sendResponseHeaders(code, s.length());
-			output.write(s.getBytes());
+			e.sendResponseHeaders(code, content.length());
+			output.write(content.getBytes());
 			output.flush();
 			output.close();
-			System.out.println("sent: " + s);
+			System.out.println("sent: " + code + " content:" + content);
 		}
 	}
 
+	static User user = null;
+	static GOBMNode currentNode = DB.defaultDB.root;
+
 	public static void main(String[] args) throws IOException {
-		User user = null;
 		var node = new GOBMNode();
 		DB.defaultDB.accept(node);
-		GOBMNode currentNode = DB.defaultDB.root;
+		DB.defaultDB.root = node;
 
 		var httpServer = HttpServer.create(new InetSocketAddress(8080), 0);
 		httpServer.createContext("/", e -> {
-			var response = new Response();
+			Response response;
 
 			try {
 				URI uri = e.getRequestURI();
-				List<String> path = path(uri.getPath());
-				System.out.println(path);
-				var context = path.getFirst();
+				Map<String, String> query = query(uri.getQuery());
 
-				if (false){//user == null) {
-					response.contentType = "text/html";
-					response.s = "<html>login page";
-				} else if (context.equals("html")) {
-					response.contentType = "text/html";
-					response.s = "<html>logged : " + user + "\nNODE VIEWS";
-				} else if (context.equals("api")) {
-					Map<String, String> query = query(uri.getQuery());
-					response.contentType = "text/json";
-					response.s = currentNode.compliantViews().stream().map(v -> v.toJSONNode(currentNode, user)).toList()
-							.toString();
+				if (query.containsKey("auth")) {
+					user = auth(query.get("user"), query.get("password"));
+
+					if (user != null) {
+						response = new Response(200, "text/html", "Welcome " + user.name + "! Start <a href='http://localhost:8080/?node'>navigatin</a>");
+					} else {
+						response = new Response(404, "text/plain", "Access denied");
+					}
+				} else if (user == null) {
+					response = new Response(403, "text/html",
+							"<html>use the following URL to authenticate: <a href='?auth&user=user&password=test'>here</a>");
+				} else if (query.containsKey("node")) {
+					var id = query.get("node");
+					currentNode = id == null ? DB.defaultDB.root : DB.defaultDB.findByID(query.get("node"));
+
+					if (currentNode == null) {
+						response = new Response(404, "text/plain", "no such node: " + id);
+					} else {
+						ObjectNode root = new ObjectNode(null);
+						root.set("id", new TextNode(node.id()));
+						ArrayNode viewsNode = new ArrayNode(null);
+						root.set("views", viewsNode);
+
+						for (var v : currentNode.compliantViews()) {
+							viewsNode.add(v.toJSONNode(currentNode, user));
+						}
+
+						response = new Response(200, "text/json", root.toString());
+					}
 				} else {
-					response.contentType = "text/plain";
-					response.s = "Error: " + context;
+					response = new Response(200, "text/html", "HTML");
 				}
 			} catch (Throwable err) {
-				response.contentType = "text/plain";
-				response.s = "Error: " + err;
+				response = new Response(500, "text/plain", "" + err);
 				err.printStackTrace();
 			}
 
@@ -77,6 +102,22 @@ public class WebServer {
 
 		httpServer.setExecutor(Executors.newCachedThreadPool());
 		httpServer.start();
+	}
+
+	private static User auth(String u, String p) {
+		var m = new HashMap<String, String>();
+		m.put("user", "test");
+		m.put("admin", "test");
+
+		if (m.containsKey(u)) {
+			if (m.get(u).equals(p)) {
+				return new User(u, u.equals("admin"));
+			} else {
+				return null;
+			}
+		} else {
+			return null;
+		}
 	}
 
 	static void singleHTTPResponse(int returnCode, String mimeType, byte[] bytes, HttpExchange e, OutputStream os)

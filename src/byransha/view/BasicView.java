@@ -1,6 +1,5 @@
 package byransha.view;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -12,7 +11,7 @@ import byransha.View;
 
 final public class BasicView extends View<GOBMNode> {
 	@Override
-	public JsonNode toJSONNode(GOBMNode nn, User u) {
+	public byte[] content(GOBMNode nn, User u) {
 		var n = new ArrayNode(null);
 		{
 			var o = new ObjectNode(null);
@@ -24,17 +23,18 @@ final public class BasicView extends View<GOBMNode> {
 			o.set("out degree", new IntNode(nn.outDegree()));
 			n.add(o);
 		}
-		return n;
+		return n.toString().getBytes();
 	}
 
 	@Override
 	protected String contentType() {
 		return "text/json";
 	}
-
+	
+	
 	@Override
-	protected Object content() {
-		// TODO Auto-generated method stub
-		return null;
+	public String name() {
+		return "basic information";
 	}
+	
 }
