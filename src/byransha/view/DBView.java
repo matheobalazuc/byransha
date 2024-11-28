@@ -6,6 +6,7 @@ import byransha.DB;
 import byransha.DBNode;
 import byransha.TextView;
 import byransha.User;
+import toools.text.TextUtilities;
 
 final public class DBView extends TextView<DBNode> {
 
@@ -23,7 +24,7 @@ final public class DBView extends TextView<DBNode> {
 	protected void content(DBNode node, User u, PrintWriter pw) {
 		pw.println("<ul>");
 		pw.println("<li>" + DB.defaultDB.countNodes() + " nodes");
-		pw.println("<li>" + DB.defaultDB.sizeOf() / 1000000d + "MB");
+		pw.println("<li>" + TextUtilities.toHumanString(DB.defaultDB.sizeOf()) + "B");
 		pw.println("</ul>");
 	}
 }

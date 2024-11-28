@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -135,9 +134,9 @@ public class GOBMNode implements SizeOf {
 	}
 
 	public boolean matches(View<?> v) {
-		
+
 		System.out.println(v.getClass() + " match: " + v.getTargetNodeType().isAssignableFrom(getClass()));
-		
+
 		return v.getTargetNodeType().isAssignableFrom(getClass());
 	}
 
@@ -216,9 +215,7 @@ public class GOBMNode implements SizeOf {
 
 	@Override
 	public long sizeOf() {
-		AtomicLong r = new AtomicLong();
-	//	forEachOut(n -> r.addAndGet(n.sizeOf()));
-		return r.get();
+		return SizeOf.sizeOf(comment) + SizeOf.sizeOf(refs) + SizeOf.sizeOf(id);
 	}
 
 }

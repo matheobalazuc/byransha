@@ -20,22 +20,27 @@ public class WebServer {
 
 	static class Response {
 		int code;
-		String content;
+		byte[] content;
 		String contentType;
 
-		public Response(int i, String contentType, String content) {
+		public Response(int i, String contentType, byte[] content) {
 			this.code = i;
 			this.content = content;
 			this.contentType = contentType;
 		}
+		
+		public Response(int i, String contentType, String content) {
+			this(i, contentType, content.getBytes());
+		}
+
 
 		void send(HttpExchange e) throws IOException {
 			OutputStream output = e.getResponseBody();
 			e.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
 
 			e.getResponseHeaders().set("Content-type", contentType);
-			e.sendResponseHeaders(code, content.length());
-			output.write(content.getBytes());
+			e.sendResponseHeaders(code, content.length);
+			output.write(content);
 			output.flush();
 			output.close();
 			System.out.println("sent: " + code + " content:" + content);
@@ -75,16 +80,25 @@ public class WebServer {
 					if (currentNode == null) {
 						response = new Response(404, "text/plain", "no such node: " + id);
 					} else {
-						ObjectNode root = new ObjectNode(null);
-						root.set("id", new TextNode(currentNode.id()));
-						ArrayNode viewsNode = new ArrayNode(null);
-						root.set("views", viewsNode);
+						
+						
+						var viewName = query.get("view");
+						
+						if (viewName == null) {
+							ObjectNode root = new ObjectNode(null);
+							root.set("id", new TextNode(currentNode.id()));
+							ArrayNode viewsNode = new ArrayNode(null);
+							root.set("views", viewsNode);
 
-						for (var v : currentNode.compliantViews()) {
-							viewsNode.add(v.toJSONNode(currentNode, user));
+							for (var v : currentNode.compliantViews()) {
+								viewsNode.add(v.toJSONNode(currentNode, user));
+							}
+
+							response = new Response(200, "text/json", root.toString());
+						}else {
+							var v = currentNode.compliantViews().get(Integer.valueOf(viewName));
+							response = new Response(200, v.contentType(), v.content(currentNode, user));
 						}
-
-						response = new Response(200, "text/json", root.toString());
 					}
 				} else {
 					response = new Response(200, "text/html",

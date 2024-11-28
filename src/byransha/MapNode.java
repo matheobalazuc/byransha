@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
+import toools.SizeOf;
+
 public class MapNode<N extends GOBMNode> extends GOBMNode {
 	private final Map<String, N> l = new HashMap<>();
 
@@ -20,6 +22,11 @@ public class MapNode<N extends GOBMNode> extends GOBMNode {
 
 	public void remove(String key) {
 		l.remove(key);
+	}
+
+	@Override
+	public long sizeOf() {
+		return super.sizeOf() + l.size() * 8 + l.keySet().stream().mapToLong(k -> SizeOf.sizeOf(k)).sum();
 	}
 
 }

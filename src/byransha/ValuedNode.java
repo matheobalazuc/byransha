@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import toools.SizeOf;
 import toools.text.TextUtilities;
 
 public abstract class ValuedNode<V> extends GOBMNode {
@@ -58,5 +59,10 @@ public abstract class ValuedNode<V> extends GOBMNode {
 		readingFiles.accept(valueFile);
 		byte[] bytes = Files.readAllBytes(valueFile.toPath());
 		fromString(new String(bytes));
+	}
+
+	@Override
+	public long sizeOf() {
+		return SizeOf.sizeOf(value);
 	}
 }
