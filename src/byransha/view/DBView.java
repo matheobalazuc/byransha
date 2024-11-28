@@ -1,6 +1,7 @@
 package byransha.view;
 
 import java.io.PrintWriter;
+import java.lang.management.ManagementFactory;
 
 import byransha.DB;
 import byransha.DBNode;
@@ -24,7 +25,14 @@ final public class DBView extends TextView<DBNode> {
 	protected void content(DBNode node, User u, PrintWriter pw) {
 		pw.println("<ul>");
 		pw.println("<li>" + DB.defaultDB.countNodes() + " nodes");
-		pw.println("<li>" + TextUtilities.toHumanString(DB.defaultDB.sizeOf()) + "B");
+		pw.println("<li>Arch: " + ManagementFactory.getOperatingSystemMXBean().getArch());
+		pw.println("<li>OS: " + ManagementFactory.getOperatingSystemMXBean().getName());
+		pw.println("<li>Load avg: " + ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage());
+		pw.println("<li>#cores: " + Runtime.getRuntime().availableProcessors());
+		pw.println("<li>Heap size: "
+				+ TextUtilities.toHumanString(ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed())
+				+ "B");
+		pw.println("<li>sizeOf: " + TextUtilities.toHumanString(DB.defaultDB.sizeOf()) + "B");
 		pw.println("</ul>");
 	}
 }
