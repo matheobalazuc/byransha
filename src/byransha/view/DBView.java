@@ -26,5 +26,4 @@ final public class DBView extends TextView<DBNode> {
 		pw.println("<li>" + DB.defaultDB.sizeOf() / 1000000d + "MB");
 		pw.println("</ul>");
 	}
-
 }

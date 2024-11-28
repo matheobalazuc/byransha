@@ -1,37 +1,32 @@
 package byransha.view;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
+import java.io.PrintWriter;
 
 import byransha.GOBMNode;
+import byransha.TextView;
 import byransha.User;
-import byransha.View;
 
-public class OutsInsView extends View<GOBMNode> {
+public class OutsInsView extends TextView<GOBMNode> {
 
 	@Override
 	protected String contentType() {
-		return "text/json";
+		return "text/html";
 	}
-
-	@Override
-	protected byte[] content(GOBMNode n, User u) {
-		var r = new ObjectNode(null);
-
-		n.forEachOut((name, o) -> {
-			r.set(name, new TextNode(o.getClass().getName()));
-		});
-
-		n.forEachIn((name, o) -> {
-			r.set(name, new TextNode(o.getClass().getName()));
-		});
-
-		return r.toString().getBytes();
-	}
-	
 
 	@Override
 	public String name() {
 		return "navigation";
+	}
+
+	@Override
+	protected void content(GOBMNode n, User u, PrintWriter pw) {
+		pw.println("Outs:<ul>");
+		n.forEachOut((name, o) -> pw.println("<li><a href='?node=" + name + "'>next</a>"));
+		pw.println("</ul>");
+
+		pw.println("Ins:<ul>");
+		n.forEachIn((name, o) -> pw.println("<li><a href='?node=" + name + "'>next</a>"));
+		pw.println("</ul>");
+
 	}
 }

@@ -6,7 +6,7 @@ import java.io.StringWriter;
 public abstract class TextView<N extends GOBMNode> extends View<N> {
 
 	@Override
-	protected byte[] content(N node, User u) {
+	protected final byte[] content(N node, User u) {
 		var sw = new StringWriter();
 		var pw = new PrintWriter(sw);
 		content(node, u, pw);
