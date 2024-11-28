@@ -60,7 +60,13 @@ public class WebServer {
 				} else if (context.equals("api")) {
 					Map<String, String> query = query(uri.getQuery());
 					response.contentType = "text/json";
-					response.s = currentNode.compliantViews().stream().map(v -> v.toJSONNode(currentNode, user)).toList()
+					response.s = currentNode.compliantViews().stream().map(v -> {
+                                try {
+                                    return v.toJSONNode(currentNode, user);
+                                } catch (IOException ex) {
+                                    throw new RuntimeException(ex);
+                                }
+                            }).toList()
 							.toString();
 				} else {
 					response.contentType = "text/plain";

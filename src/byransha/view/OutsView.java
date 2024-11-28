@@ -8,7 +8,7 @@ import byransha.GOBMNode;
 import byransha.User;
 import byransha.View;
 
-public class OutsView extends View<GOBMNode> {
+public abstract class OutsView extends View<GOBMNode> {
 
 	@Override
 	public JsonNode toJSONNode(GOBMNode n, User u) {

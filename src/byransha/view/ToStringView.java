@@ -16,4 +16,14 @@ public class ToStringView extends View<GOBMNode> {
 		n.set("toString", new TextNode(nn.toString()));
 		return n;
 	}
+
+	@Override
+	protected String contentType() {
+		return "";
+	}
+
+	@Override
+	protected Object content() {
+		return null;
+	}
 }

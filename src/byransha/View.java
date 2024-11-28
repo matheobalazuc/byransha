@@ -2,6 +2,7 @@ package byransha;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -15,8 +16,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 
 import byransha.view.BasicView;
 import byransha.view.ToStringView;
-import jaseto.Jaseto;
-import jaseto.JasetoSerializer;
+//import jaseto.Jaseto;
 import toools.io.JavaResource;
 import toools.text.TextUtilities;
 
@@ -38,7 +38,7 @@ public abstract class View<N extends GOBMNode> {
 //		this.node = n;
 	}
 
-	public JsonNode toJSONNode(N node, User u) {
+	public JsonNode toJSONNode(GOBMNode node, User u) throws IOException {
 		var n = new ArrayNode(null);
 		{
 			var o = new ObjectNode(null);
@@ -61,18 +61,18 @@ public abstract class View<N extends GOBMNode> {
 		}
 		
 		
-		f("ls").forEach(line -> System.out.println(line));
+		f("ls").forEach(System.out::println);
 
 		return n;
 	}
 
-	Stream<String> f(String cmd) {
+	Stream<String> f(String cmd) throws IOException {
 		return 	new BufferedReader(new InputStreamReader(Runtime.getRuntime().exec(cmd).getInputStream())).lines(); 
 	}
 
 
 
-	private final static JasetoSerializer jaseto = new JasetoSerializer<>(new Jaseto());
+	//private final static JasetoSerializer jaseto = new JasetoSerializer<>(new Jaseto());
 
 	protected abstract String contentType();
 

@@ -13,9 +13,11 @@
 		<dependency>
 			<groupId>io.github.lhogie</groupId>
 			<artifactId>toools</artifactId>
-			<version>[0.0.0,)</version>
+			<version>0.0.10-SNAPSHOT</version>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
+
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<plugins>

@@ -24,4 +24,14 @@ public class OutsInsView extends View<GOBMNode> {
 
 		return r;
 	}
+
+	@Override
+	protected String contentType() {
+		return "";
+	}
+
+	@Override
+	protected Object content() {
+		return null;
+	}
 }
