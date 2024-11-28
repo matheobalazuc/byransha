@@ -15,9 +15,10 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import byransha.DB.Ref;
+import toools.SizeOf;
 import toools.reflect.Clazz;
 
-public class GOBMNode {
+public class GOBMNode implements SizeOf {
 	public String comment;
 	private List<Ref> refs;
 	static long idCount = 0;
@@ -210,6 +211,11 @@ public class GOBMNode {
 	@Override
 	public boolean equals(Object obj) {
 		return super.equals(obj);
+	}
+
+	@Override
+	public long sizeOf() {
+		return 0;
 	}
 
 }

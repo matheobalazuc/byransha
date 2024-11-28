@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
@@ -33,21 +32,10 @@ public abstract class View<N extends GOBMNode> {
 	}
 
 	public final JsonNode toJSONNode(N node, User u) {
-		var n = new ArrayNode(null);
-		{
-			var o = new ObjectNode(null);
-			o.set("name", new TextNode(name()));
-			n.add(o);
-		}
-		{
-			if (node.canSee(u)) {
-				var o = new ObjectNode(null);
-				o.set("content-type", new TextNode(contentType()));
-				o.set("content", new TextNode(TextUtilities.base64(content(node, u))));
-				n.add(o);
-			}
-		}
-
+		var n = new ObjectNode(null);
+		n.set("name", new TextNode(name()));
+		n.set("content-type", new TextNode(contentType()));
+		n.set("content", new TextNode(TextUtilities.base64(content(node, u))));
 		return n;
 	}
 

@@ -61,7 +61,7 @@ public class WebServer {
 
 					if (user != null) {
 						response = new Response(200, "text/html",
-								"Welcome " + user.name + "! Start <a href='http://localhost:8080/?node'>navigatin</a>");
+								"Welcome " + user.name + "! Start <a href='http://localhost:8080/?node'>navigating</a>");
 					} else {
 						response = new Response(403, "text/plain", "Access denied");
 					}
@@ -70,7 +70,7 @@ public class WebServer {
 							"<html>use the following URL to authenticate: <a href='?auth&user=user&password=test'>here</a>");
 				} else if (query.containsKey("node")) {
 					var id = query.get("node");
-					currentNode = id == null ? DB.defaultDB.root : DB.defaultDB.findByID(query.get("node"));
+					currentNode = id == null ? DB.defaultDB.root : DB.defaultDB.findByID(id);
 
 					if (currentNode == null) {
 						response = new Response(404, "text/plain", "no such node: " + id);
@@ -136,5 +136,4 @@ public class WebServer {
 
 		return query;
 	}
-
 }

@@ -13,9 +13,10 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import toools.SizeOf;
 import toools.reflect.Clazz;
 
-public class DB {
+public class DB implements SizeOf {
 	public static DB defaultDB = new DB(new File(System.getProperty("user.home") + "/." + DB.class.getPackageName()));
 
 	public static Consumer<File> sysoutPrinter = f -> System.out.println("writing " + f.getAbsolutePath());
@@ -174,6 +175,13 @@ public class DB {
 		});
 
 		return r.r;
+	}
+
+	@Override
+	public long sizeOf() {
+		AtomicLong r = new AtomicLong();
+		forEachNode(n -> r.addAndGet(n.sizeOf()));
+		return r.get();
 	}
 
 }
