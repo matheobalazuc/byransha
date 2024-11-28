@@ -105,7 +105,6 @@ public class WebServer {
 	private static void initDB(String[] args) {
 		var node = new GOBMNode();
 		DB.defaultDB.accept(node);
-		DB.defaultDB.root = node;
 	}
 
 	private static User auth(String u, String p) {

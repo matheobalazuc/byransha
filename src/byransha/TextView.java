@@ -1,15 +1,10 @@
-package byransha.view;
+package byransha;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import byransha.GOBMNode;
-import byransha.User;
-import byransha.View;
-
 public abstract class TextView<N extends GOBMNode> extends View<N> {
 
-	
 	@Override
 	protected byte[] content(N node, User u) {
 		var sw = new StringWriter();

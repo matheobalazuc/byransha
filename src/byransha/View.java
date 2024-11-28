@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
 import byransha.view.BasicView;
+import byransha.view.DBView;
 import byransha.view.OutsInsView;
 import byransha.view.ToStringView;
 import jaseto.Jaseto;
@@ -24,6 +25,7 @@ public abstract class View<N extends GOBMNode> {
 		views.add(new BasicView());
 		views.add(new ToStringView());
 		views.add(new OutsInsView());
+		views.add(new DBView());
 	}
 
 	public View() {
@@ -38,6 +40,8 @@ public abstract class View<N extends GOBMNode> {
 		n.set("content", new TextNode(TextUtilities.base64(content(node, u))));
 		return n;
 	}
+
+	//public abstract <N extends GOBMNode> Class<N> getTargetNodeType();
 
 	public <N extends GOBMNode> Class<N> getTargetNodeType() {
 //		System.out.println("trying " + getClass());

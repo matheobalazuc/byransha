@@ -27,6 +27,7 @@ public class DB implements SizeOf {
 
 	public DB(File directory) {
 		this.directory = directory;
+		accept(root = new DBNode());
 	}
 
 	public static class Ref {
