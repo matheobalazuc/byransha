@@ -28,11 +28,10 @@ public class WebServer {
 			this.content = content;
 			this.contentType = contentType;
 		}
-		
+
 		public Response(int i, String contentType, String content) {
 			this(i, contentType, content.getBytes());
 		}
-
 
 		void send(HttpExchange e) throws IOException {
 			OutputStream output = e.getResponseBody();
@@ -43,7 +42,7 @@ public class WebServer {
 			output.write(content);
 			output.flush();
 			output.close();
-			System.out.println("sent: " + code + " content:" + content);
+			System.out.println("sent: " + code + " content:" + new String(content));
 		}
 	}
 
@@ -65,8 +64,8 @@ public class WebServer {
 					user = auth(query.get("user"), query.get("password"));
 
 					if (user != null) {
-						response = new Response(200, "text/html",
-								"Welcome " + user.name + "! Start <a href='http://localhost:8080/?node'>navigating</a>");
+						response = new Response(200, "text/html", "Welcome " + user.name
+								+ "! Start <a href='http://localhost:8080/?node'>navigating</a>");
 					} else {
 						response = new Response(403, "text/plain", "Access denied");
 					}
@@ -80,10 +79,9 @@ public class WebServer {
 					if (currentNode == null) {
 						response = new Response(404, "text/plain", "no such node: " + id);
 					} else {
-						
-						
+
 						var viewName = query.get("view");
-						
+
 						if (viewName == null) {
 							ObjectNode root = new ObjectNode(null);
 							root.set("id", new TextNode(currentNode.id()));
@@ -95,7 +93,7 @@ public class WebServer {
 							}
 
 							response = new Response(200, "text/json", root.toString());
-						}else {
+						} else {
 							var v = currentNode.compliantViews().get(Integer.valueOf(viewName));
 							response = new Response(200, v.contentType(), v.content(currentNode, user));
 						}

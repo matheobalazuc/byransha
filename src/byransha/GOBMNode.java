@@ -134,9 +134,6 @@ public class GOBMNode implements SizeOf {
 	}
 
 	public boolean matches(View<?> v) {
-
-		System.out.println(v.getClass() + " match: " + v.getTargetNodeType().isAssignableFrom(getClass()));
-
 		return v.getTargetNodeType().isAssignableFrom(getClass());
 	}
 
