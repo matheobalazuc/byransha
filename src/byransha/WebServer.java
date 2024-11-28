@@ -5,11 +5,12 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Executors;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
@@ -19,122 +20,117 @@ public class WebServer {
 
 	static class Response {
 		int code;
-		String s;
+		String content;
 		String contentType;
+
+		public Response(int i, String contentType, String content) {
+			this.code = i;
+			this.content = content;
+			this.contentType = contentType;
+		}
 
 		void send(HttpExchange e) throws IOException {
 			OutputStream output = e.getResponseBody();
 			e.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
 
 			e.getResponseHeaders().set("Content-type", contentType);
-			e.sendResponseHeaders(code, s.length());
-			output.write(s.getBytes());
+			e.sendResponseHeaders(code, content.length());
+			output.write(content.getBytes());
 			output.flush();
 			output.close();
-			System.out.println("sent: " + s);
+			System.out.println("sent: " + code + " content:" + content);
 		}
 	}
 
+	static User user = null;
+	static GOBMNode currentNode = DB.defaultDB.root;
+
 	public static void main(String[] args) throws IOException {
-		User user = null;
-		var node = new GOBMNode();
-		DB.defaultDB.accept(node);
-		GOBMNode currentNode = DB.defaultDB.root;
+		initDB(args);
 
 		var httpServer = HttpServer.create(new InetSocketAddress(8080), 0);
 		httpServer.createContext("/", e -> {
-			var response = new Response();
+			Response response;
 
 			try {
 				URI uri = e.getRequestURI();
-				List<String> path = path(uri.getPath());
-				System.out.println(path);
-				var context = path.getFirst();
+				Map<String, String> query = query(uri.getQuery());
 
-				if (false){//user == null) {
-					response.contentType = "text/html";
-					response.s = "<html>login page";
-				} else if (context.equals("html")) {
-					response.contentType = "text/html";
-					response.s = "<html>logged : " + user + "\nNODE VIEWS";
-				} else if (context.equals("api")) {
-					Map<String, String> query = query(uri.getQuery());
-					response.contentType = "text/json";
-					response.s = currentNode.compliantViews().stream().map(v -> {
-                                try {
-                                    return v.toJSONNode(currentNode, user);
-                                } catch (IOException ex) {
-                                    throw new RuntimeException(ex);
-                                }
-                            }).toList()
-							.toString();
+				if (query.containsKey("auth")) {
+					user = auth(query.get("user"), query.get("password"));
+
+					if (user != null) {
+						response = new Response(200, "text/html",
+								"Welcome " + user.name + "! Start <a href='http://localhost:8080/?node'>navigatin</a>");
+					} else {
+						response = new Response(403, "text/plain", "Access denied");
+					}
+				} else if (user == null) {
+					response = new Response(403, "text/html",
+							"<html>use the following URL to authenticate: <a href='?auth&user=user&password=test'>here</a>");
+				} else if (query.containsKey("node")) {
+					var id = query.get("node");
+					currentNode = id == null ? DB.defaultDB.root : DB.defaultDB.findByID(query.get("node"));
+
+					if (currentNode == null) {
+						response = new Response(404, "text/plain", "no such node: " + id);
+					} else {
+						ObjectNode root = new ObjectNode(null);
+						root.set("id", new TextNode(currentNode.id()));
+						ArrayNode viewsNode = new ArrayNode(null);
+						root.set("views", viewsNode);
+
+						for (var v : currentNode.compliantViews()) {
+							viewsNode.add(v.toJSONNode(currentNode, user));
+						}
+
+						response = new Response(200, "text/json", root.toString());
+					}
 				} else {
-					response.contentType = "text/plain";
-					response.s = "Error: " + context;
+					response = new Response(200, "text/html",
+							new String(WebServer.class.getResource("app.html").openStream().readAllBytes()));
 				}
+
+				response.send(e);
 			} catch (Throwable err) {
-				response.contentType = "text/plain";
-				response.s = "Error: " + err;
+				response = new Response(500, "text/plain", "" + err);
 				err.printStackTrace();
 			}
-
-			response.send(e);
 		});
 
-		httpServer.setExecutor(Executors.newCachedThreadPool());
+		httpServer.setExecutor(Executors.newSingleThreadExecutor());
 		httpServer.start();
 	}
 
-	static void singleHTTPResponse(int returnCode, String mimeType, byte[] bytes, HttpExchange e, OutputStream os)
-			throws IOException {
-		e.getResponseHeaders().set("Content-type", mimeType);
-		e.sendResponseHeaders(returnCode, bytes.length);
-		os.write(bytes);
+	private static void initDB(String[] args) {
+		var node = new GOBMNode();
+		DB.defaultDB.accept(node);
+		DB.defaultDB.root = node;
 	}
 
-	static List<String> path(String s) {
-		if (s == null) {
+	private static User auth(String u, String p) {
+		var m = new HashMap<String, String>();
+		m.put("user", "test");
+		m.put("admin", "test");
+
+		if (m.containsKey(u)) {
+			if (m.get(u).equals(p)) {
+				return new User(u, u.equals("admin"));
+			} else {
+				return null;
+			}
+		} else {
 			return null;
 		}
-
-		if (s.startsWith("/")) {
-			s = s.substring(1);
-		}
-
-		if (s.endsWith("/")) {
-			s = s.substring(0, s.length() - 1);
-		}
-
-		s = s.replaceAll("//", "/");
-
-		return s.isEmpty() ? null : TextUtilities.split(s, '/');
-	}
-
-	static String removeOrDefault(Map<String, String> map, String k, String defaultValue, Set<String> validKeys) {
-		var r = map.remove(k);
-
-		if (r == null)
-			r = defaultValue;
-
-		if (validKeys != null && !validKeys.contains(r))
-			throw new IllegalArgumentException(
-					r + " is not a valid value for '" + k + "'. Valid values are: " + validKeys);
-
-		return r;
 	}
 
 	static Map<String, String> query(String s) {
 		Map<String, String> query = new HashMap<>();
 
 		if (s != null && !s.isEmpty()) {
-			for (String queryEntry : TextUtilities.split(s, '&')) {
-				String[] a = queryEntry.split("=");
-
-				if (a.length == 2) {
-					query.put(a[0], a[1]);
-				} else {
-					query.put(a[0], null);
-				}
+			for (var e : TextUtilities.split(s, '&')) {
+				var a = e.split("=");
+				query.put(a[0], a.length == 2 ? a[1] : null);
 			}
 		}
 

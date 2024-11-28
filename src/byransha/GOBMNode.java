@@ -127,14 +127,16 @@ public class GOBMNode {
 		return user.isAdmin();
 	}
 
-	public List<View<?>> compliantViews() {
+	public List<View> compliantViews() {
 		// gets only the views that can be used for this class of node
 		return View.views.stream().filter(v -> matches(v)).toList();
 	}
 
 	public boolean matches(View<?> v) {
-		var viewTarget = Clazz.getGenericTypes(v.getClass()).get(0);
-		return viewTarget.isAssignableFrom(getClass());
+		
+		System.out.println(v.getClass() + " match: " + v.getTargetNodeType().isAssignableFrom(getClass()));
+		
+		return v.getTargetNodeType().isAssignableFrom(getClass());
 	}
 
 	@Override

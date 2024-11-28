@@ -1,6 +1,5 @@
 package byransha.view;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
@@ -11,23 +10,29 @@ import byransha.View;
 public class OutsInsView extends View<GOBMNode> {
 
 	@Override
-	public JsonNode toJSONNode(GOBMNode n, User u) {
+	protected String contentType() {
+		return "text/json";
+	}
+
+	@Override
+	protected byte[] content(GOBMNode n, User u) {
 		var r = new ObjectNode(null);
 
 		n.forEachOut((name, o) -> {
 			r.set(name, new TextNode(o.getClass().getName()));
 		});
-		
+
 		n.forEachIn((name, o) -> {
 			r.set(name, new TextNode(o.getClass().getName()));
 		});
 
-		return r;
+		return r.toString().getBytes();
 	}
+	
 
 	@Override
-	protected String contentType() {
-		return "";
+	public String name() {
+		return "navigation";
 	}
 
 	@Override
