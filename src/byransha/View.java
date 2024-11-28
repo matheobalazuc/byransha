@@ -11,8 +11,8 @@ import byransha.view.BasicView;
 import byransha.view.DBView;
 import byransha.view.OutsInsView;
 import byransha.view.ToStringView;
-import jaseto.Jaseto;
-import jaseto.JasetoSerializer;
+//import jaseto.Jaseto;
+//import jaseto.JasetoSerializer;
 import toools.io.JavaResource;
 import toools.reflect.Clazz;
 import toools.text.TextUtilities;
@@ -49,7 +49,7 @@ public abstract class View<N extends GOBMNode> {
 		return (Class<N>) Clazz.getGenericTypes(getClass()).get(0);
 	}
 
-	private final static JasetoSerializer jaseto = new JasetoSerializer<>(new Jaseto());
+	//private final static JasetoSerializer jaseto = new JasetoSerializer<>(new Jaseto());
 
 	protected abstract String contentType();
 

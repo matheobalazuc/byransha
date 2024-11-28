@@ -6,6 +6,7 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -60,6 +61,7 @@ public class WebServer {
 			try {
 				URI uri = e.getRequestURI();
 				Map<String, String> query = query(uri.getQuery());
+				System.out.println(uri);
 
 				if (query.containsKey("auth")) {
 					user = auth(query.get("user"), query.get("password"));
@@ -80,10 +82,7 @@ public class WebServer {
 					if (currentNode == null) {
 						response = new Response(404, "text/plain", "no such node: " + id);
 					} else {
-						
-						
 						var viewName = query.get("view");
-						
 						if (viewName == null) {
 							ObjectNode root = new ObjectNode(null);
 							root.set("id", new TextNode(currentNode.id()));
@@ -101,8 +100,13 @@ public class WebServer {
 						}
 					}
 				} else {
-					response = new Response(200, "text/html",
-							new String(WebServer.class.getResource("app.html").openStream().readAllBytes()));
+					var resource = WebServer.class.getResource("app.html");
+					if (resource != null) {
+						response = new Response(200, "text/html",
+								new String(resource.openStream().readAllBytes()));
+					} else {
+						response = new Response(404, "text/plain", "Resource not found: app.html");
+					}
 				}
 
 				response.send(e);
@@ -148,5 +152,21 @@ public class WebServer {
 		}
 
 		return query;
+	}
+
+	private static String getContentType(String filename) {
+		if (filename.endsWith(".html")) {
+			return "text/html";
+		} else if (filename.endsWith(".css")) {
+			return "text/css";
+		} else if (filename.endsWith(".js")) {
+			return "text/javascript";
+		} else if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
+			return "image/jpeg";
+		} else if (filename.endsWith(".gif")) {
+			return "image/gif";}
+		else {
+			return "text/plain";
+		}
 	}
 }
