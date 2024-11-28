@@ -60,6 +60,7 @@ public class WebServer {
 			try {
 				URI uri = e.getRequestURI();
 				Map<String, String> query = query(uri.getQuery());
+				System.out.println(uri);
 
 				if (query.containsKey("auth")) {
 					user = auth(query.get("user"), query.get("password"));
@@ -101,8 +102,13 @@ public class WebServer {
 						}
 					}
 				} else {
-					new Response(200, "text/html",
-							new String(WebServer.class.getResource("app.html").openStream().readAllBytes())).send(e);
+					var resource = WebServer.class.getResource("app.html");
+
+					if (resource != null) {
+						new Response(200, "text/html", new String(resource.openStream().readAllBytes())).send(e);
+					} else {
+						new Response(404, "text/plain", "Resource not found: app.html").send(e);
+					}
 				}
 			} catch (Throwable err) {
 				new Response(500, "text/plain", "" + err).send(e);
@@ -149,5 +155,21 @@ public class WebServer {
 		}
 
 		return query;
+	}
+
+	private static String getContentType(String filename) {
+		if (filename.endsWith(".html")) {
+			return "text/html";
+		} else if (filename.endsWith(".css")) {
+			return "text/css";
+		} else if (filename.endsWith(".js")) {
+			return "text/javascript";
+		} else if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
+			return "image/jpeg";
+		} else if (filename.endsWith(".gif")) {
+			return "image/gif";
+		} else {
+			return "text/plain";
+		}
 	}
 }
