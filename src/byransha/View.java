@@ -19,7 +19,6 @@ import toools.text.TextUtilities;
 
 public abstract class View<N extends GOBMNode> {
 
-
 	public final static List<View> views = new ArrayList<>();
 
 	static {
@@ -41,17 +40,19 @@ public abstract class View<N extends GOBMNode> {
 			n.add(o);
 		}
 		{
-			var o = new ObjectNode(null);
-			o.set("content-type", new TextNode(contentType()));
-			o.set("content", new TextNode(TextUtilities.base64(content(node, u))));
-			n.add(o);
+			if (node.canSee(u)) {
+				var o = new ObjectNode(null);
+				o.set("content-type", new TextNode(contentType()));
+				o.set("content", new TextNode(TextUtilities.base64(content(node, u))));
+				n.add(o);
+			}
 		}
 
 		return n;
 	}
 
 	public <N extends GOBMNode> Class<N> getTargetNodeType() {
-		System.out.println("trying " + getClass());
+//		System.out.println("trying " + getClass());
 
 		return (Class<N>) Clazz.getGenericTypes(getClass()).get(0);
 	}
