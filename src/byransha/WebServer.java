@@ -32,7 +32,6 @@ public class WebServer {
 		void send(HttpExchange e) throws IOException {
 			OutputStream output = e.getResponseBody();
 			e.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
-
 			e.getResponseHeaders().set("Content-type", contentType);
 			e.sendResponseHeaders(code, content.length());
 			output.write(content.getBytes());

@@ -43,20 +43,12 @@ public class Server {
 				} else if (parms.size() == 1 && parms.get(0).equals("*")) {
 					node.compliantViews()
 							.forEach(v -> {
-                                try {
-                                    out.println(v.name() + "\n" + v.toJSONNode(node, null).toPrettyString());
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
-                                }
+                                out.println(v.name() + "\n" + v.toJSONNode(node, null).toPrettyString());
                             });
 				} else {
 					node.compliantViews().stream().filter(v -> parms.contains(v.name()))
 							.forEach(v -> {
-                                try {
-                                    out.println(v.toJSONNode(node, null).toPrettyString());
-                                } catch (IOException e) {
-                                    throw new RuntimeException(e);
-                                }
+                                out.println(v.toJSONNode(node, null).toPrettyString());
                             });
 				}
 			}

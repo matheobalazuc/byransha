@@ -67,5 +67,5 @@ public abstract class View<N extends GOBMNode> {
 		return getClass().getSimpleName();
 	}
 
-	protected abstract Object content();
+	//protected abstract Object content();
 }

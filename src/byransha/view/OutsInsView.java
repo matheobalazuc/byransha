@@ -34,9 +34,4 @@ public class OutsInsView extends View<GOBMNode> {
 	public String name() {
 		return "navigation";
 	}
-
-	@Override
-	protected Object content() {
-		return null;
-	}
 }

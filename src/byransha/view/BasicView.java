@@ -10,6 +10,7 @@ import byransha.User;
 import byransha.View;
 
 final public class BasicView extends View<GOBMNode> {
+
 	@Override
 	public byte[] content(GOBMNode nn, User u) {
 		var n = new ArrayNode(null);
@@ -31,10 +32,9 @@ final public class BasicView extends View<GOBMNode> {
 		return "text/json";
 	}
 	
-	
 	@Override
 	public String name() {
 		return "basic information";
 	}
-	
+
 }

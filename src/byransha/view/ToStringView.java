@@ -15,20 +15,10 @@ public class ToStringView extends View<GOBMNode> {
 	protected String contentType() {
 		return "text/plain";
 	}
-	
 
 	@Override
 	public String name() {
 		return "toString()";
 	}
 
-	@Override
-	protected String contentType() {
-		return "";
-	}
-
-	@Override
-	protected Object content() {
-		return null;
-	}
 }
