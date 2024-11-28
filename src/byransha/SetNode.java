@@ -25,9 +25,4 @@ public class SetNode<N extends GOBMNode> extends GOBMNode {
 	}
 
 
-	@Override
-	public long sizeOf() {
-		return super.sizeOf() + l.size() * 8 ;
-	}
-
 }

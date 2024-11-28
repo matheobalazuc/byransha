@@ -28,9 +28,4 @@ public class ListNode<N extends GOBMNode> extends GOBMNode {
 		return l.get(i);
 	}
 
-	@Override
-	public long sizeOf() {
-		return super.sizeOf() + l.size() * 8;
-	}
-
 }

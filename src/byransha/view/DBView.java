@@ -4,12 +4,11 @@ import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
 
 import byransha.DB;
-import byransha.DBNode;
 import byransha.TextView;
 import byransha.User;
 import toools.text.TextUtilities;
 
-final public class DBView extends TextView<DBNode> {
+final public class DBView extends TextView<DB> {
 
 	@Override
 	public String name() {
@@ -22,7 +21,7 @@ final public class DBView extends TextView<DBNode> {
 	}
 
 	@Override
-	protected void content(DBNode node, User u, PrintWriter pw) {
+	protected void content(DB node, User u, PrintWriter pw) {
 		pw.println("<ul>");
 		pw.println("<li>" + DB.defaultDB.countNodes() + " nodes");
 		pw.println("<li>Arch: " + ManagementFactory.getOperatingSystemMXBean().getArch());
@@ -32,7 +31,6 @@ final public class DBView extends TextView<DBNode> {
 		pw.println("<li>Heap size: "
 				+ TextUtilities.toHumanString(ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed())
 				+ "B");
-		pw.println("<li>sizeOf: " + TextUtilities.toHumanString(DB.defaultDB.sizeOf()) + "B");
 		pw.println("</ul>");
 	}
 }

@@ -61,8 +61,4 @@ public abstract class ValuedNode<V> extends GOBMNode {
 		fromString(new String(bytes));
 	}
 
-	@Override
-	public long sizeOf() {
-		return SizeOf.sizeOf(value);
-	}
 }

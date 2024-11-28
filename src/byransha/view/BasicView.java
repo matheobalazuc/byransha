@@ -21,7 +21,6 @@ final public class BasicView extends TextView<GOBMNode> {
 	@Override
 	protected void content(GOBMNode node, User u, PrintWriter pw) {
 		pw.println("id: " + node.id());
-		pw.println("sizeOf: " + node.sizeOf());
 		pw.println("class: " + node.getClass().getName());
 	}
 

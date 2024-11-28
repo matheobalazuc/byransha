@@ -14,6 +14,10 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
+import labmodel.I3S;
+import labmodel.model.v0.Contract;
+import labmodel.model.v0.Nationality;
+import labmodel.model.v0.Person;
 import toools.text.TextUtilities;
 
 public class WebServer {
@@ -36,7 +40,6 @@ public class WebServer {
 		void send(HttpExchange e) throws IOException {
 			OutputStream output = e.getResponseBody();
 			e.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
-
 			e.getResponseHeaders().set("Content-type", contentType);
 			e.sendResponseHeaders(code, content.length);
 			output.write(content);
@@ -46,7 +49,7 @@ public class WebServer {
 		}
 	}
 
-	static User user = null;
+	static User user = new User("user", false);
 	static GOBMNode currentNode = DB.defaultDB.root;
 
 	public static void main(String[] args) throws IOException {
@@ -54,8 +57,6 @@ public class WebServer {
 
 		var httpServer = HttpServer.create(new InetSocketAddress(8080), 0);
 		httpServer.createContext("/", e -> {
-			Response response;
-
 			try {
 				URI uri = e.getRequestURI();
 				Map<String, String> query = query(uri.getQuery());
@@ -64,22 +65,23 @@ public class WebServer {
 					user = auth(query.get("user"), query.get("password"));
 
 					if (user != null) {
-						response = new Response(200, "text/html", "Welcome " + user.name
-								+ "! Start <a href='http://localhost:8080/?node'>navigating</a>");
+						new Response(200, "text/html",
+								"Welcome " + user.name + "! Start <a href='http://localhost:8080/?node'>navigating</a>")
+								.send(e);
 					} else {
-						response = new Response(403, "text/plain", "Access denied");
+						new Response(403, "text/plain", "Access denied").send(e);
 					}
 				} else if (user == null) {
-					response = new Response(403, "text/html",
-							"<html>use the following URL to authenticate: <a href='?auth&user=user&password=test'>here</a>");
+					new Response(403, "text/html",
+							"<html>use the following URL to authenticate: <a href='?auth&user=user&password=test'>here</a>")
+							.send(e);
 				} else if (query.containsKey("node")) {
 					var id = query.get("node");
 					currentNode = id == null ? DB.defaultDB.root : DB.defaultDB.findByID(id);
 
 					if (currentNode == null) {
-						response = new Response(404, "text/plain", "no such node: " + id);
+						new Response(404, "text/plain", "no such node: " + id).send(e);
 					} else {
-
 						var viewName = query.get("view");
 
 						if (viewName == null) {
@@ -92,20 +94,18 @@ public class WebServer {
 								viewsNode.add(v.toJSONNode(currentNode, user));
 							}
 
-							response = new Response(200, "text/json", root.toString());
+							new Response(200, "text/json", root.toString()).send(e);
 						} else {
 							var v = currentNode.compliantViews().get(Integer.valueOf(viewName));
-							response = new Response(200, v.contentType(), v.content(currentNode, user));
+							new Response(200, v.contentType(), v.content(currentNode, user)).send(e);
 						}
 					}
 				} else {
-					response = new Response(200, "text/html",
-							new String(WebServer.class.getResource("app.html").openStream().readAllBytes()));
+					new Response(200, "text/html",
+							new String(WebServer.class.getResource("app.html").openStream().readAllBytes())).send(e);
 				}
-
-				response.send(e);
 			} catch (Throwable err) {
-				response = new Response(500, "text/plain", "" + err);
+				new Response(500, "text/plain", "" + err).send(e);
 				err.printStackTrace();
 			}
 		});
@@ -115,8 +115,11 @@ public class WebServer {
 	}
 
 	private static void initDB(String[] args) {
-		var node = new GOBMNode();
-		DB.defaultDB.accept(node);
+		DB.defaultDB.accept(new I3S());
+		DB.defaultDB.accept(new Contract());
+		DB.defaultDB.accept(new Person());
+		DB.defaultDB.accept(new Nationality("fr"));
+		DB.defaultDB.accept(new I3S());
 	}
 
 	private static User auth(String u, String p) {

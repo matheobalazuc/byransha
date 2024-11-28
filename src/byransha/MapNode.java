@@ -24,9 +24,4 @@ public class MapNode<N extends GOBMNode> extends GOBMNode {
 		l.remove(key);
 	}
 
-	@Override
-	public long sizeOf() {
-		return super.sizeOf() + l.size() * 8 + l.keySet().stream().mapToLong(k -> SizeOf.sizeOf(k)).sum();
-	}
-
 }

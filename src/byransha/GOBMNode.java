@@ -15,10 +15,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import byransha.DB.Ref;
-import toools.SizeOf;
 import toools.reflect.Clazz;
 
-public class GOBMNode implements SizeOf {
+public class GOBMNode {
 	public String comment;
 	private List<Ref> refs;
 	static long idCount = 0;
@@ -28,7 +27,7 @@ public class GOBMNode implements SizeOf {
 		return refs == null ? DB.defaultDB.findRefsTO(this) : refs;
 	}
 
-	private void forEachOutField(Consumer<Field> consumer) {
+	public void forEachOutField(Consumer<Field> consumer) {
 		for (var c : Clazz.bfs(getClass())) {
 			for (var f : c.getDeclaredFields()) {
 				if (GOBMNode.class.isAssignableFrom(f.getType())) {
@@ -208,11 +207,6 @@ public class GOBMNode implements SizeOf {
 	@Override
 	public boolean equals(Object obj) {
 		return super.equals(obj);
-	}
-
-	@Override
-	public long sizeOf() {
-		return SizeOf.sizeOf(comment) + SizeOf.sizeOf(refs) + SizeOf.sizeOf(id);
 	}
 
 }

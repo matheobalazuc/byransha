@@ -9,10 +9,10 @@ import com.fasterxml.jackson.databind.node.TextNode;
 
 import byransha.view.BasicView;
 import byransha.view.DBView;
+import byransha.view.ModelDOTView;
+import byransha.view.ModelGraphivzSVGView;
 import byransha.view.OutsInsView;
 import byransha.view.ToStringView;
-import jaseto.Jaseto;
-import jaseto.JasetoSerializer;
 import toools.io.JavaResource;
 import toools.reflect.Clazz;
 import toools.text.TextUtilities;
@@ -26,6 +26,8 @@ public abstract class View<N extends GOBMNode> {
 		views.add(new ToStringView());
 		views.add(new OutsInsView());
 		views.add(new DBView());
+		views.add(new ModelDOTView());
+		views.add(new ModelGraphivzSVGView());
 	}
 
 	public View() {
@@ -38,18 +40,13 @@ public abstract class View<N extends GOBMNode> {
 		n.set("name", new TextNode(name()));
 		n.set("content-type", new TextNode(contentType()));
 		n.set("content", new TextNode(TextUtilities.base64(content(node, u))));
+		System.out.println("ok");
 		return n;
 	}
 
-	//public abstract <N extends GOBMNode> Class<N> getTargetNodeType();
-
 	public <N extends GOBMNode> Class<N> getTargetNodeType() {
-//		System.out.println("trying " + getClass());
-
 		return (Class<N>) Clazz.getGenericTypes(getClass()).get(0);
 	}
-
-	private final static JasetoSerializer jaseto = new JasetoSerializer<>(new Jaseto());
 
 	protected abstract String contentType();
 
