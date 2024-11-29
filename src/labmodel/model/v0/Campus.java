@@ -1,8 +1,9 @@
 package labmodel.model.v0;
 
-import java.util.List;
+import byransha.GOBMNode;
+import byransha.ListNode;
 
-public class Campus {
+public class Campus extends GOBMNode{
 	String name;
-	List<Building> buildings;
+	ListNode<Building> buildings;
 }

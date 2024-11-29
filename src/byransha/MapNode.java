@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-import toools.SizeOf;
-
 public class MapNode<N extends GOBMNode> extends GOBMNode {
 	private final Map<String, N> l = new HashMap<>();
 

@@ -40,7 +40,6 @@ public abstract class View<N extends GOBMNode> {
 		n.set("name", new TextNode(name()));
 		n.set("content-type", new TextNode(contentType()));
 		n.set("content", new TextNode(TextUtilities.base64(content(node, u))));
-		System.out.println("ok");
 		return n;
 	}
 

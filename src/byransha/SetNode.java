@@ -4,8 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-import toools.SizeOf;
-
 public class SetNode<N extends GOBMNode> extends GOBMNode {
 	private final Set<N> l = new HashSet<>();
 
@@ -23,6 +21,4 @@ public class SetNode<N extends GOBMNode> extends GOBMNode {
 	public void remove(N p) {
 		l.remove(p);
 	}
-
-
 }

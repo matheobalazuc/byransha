@@ -10,6 +10,7 @@ public class Person extends GOBMNode {
 	public StringNode name = new StringNode();
 	private ListNode<Position> positions = new ListNode<>();
 	private BooleanNode hdr = new BooleanNode();
+	private Nationality nationality;
 
 	protected ListNode<EmailNode> emailAddresses;
 

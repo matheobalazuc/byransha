@@ -28,4 +28,8 @@ public class ListNode<N extends GOBMNode> extends GOBMNode {
 		return l.get(i);
 	}
 
+	public List<N> elements() {
+		return List.copyOf(l);
+	}
+
 }

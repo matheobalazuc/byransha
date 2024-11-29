@@ -22,5 +22,4 @@ public class ModelGraphivzSVGView extends View<DB> {
 		var dot = new ModelDOTView().content(db, u);
 		return Proces.exec("dot", dot, "-Tsvg");
 	}
-
 }

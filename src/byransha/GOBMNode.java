@@ -27,7 +27,7 @@ public class GOBMNode {
 		return refs == null ? DB.defaultDB.findRefsTO(this) : refs;
 	}
 
-	public void forEachOutField(Consumer<Field> consumer) {
+	public void forEachOutNodeField(Consumer<Field> consumer) {
 		for (var c : Clazz.bfs(getClass())) {
 			for (var f : c.getDeclaredFields()) {
 				if (GOBMNode.class.isAssignableFrom(f.getType())) {
@@ -43,7 +43,7 @@ public class GOBMNode {
 	}
 
 	public void forEachOut(BiConsumer<String, GOBMNode> consumer) {
-		forEachOutField(f -> {
+		forEachOutNodeField(f -> {
 			try {
 				var outNode = (GOBMNode) f.get(this);
 

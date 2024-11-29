@@ -15,9 +15,15 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
 import labmodel.I3S;
+import labmodel.model.v0.Building;
+import labmodel.model.v0.Campus;
 import labmodel.model.v0.Contract;
 import labmodel.model.v0.Nationality;
+import labmodel.model.v0.Office;
 import labmodel.model.v0.Person;
+import labmodel.model.v0.Position;
+import labmodel.model.v0.Researcher;
+import labmodel.model.v0.Structure;
 import toools.text.TextUtilities;
 
 public class WebServer {
@@ -45,7 +51,7 @@ public class WebServer {
 			output.write(content);
 			output.flush();
 			output.close();
-			System.out.println("sent: " + code + " content:" + new String(content));
+		//	System.out.println("sent: " + code + " content:" + new String(content));
 		}
 	}
 
@@ -60,7 +66,7 @@ public class WebServer {
 			try {
 				URI uri = e.getRequestURI();
 				Map<String, String> query = query(uri.getQuery());
-				System.out.println(uri);
+//				System.out.println(uri);
 
 				if (query.containsKey("auth")) {
 					user = auth(query.get("user"), query.get("password"));
@@ -111,8 +117,8 @@ public class WebServer {
 					}
 				}
 			} catch (Throwable err) {
-				new Response(500, "text/plain", "" + err).send(e);
 				err.printStackTrace();
+				new Response(500, "text/plain", "" + err).send(e);
 			}
 		});
 
@@ -126,6 +132,11 @@ public class WebServer {
 		DB.defaultDB.accept(new Person());
 		DB.defaultDB.accept(new Nationality("fr"));
 		DB.defaultDB.accept(new I3S());
+		DB.defaultDB.accept(new Building());
+		DB.defaultDB.accept(new Campus());
+		DB.defaultDB.accept(new Office());
+		DB.defaultDB.accept(new Position());
+		DB.defaultDB.accept(new Structure());
 	}
 
 	private static User auth(String u, String p) {
