@@ -1,5 +1,5 @@
 package labmodel.model.v0;
 
-public class Researcher {
+public class Researcher extends Status {
 
 }

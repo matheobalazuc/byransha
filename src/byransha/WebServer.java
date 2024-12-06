@@ -1,30 +1,41 @@
 package byransha;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.net.URI;
+import java.nio.file.Files;
+import java.security.KeyStore;
+import java.security.SecureRandom;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLParameters;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.HttpsConfigurator;
+import com.sun.net.httpserver.HttpsExchange;
+import com.sun.net.httpserver.HttpsParameters;
+import com.sun.net.httpserver.HttpsServer;
 
-import labmodel.I3S;
-import labmodel.model.v0.Building;
-import labmodel.model.v0.Campus;
-import labmodel.model.v0.Contract;
-import labmodel.model.v0.Nationality;
-import labmodel.model.v0.Office;
-import labmodel.model.v0.Person;
-import labmodel.model.v0.Position;
-import labmodel.model.v0.Researcher;
-import labmodel.model.v0.Structure;
+import labmodel.model.v0.AcademiaDB;
+import toools.io.Cout;
+import toools.net.SSHParms;
+import toools.reflect.ClassPath;
 import toools.text.TextUtilities;
+
+/**
+ * https://syncagio.medium.com/how-to-setup-java-httpsserver-and-keystore-eb74a8bd89d
+ */
 
 public class WebServer {
 
@@ -44,115 +55,164 @@ public class WebServer {
 		}
 
 		void send(HttpExchange e) throws IOException {
-			OutputStream output = e.getResponseBody();
+			var output = e.getResponseBody();
 			e.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
 			e.getResponseHeaders().set("Content-type", contentType);
 			e.sendResponseHeaders(code, content.length);
 			output.write(content);
 			output.flush();
 			output.close();
-		//	System.out.println("sent: " + code + " content:" + new String(content));
+			// System.out.println("sent: " + code + " content:" + new String(content));
 		}
 	}
 
-	static User user = new User("user", false);
-	static GOBMNode currentNode = DB.defaultDB.root;
+	static ObjectMapper mapper = new ObjectMapper();
 
-	public static void main(String[] args) throws IOException {
-		initDB(args);
+	public static void main(String[] args) throws Exception {
 
-		var httpServer = HttpServer.create(new InetSocketAddress(8080), 0);
-		httpServer.createContext("/", e -> {
+		if (false && System.getProperty("user.name").equals("lhogie")) {
+			rsyncBinaries();
+		}
+
+		Map<String, String> argMap = new HashMap<>();
+		Arrays.stream(args).map(a -> a.split("=")).forEach(a -> argMap.put(a[0], a[1]));
+
+		System.out.println("loading DB");
+		if (argMap.containsKey("-dbDirectory")) {
+			var d = new File(argMap.get("-dbDirectory"));
+			DB.defaultDB = (DB) Class.forName(Files.readString(new File(d, "dbClass.txt").toPath()))
+					.getConstructor(File.class).newInstance(d);
+		} else {
+			DB.defaultDB = (DB) Class.forName(argMap.getOrDefault("-dbClass", AcademiaDB.class.getName()))
+					.getConstructor().newInstance();
+		}
+
+		int port = Integer.valueOf(argMap.getOrDefault("-port", "8080"));
+
+		System.out.println("starting HTTP server on port " + port);
+
+		var httpsServer = HttpsServer.create(new InetSocketAddress(port), 0);
+		SSLContext sslContext = getSslContext();
+		httpsServer.setHttpsConfigurator(new HttpsConfigurator(sslContext) {
+			public void configure(HttpsParameters params) {
+				try {
+					SSLContext context = getSSLContext();
+					SSLEngine engine = context.createSSLEngine();
+					params.setNeedClientAuth(false);
+					params.setCipherSuites(engine.getEnabledCipherSuites());
+					params.setProtocols(engine.getEnabledProtocols());
+					SSLParameters sslParameters = context.getSupportedSSLParameters();
+					params.setSSLParameters(sslParameters);
+				} catch (Exception ex) {
+					System.out.println("Failed to create HTTPS port");
+				}
+			}
+		});
+		httpsServer.createContext("/", http -> {
 			try {
-				URI uri = e.getRequestURI();
-				Map<String, String> query = query(uri.getQuery());
-//				System.out.println(uri);
+				var https = (HttpsExchange) http;
 
-				if (query.containsKey("auth")) {
-					user = auth(query.get("user"), query.get("password"));
+				// get what is received by POST (encrypted if HTTPS is used)
+				ObjectNode inputJson = inputJSON(http);
+				User user = getUser(inputJson, https);
 
-					if (user != null) {
-						new Response(200, "text/html",
-								"Welcome " + user.name + "! Start <a href='http://localhost:8080/?node'>navigating</a>")
-								.send(e);
-					} else {
-						new Response(403, "text/plain", "Access denied").send(e);
-					}
-				} else if (user == null) {
-					new Response(403, "text/html",
-							"<html>use the following URL to authenticate: <a href='?auth&user=user&password=test'>here</a>")
-							.send(e);
-				} else if (query.containsKey("node")) {
-					var id = query.get("node");
-					currentNode = id == null ? DB.defaultDB.root : DB.defaultDB.findByID(id);
-
-					if (currentNode == null) {
-						new Response(404, "text/plain", "no such node: " + id).send(e);
-					} else {
-						var viewName = query.get("view");
-
-						if (viewName == null) {
-							ObjectNode root = new ObjectNode(null);
-							root.set("id", new TextNode(currentNode.id()));
-							ArrayNode viewsNode = new ArrayNode(null);
-							root.set("views", viewsNode);
-
-							for (var v : currentNode.compliantViews()) {
-								viewsNode.add(v.toJSONNode(currentNode, user));
-							}
-
-							new Response(200, "text/json", root.toString()).send(e);
-						} else {
-							var v = currentNode.compliantViews().get(Integer.valueOf(viewName));
-							new Response(200, v.contentType(), v.content(currentNode, user)).send(e);
-						}
-					}
+				if (user == null) {
+					new Response(403, "text/plain", "No user authentified. Access denied").send(http);
 				} else {
-					var resource = WebServer.class.getResource("app.html");
+					user.session = https.getSSLSession();
+					var idNode = inputJson.get("node");
+					var currentNode = node(idNode, user);
+					user.stack.push(currentNode);
 
-					if (resource != null) {
-						new Response(200, "text/html", new String(resource.openStream().readAllBytes())).send(e);
+					var viewNameNode = inputJson.get("view");
+					final User u = user;
+					if (viewNameNode == null) {
+						ObjectNode root = new ObjectNode(null);
+						root.set("id", new TextNode("" + currentNode.id()));
+						root.set("username", new TextNode(user.name.get()));
+						root.set("can read", new TextNode("" + currentNode.canSee(user)));
+						root.set("can write", new TextNode("" + currentNode.canSee(user)));
+						ArrayNode viewsNode = new ArrayNode(null);
+						root.set("views", viewsNode);
+						var views = currentNode.compliantViews();
+						views.forEach(v -> viewsNode.add(v.toJSONNode(currentNode, u, v.sendContentByDefault)));
+						new Response(200, "text/json", root.toString()).send(http);
 					} else {
-						new Response(404, "text/plain", "Resource not found: app.html").send(e);
+						var v = currentNode.compliantViews().get(Integer.valueOf(viewNameNode.asText()));
+						new Response(200, v.contentType(), v.content(currentNode, user)).send(http);
 					}
 				}
 			} catch (Throwable err) {
 				err.printStackTrace();
-				new Response(500, "text/plain", "" + err).send(e);
+				new Response(500, "text/plain", "" + err).send(http);
 			}
 		});
 
-		httpServer.setExecutor(Executors.newSingleThreadExecutor());
-		httpServer.start();
+		httpsServer.setExecutor(Executors.newSingleThreadExecutor());
+		httpsServer.start();
 	}
 
-	private static void initDB(String[] args) {
-		DB.defaultDB.accept(new I3S());
-		DB.defaultDB.accept(new Contract());
-		DB.defaultDB.accept(new Person());
-		DB.defaultDB.accept(new Nationality("fr"));
-		DB.defaultDB.accept(new I3S());
-		DB.defaultDB.accept(new Building());
-		DB.defaultDB.accept(new Campus());
-		DB.defaultDB.accept(new Office());
-		DB.defaultDB.accept(new Position());
-		DB.defaultDB.accept(new Structure());
-	}
+	private static User getUser(ObjectNode inputJson, HttpsExchange https) {
+		var userNameNode = inputJson.get("username");
 
-	private static User auth(String u, String p) {
-		var m = new HashMap<String, String>();
-		m.put("user", "test");
-		m.put("admin", "test");
-
-		if (m.containsKey(u)) {
-			if (m.get(u).equals(p)) {
-				return new User(u, u.equals("admin"));
-			} else {
-				return null;
-			}
+		if (userNameNode == null) {
+			return DB.defaultDB.findUser(https.getSSLSession());
 		} else {
-			return null;
+			var passwordNode = inputJson.get("password");
+			return passwordNode == null ? null : auth(userNameNode.asText(), passwordNode.asText());
 		}
+	}
+
+	private static BNode node(JsonNode idNode, User u) {
+		if (idNode == null) {
+			return u.currentNode() != null ? u.currentNode() : AcademiaDB.defaultDB.root;
+		} else {
+			var nodeID = idNode.asText();
+
+			if (nodeID.equals("random")) {
+				return AcademiaDB.defaultDB.nodes.random();
+			} else if (nodeID.equals("previous")) {
+				return u.stack.isEmpty() ? null : u.stack.pop();
+			} else {
+				return AcademiaDB.defaultDB.findByID(Integer.valueOf(nodeID));
+			}
+		}
+	}
+
+	private static void rsyncBinaries() throws IOException {
+		var ssh = new SSHParms();
+		ssh.host = "dronic.i3s.unice.fr";
+		ssh.username = "hogie";
+		Cout.debugSuperVisible("Syncing to " + ssh.host);
+		ClassPath.retrieveSystemClassPath().rsyncTo(ssh, "byransha", out -> System.out.println(out),
+				err -> System.err.println(err));
+
+		ssh.host = "bastion.i3s.unice.fr";
+		ssh.username = "hogie";
+		Cout.debugSuperVisible("Syncing to " + ssh.host);
+		ClassPath.retrieveSystemClassPath().rsyncTo(ssh, "public_html/software/byransha",
+				out -> System.out.println(out), err -> System.err.println(err));
+	}
+
+	private static ObjectNode inputJSON(HttpExchange http) throws IOException {
+		var postData = http.getRequestBody().readAllBytes();
+		ObjectNode inputJson = postData.length > 0 ? (ObjectNode) mapper.readTree(postData) : new ObjectNode(null);
+
+		// adds the URL parameters from the query string to the JSON
+		var query = query(http.getRequestURI().getQuery());
+		query.entrySet().forEach(e -> inputJson.set(e.getKey(), new TextNode(e.getValue())));
+
+		return inputJson;
+	}
+
+	private static User auth(String username, String p) {
+		for (var n : DB.defaultDB.nodes.l) {
+			if (n instanceof User u && u.accept(username, p)) {
+				return u;
+			}
+		}
+
+		return null;
 	}
 
 	static Map<String, String> query(String s) {
@@ -168,19 +228,19 @@ public class WebServer {
 		return query;
 	}
 
-	private static String getContentType(String filename) {
-		if (filename.endsWith(".html")) {
-			return "text/html";
-		} else if (filename.endsWith(".css")) {
-			return "text/css";
-		} else if (filename.endsWith(".js")) {
-			return "text/javascript";
-		} else if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) {
-			return "image/jpeg";
-		} else if (filename.endsWith(".gif")) {
-			return "image/gif";
-		} else {
-			return "text/plain";
-		}
+//	static String filename = "/Users/lhogie/a/job/i3s/tableau_de_bord/self-signed-certificate/keystore.jks";
+
+	private static SSLContext getSslContext() throws Exception {
+		var keyStore = KeyStore.getInstance("JKS");
+//			InputStream fis = new FileInputStream(filename);
+		var fis = WebServer.class.getResourceAsStream("keystore.jks");
+		var password = "password".toCharArray();
+		keyStore.load(fis, password);
+
+		var keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+		keyManagerFactory.init(keyStore, password);
+		var sslContext = SSLContext.getInstance("TLS");
+		sslContext.init(keyManagerFactory.getKeyManagers(), null, new SecureRandom());
+		return sslContext;
 	}
 }

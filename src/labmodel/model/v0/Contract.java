@@ -3,11 +3,11 @@ package labmodel.model.v0;
 import java.util.List;
 import java.util.function.Consumer;
 
-import byransha.GOBMNode;
+import byransha.BNode;
 import byransha.ListNode;
 import byransha.StringNode;
 
-public class Contract  extends GOBMNode{
+public class Contract  extends BNode{
 	StringNode name;
 	Person holder;
 	List<Person> subHolders;

@@ -3,11 +3,10 @@ package byransha;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-public abstract class TextView<N extends GOBMNode> extends View<N> {
+public abstract class TextView<N extends BNode> extends View64<N> {
 
 	@Override
-	public
-	final byte[] content(N node, User u) {
+	public byte[] content(N node, User u) {
 		var sw = new StringWriter();
 		var pw = new PrintWriter(sw);
 		content(node, u, pw);

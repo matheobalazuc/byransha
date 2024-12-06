@@ -4,11 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-public class MapNode<N extends GOBMNode> extends GOBMNode {
+public class MapNode<N extends BNode> extends BNode {
 	private final Map<String, N> l = new HashMap<>();
 
 	@Override
-	public void forEachOut(BiConsumer<String, GOBMNode> consumer) {
+	public void forEachOut(BiConsumer<String, BNode> consumer) {
 		for (var e : l.entrySet()) {
 			consumer.accept(e.getKey(), e.getValue());
 		}

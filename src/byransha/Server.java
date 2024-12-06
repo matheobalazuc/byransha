@@ -19,7 +19,7 @@ public class Server {
 
 		String nodeClass = args[0];
 		System.out.println("initialising " + nodeClass);
-		GOBMNode node = (GOBMNode) Class.forName(nodeClass).getConstructor().newInstance();
+		BNode node = (BNode) Class.forName(nodeClass).getConstructor().newInstance();
 
 		int port = 5567;
 		var ss = new ServerSocket(port);
@@ -42,10 +42,10 @@ public class Server {
 					out.println(node.compliantViews().stream().map(v -> v.name()).toList());
 				} else if (parms.size() == 1 && parms.get(0).equals("*")) {
 					node.compliantViews()
-							.forEach(v -> out.println(v.name() + "\n" + v.toJSONNode(node, null).toPrettyString()));
+							.forEach(v -> out.println(v.name() + "\n" + v.toJSONNode(node, null, true).toPrettyString()));
 				} else {
 					node.compliantViews().stream().filter(v -> parms.contains(v.name()))
-							.forEach(v -> out.println(v.toJSONNode(node, null).toPrettyString()));
+							.forEach(v -> out.println(v.toJSONNode(node, null, true).toPrettyString()));
 				}
 			}
 		});

@@ -2,14 +2,17 @@ package byransha.view;
 
 import java.io.PrintWriter;
 
-import byransha.GOBMNode;
+import byransha.BNode;
 import byransha.TextView;
 import byransha.User;
 
-public class OutsInsView extends TextView<GOBMNode> {
+public class OutsInsView extends TextView<BNode> {
+	public OutsInsView() {
+		sendContentByDefault = true;
+	}
 
 	@Override
-	protected String contentType() {
+	public String contentType() {
 		return "text/html";
 	}
 
@@ -19,14 +22,15 @@ public class OutsInsView extends TextView<GOBMNode> {
 	}
 
 	@Override
-	protected void content(GOBMNode n, User u, PrintWriter pw) {
+	protected void content(BNode n, User u, PrintWriter pw) {
 		pw.println("Outs:<ul>");
-		n.forEachOut((name, o) -> pw.println("<li><a href='?node=" + name + "'>next</a>"));
+		n.forEachOut((name, o) -> pw.println("<li><a href='?node=" + o.id() + "'>" + name + "</a>"));
 		pw.println("</ul>");
 
 		pw.println("Ins:<ul>");
-		n.forEachIn((name, o) -> pw.println("<li><a href='?node=" + name + "'>next</a>"));
+		n.forEachIn((name, o) -> pw.println("<li><a href='?node=" + o.id() + "'>" + name + "</a>"));
 		pw.println("</ul>");
 
 	}
+
 }

@@ -6,19 +6,18 @@ import java.nio.file.Files;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-import toools.SizeOf;
 import toools.text.TextUtilities;
 
-public abstract class ValuedNode<V> extends GOBMNode {
+public abstract class ValuedNode<V> extends BNode {
 	V value;
 
 	@Override
 	public String toString() {
-		return value.toString();
+		return get().toString();
 	}
 
 	@Override
-	public void forEachOut(BiConsumer<String, GOBMNode> consumer) {
+	public void forEachOut(BiConsumer<String, BNode> consumer) {
 	}
 
 	public abstract void fromString(String s);
@@ -29,12 +28,23 @@ public abstract class ValuedNode<V> extends GOBMNode {
 	}
 
 	public V get() {
+		if (value == null) {
+			try {
+				loadValue(f -> System.out.println("loading value for " + this));
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+
 		return value;
 	}
 
 	public void set(V newValue) {
 		this.value = newValue;
-		saveValue(DB.sysoutPrinter);
+		
+		if (directory() != null) {
+			saveValue(DB.sysoutPrinter);
+		}
 	}
 
 	public void saveValue(Consumer<File> writingFiles) {
@@ -56,9 +66,11 @@ public abstract class ValuedNode<V> extends GOBMNode {
 
 	public void loadValue(Consumer<File> readingFiles) throws IOException {
 		var valueFile = new File(directory(), "value.txt");
-		readingFiles.accept(valueFile);
-		byte[] bytes = Files.readAllBytes(valueFile.toPath());
-		fromString(new String(bytes));
+		
+		if( valueFile.exists()) {
+			readingFiles.accept(valueFile);
+			byte[] bytes = Files.readAllBytes(valueFile.toPath());
+			fromString(new String(bytes));
+		}
 	}
-
 }

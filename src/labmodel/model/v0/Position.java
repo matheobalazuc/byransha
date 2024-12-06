@@ -1,10 +1,11 @@
 package labmodel.model.v0;
 
 import byransha.DateNote;
-import byransha.GOBMNode;
+import byransha.BNode;
 
-public class Position extends GOBMNode {
+public class Position extends BNode {
 	Structure employer;
 	DateNote from;
 	DateNote to;
+	Status status;
 }

@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 
-public abstract class Event<N extends GOBMNode> implements Serializable, Comparable<Event<N>> {
+public abstract class Event<N extends BNode> implements Serializable, Comparable<Event<N>> {
 	Instant date;
 	final N target;
 

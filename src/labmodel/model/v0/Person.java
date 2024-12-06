@@ -1,14 +1,16 @@
 package labmodel.model.v0;
 
+import byransha.BNode;
 import byransha.BooleanNode;
 import byransha.EmailNode;
-import byransha.GOBMNode;
+import byransha.ImageNode;
 import byransha.ListNode;
 import byransha.StringNode;
 
-public class Person extends GOBMNode {
+public class Person extends BNode {
 	public StringNode name = new StringNode();
 	private ListNode<Position> positions = new ListNode<>();
+	private ListNode<ImageNode> pics = new ListNode<>();
 	private BooleanNode hdr = new BooleanNode();
 	private Nationality nationality;
 

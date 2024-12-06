@@ -1,9 +1,7 @@
 package labmodel.model.v0;
 
-import java.util.HashSet;
-import java.util.Set;
-
+import byransha.ListNode;
 
 public class ResearchGroup extends Structure {
-	Set<ACMClassifier> keywords = new HashSet<>();
+	ListNode<ACMClassifier> keywords = new ListNode<>();
 }

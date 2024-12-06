@@ -11,33 +11,42 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import javax.net.ssl.SSLSession;
+
 import toools.reflect.Clazz;
 
-public class DB extends GOBMNode {
+public class DB extends BNode {
 	public static DB defaultDB = new DB(new File(System.getProperty("user.home") + "/." + DB.class.getPackageName()));
 
 	public static Consumer<File> sysoutPrinter = f -> System.out.println("writing " + f.getAbsolutePath());
 
 	public final File directory;
-	public ListNode<GOBMNode> nodes = new ListNode<>();
-	public GOBMNode root;
+	public ListNode<BNode> nodes = new ListNode<>();
+	public BNode root;
 
 	public DB(File directory) {
 		this.directory = directory;
 		accept(root = this);
+		accept(new User("user", "test", false));
+		accept(new User("admin", "test", true));
 	}
 
 	public static class Ref {
 		String role;
-		GOBMNode c;
+		BNode c;
 
-		public Ref(String role, GOBMNode c) {
+		public Ref(String role, BNode c) {
 			this.role = role;
 			this.c = c;
 		}
+		
+		@Override
+		public String toString() {
+			return c + "." + role;
+		}
 	}
 
-	public List<Ref> findRefsTO(GOBMNode searchedNode) {
+	public List<Ref> findRefsTO(BNode searchedNode) {
 		var r = new ArrayList<Ref>();
 
 		forEachNode(n -> {
@@ -51,20 +60,20 @@ public class DB extends GOBMNode {
 		return r;
 	}
 
-	public void load(Consumer<GOBMNode> newNodeInstantiated, BiConsumer<GOBMNode, String> setRelation) {
+	public void load(Consumer<BNode> newNodeInstantiated, BiConsumer<BNode, String> setRelation) {
 		intantiateNodes(newNodeInstantiated);
 		forEachNode(n -> loadOuts(n, setRelation));
 	}
 
-	private void intantiateNodes(Consumer<GOBMNode> newNodeInstantiated) {
+	private void intantiateNodes(Consumer<BNode> newNodeInstantiated) {
 		for (File classDir : directory.listFiles()) {
 			String className = classDir.getName();
-			var nodeClass = (Class<? extends GOBMNode>) Clazz.findClassOrFail(className);
+			var nodeClass = (Class<? extends BNode>) Clazz.findClassOrFail(className);
 
 			for (File nodeDir : classDir.listFiles()) {
 				try {
-					GOBMNode node = nodeClass.getConstructor().newInstance();
-					node.setID(nodeDir.getName());
+					BNode node = nodeClass.getConstructor().newInstance();
+					node.setID(Integer.valueOf(nodeDir.getName()));
 					nodes.add(node);
 					newNodeInstantiated.accept(node);
 				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
@@ -75,7 +84,7 @@ public class DB extends GOBMNode {
 		}
 	}
 
-	private void loadOuts(GOBMNode node, BiConsumer<GOBMNode, String> setRelation) {
+	private void loadOuts(BNode node, BiConsumer<BNode, String> setRelation) {
 		var d = node.outsDirectory();
 
 		if (!d.exists())
@@ -86,9 +95,10 @@ public class DB extends GOBMNode {
 				Path targetFile = Files.readSymbolicLink(symlink.toPath());
 				String relationName = targetFile.getFileName().toString();
 				String targetClassName = targetFile.getName(targetFile.getNameCount() - 2).toString();
-				var targetNodeClass = (Class<? extends GOBMNode>) Class.forName(targetClassName);
-				String id = targetFile.getFileName().toString();
-				GOBMNode targetNode = findByID(id);
+				var targetNodeClass = (Class<? extends BNode>) Class.forName(targetClassName);
+				var fn = targetFile.getFileName().toString();
+				int id = Integer.valueOf(fn.substring(fn.indexOf("@") + 1));
+				BNode targetNode = findByID(id);
 				node.getClass().getField(relationName).set(node, targetNode);
 				setRelation.accept(node, relationName);
 			}
@@ -97,7 +107,7 @@ public class DB extends GOBMNode {
 		}
 	}
 
-	public void forEachNode(Consumer<GOBMNode> h) {
+	public void forEachNode(Consumer<BNode> h) {
 		nodes.forEachOut((name, node) -> h.accept(node));
 	}
 
@@ -120,9 +130,9 @@ public class DB extends GOBMNode {
 		return r.get();
 	}
 
-	public void accept(GOBMNode n) {
+	public void accept(BNode n) {
 		nodes.add(n);
-		
+
 		if (root == null) {
 			root = n;
 		}
@@ -143,20 +153,28 @@ public class DB extends GOBMNode {
 		d.delete();
 	}
 
-	public GOBMNode findByID(String id) {
-		class R {
-			GOBMNode r;
+	public BNode findByID(int id) {
+		for (var n : nodes.l) {
+			if (n.id() == id) {
+				return n;
+			}
 		}
 
-		R r = new R();
+		return null;
+	}
 
-		forEachNode(n -> {
-			if (n.id().equals(id)) {
-				r.r = n;
+	public List<User> users() {
+		return (List<User>) (List) nodes.l.stream().filter(n -> n instanceof User).toList();
+	}
+
+	public User findUser(SSLSession sslSession) {
+		for (var n : nodes.l) {
+			if (n instanceof User u && u.session == sslSession) {
+				return u;
 			}
-		});
+		}
 
-		return r.r;
+		return null;
 	}
 
 }

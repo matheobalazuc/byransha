@@ -14,7 +14,7 @@ public class HJKReader {
 	public static final SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.US);
 	public static final SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm", Locale.US);
 
-	public ArrayList<Event<?>> read(String s, Map<String, GOBMNode> nme_node)
+	public ArrayList<Event<?>> read(String s, Map<String, BNode> nme_node)
 			throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
 			NoSuchMethodException, SecurityException, ParseException {
 
@@ -31,7 +31,7 @@ public class HJKReader {
 				throw new IllegalStateException("dunno event type: " + className);
 
 			var node = nme_node.get(1);
-			var event = (Event) eventClass.getConstructor(GOBMNode.class).newInstance(node);
+			var event = (Event) eventClass.getConstructor(BNode.class).newInstance(node);
 			event.date = dateFormat.parse(line.remove(0)).toInstant();
 			event.initFromCSV(line.stream().map(e -> e.trim()).toList(), node);
 			events.add(event);

@@ -1,24 +1,25 @@
 package byransha.view;
 
-import byransha.GOBMNode;
+import java.io.PrintWriter;
+
+import byransha.BNode;
+import byransha.TextView;
 import byransha.User;
-import byransha.View;
 
-public class ToStringView extends View<GOBMNode> {
-
-	@Override
-	public byte[] content(GOBMNode nn, User u) {
-		return nn.toString().getBytes();
-	}
+public class ToStringView extends TextView<BNode> {
 
 	@Override
-	protected String contentType() {
+	public String contentType() {
 		return "text/plain";
 	}
-	
 
 	@Override
 	public String name() {
 		return "toString()";
+	}
+
+	@Override
+	protected void content(BNode node, User u, PrintWriter pw) {
+		pw.print(node.toString());
 	}
 }

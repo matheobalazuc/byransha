@@ -9,18 +9,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import byransha.BNode;
 import byransha.DB;
-import byransha.GOBMNode;
 import byransha.ListNode;
 import byransha.TextView;
 import byransha.User;
 import byransha.ValuedNode;
+import toools.io.Cout;
 
 public class ModelDOTView extends TextView<DB> {
 
 	@Override
-	protected String contentType() {
-		return "text/plain";
+	public String contentType() {
+		return "text/dot";
 	}
 
 	@Override
@@ -28,31 +29,33 @@ public class ModelDOTView extends TextView<DB> {
 		return "Model (DOT)";
 	}
 
-	HashSet<String> rels = new HashSet<>();
-
 	@Override
 	protected void content(DB db, User u, PrintWriter pw) {
-		pw.println("digraph G {");
-
+		System.out.println(DB.defaultDB.nodes.size());
+		var relations = new ArrayList<ModelDOTView.Relation>();
 		var class_attrs = new HashMap<Class<?>, Set<String>>();
-
 		DB.defaultDB.forEachNode(n -> {
-			List<Class<GOBMNode>> stack = new ArrayList<>();
+			List<Class<BNode>> stack = new ArrayList<>();
 
-			for (Class c = n.getClass(); c != null && c != GOBMNode.class
+			for (Class c = n.getClass(); c != null && c.getPackage() != BNode.class.getPackage()
 					&& !ValuedNode.class.isAssignableFrom(c); c = c.getSuperclass()) {
+
+				if (class_attrs.containsKey(c)) // already visited
+					continue;
+
+				class_attrs.put(c, new HashSet<>());
+
 				if (!stack.isEmpty()) {
-					newRel(pw, stack.getLast(), c, Map.of("arrowhead", "empty"), true);
+					relations.add(new Relation(stack.getLast(), c, Map.of("arrowhead", "empty"), true));
 				}
 
 				stack.add(c);
 
-				if (!class_attrs.containsKey(c)) {
-					class_attrs.put(c, new HashSet<>());
-				}
-
 				for (var f : c.getDeclaredFields()) {
-					if (!GOBMNode.class.isAssignableFrom(f.getType()))
+					if ((f.getModifiers() & java.lang.reflect.Modifier.STATIC) != 0)
+						continue;
+
+					if (!BNode.class.isAssignableFrom(f.getType()))
 						continue;
 
 					boolean list = ListNode.class.isAssignableFrom(f.getType());
@@ -62,42 +65,56 @@ public class ModelDOTView extends TextView<DB> {
 					if (ValuedNode.class.isAssignableFrom(target)) {
 						class_attrs.get(c).add((list ? "*" : "") + f.getName());
 					} else {
-						var label = f.getName().equalsIgnoreCase(target.getSimpleName()) ? "" : f.getName();
+						var label = f.getName();
+
+//						var label = f.getName().equalsIgnoreCase(target.getSimpleName()) ? "" : f.getName();
 						var m = new HashMap<>(Map.of("label", label));
 
 						if (list) {
 							m.put("taillabel", "0..*");
 						}
 
-						newRel(pw, c, target, m, false);
+						relations.add(new Relation(c, target, m, false));
 					}
 				}
 			}
 		});
 
+		pw.println("digraph G {");
+
 		class_attrs.entrySet().forEach(n -> {
 			var clazz = n.getKey();
 			var attrs = n.getValue();
+
 			pw.print("\t " + id(clazz) + " [shape=record, label=\"{" + clazz.getSimpleName());
 
 			if (!attrs.isEmpty()) {
 				pw.print("|");
 				attrs.forEach(a -> pw.print(a + "\\l"));
 			}
-			pw.print("}\"];");
+
+			pw.println("}\"];");
 		});
+
+		for (var r : relations) {
+			pw.print("\t " + id(r.a) + " -> " + id(r.b) + "[");
+			r.attrs.entrySet().forEach(e -> pw.print(e.getKey() + "=" + '"' + e.getValue() + '"' + ','));
+			pw.println("arrowhead=" + (r.inheritance ? "empty" : "vee") + "];");
+		}
+
 		pw.println("}");
 	}
 
-	private void newRel(PrintWriter pw, Class<GOBMNode> a, Class b, Map<String, String> attrs, boolean inheritance) {
-		String relID = id(a) + " -> " + id(b);
+	static class Relation {
+		Class a, b;
+		Map<String, String> attrs;
+		boolean inheritance;
 
-		if (!rels.contains(relID)) {
-			pw.print("\t " + id(a) + " -> " + id(b) + "[");
-			attrs.entrySet().forEach(e -> pw.print(e.getKey() + "=" + '"' + e.getValue() + '"' + ','));
-			pw.print("arrowhead=" + (inheritance ? "empty" : "none") + "];");
-
-			rels.add(relID);
+		Relation(Class<BNode> a, Class b, Map<String, String> attrs, boolean inheritance) {
+			this.a = a;
+			this.b = b;
+			this.attrs = attrs;
+			this.inheritance = inheritance;
 		}
 	}
 
@@ -105,5 +122,4 @@ public class ModelDOTView extends TextView<DB> {
 //		System.err.println(n);
 		return Math.abs(n.hashCode());
 	}
-
 }

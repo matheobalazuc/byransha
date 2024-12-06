@@ -4,13 +4,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-public class SetNode<N extends GOBMNode> extends GOBMNode {
+public class SetNode<N extends BNode> extends BNode {
 	private final Set<N> l = new HashSet<>();
 
 	@Override
-	public void forEachOut(BiConsumer<String, GOBMNode> consumer) {
+	public void forEachOut(BiConsumer<String, BNode> consumer) {
 		for (var e : l) {
-			consumer.accept(e.id(), e);
+			consumer.accept(""+e.id(), e);
 		}
 	}
 

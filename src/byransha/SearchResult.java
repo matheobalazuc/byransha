@@ -3,9 +3,9 @@ package byransha;
 public class SearchResult implements Comparable<SearchResult> {
 	final public String query;
 	final public int distance;
-	final public GOBMNode rootNode;
+	final public BNode rootNode;
 
-	public SearchResult(String q, GOBMNode n, int distance) {
+	public SearchResult(String q, BNode n, int distance) {
 		this.query = q;
 		this.distance = distance;
 		this.rootNode = n;

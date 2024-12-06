@@ -1,5 +1,8 @@
 package labmodel.model.v0;
 
-public class Picture {
-	public String url;
+import byransha.BNode;
+import byransha.ValuedNode;
+
+public class Picture extends BNode {
+	public ValuedNode<byte[]> data;
 }

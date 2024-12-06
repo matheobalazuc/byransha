@@ -26,7 +26,7 @@ public class I3S extends Lab {
 
 	public static List<Nationality> importNationalities() throws IOException {
 		return Files.readAllLines(new File(inputDir, "CH_Nationality_List_20171130_v1.csv").toPath()).stream()
-				.map(l -> new Nationality(l.trim())).toList();
+				.map(l -> new Nationality()).toList();
 	}
 
 	public static void main(String[] args) throws IOException {
