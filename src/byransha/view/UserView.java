@@ -1,14 +1,12 @@
 package byransha.view;
 
 import java.io.PrintWriter;
-import java.util.List;
 
 import byransha.HTMLView;
 import byransha.User;
-import byransha.View;
 import toools.text.TextUtilities;
 
-final public class UserView extends HTMLView<User> {
+final public class UserView extends HTMLView<User> implements TechnicalView {
 
 	@Override
 	protected void content(User u, User user, PrintWriter pw) {

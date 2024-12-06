@@ -8,7 +8,7 @@ import byransha.BNode;
 import byransha.TextView;
 import byransha.User;
 
-final public class AllViews extends TextView<BNode> {
+final public class AllViews extends TextView<BNode> implements DevelopmentView {
 
 	@Override
 	public String name() {
@@ -50,5 +50,6 @@ final public class AllViews extends TextView<BNode> {
 
 		pw.println("</ul>");
 	}
+
 
 }

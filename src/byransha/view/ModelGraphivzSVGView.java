@@ -5,7 +5,7 @@ import byransha.User;
 import byransha.View64;
 import toools.extern.Proces;
 
-public class ModelGraphivzSVGView extends View64<DB> {
+public class ModelGraphivzSVGView extends View64<DB> implements TechnicalView {
 
 	@Override
 	public String contentType() {
@@ -24,4 +24,5 @@ public class ModelGraphivzSVGView extends View64<DB> {
 //		return Proces.exec("fdp", dot, "-Tsvg", "-Gmaxiter=10000", "-GK=1");
 
 	}
+
 }

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import byransha.View;
-import byransha.view.LabView;
+import labmodel.model.v0.view.LabView;
 
 public class Lab extends Structure {
 	public Person HFDS;

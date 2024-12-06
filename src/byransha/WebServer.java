@@ -132,7 +132,7 @@ public class WebServer {
 				var path = https.getRequestURI().getPath();
 
 				if (!path.isEmpty()) {
-					return nour(path);
+					return serveFile(inputJson, path);
 				}
 
 				var node = node(inputJson.get("node"), user);
@@ -166,11 +166,31 @@ public class WebServer {
 		}
 	}
 
+	private static Response serveFile(ObjectNode inputJson, String path) throws MalformedURLException, IOException {
+		var fromNode = inputJson.get("from");
+
+		if (fromNode == null)
+			return nour(path);
+
+		var from = fromNode.asText();
+
+		if (from.equals("nour")) {
+			return nour(path);
+		} else if (from.equals("resource")) {
+			return res(path);
+		} else
+			throw new IllegalStateException();
+	}
+
 	private static Response nour(String path) throws MalformedURLException, IOException {
 		var url = "https://raw.githubusercontent.com/NourElBazzal/Project_DS4H/refs/heads/gh-pages/" + path;
 		System.out.println("downloading " + url);
 		var data = new URL(url).openStream().readAllBytes();
 		return new Response(200, "text/html", data);
+	}
+
+	private static Response res(String path) throws MalformedURLException, IOException {
+		return new Response(200, "text/html", WebServer.class.getResourceAsStream(path).readAllBytes());
 	}
 
 	private static User getUser(ObjectNode inputJson, HttpsExchange https) {

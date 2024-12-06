@@ -6,6 +6,8 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
+import byransha.view.DevelopmentView;
+import byransha.view.TechnicalView;
 import toools.io.JavaResource;
 import toools.reflect.Clazz;
 
@@ -23,6 +25,8 @@ public abstract class View<N extends BNode> {
 	public ObjectNode toJSONNode(N node, User u, boolean includeContent) {
 		var n = new ObjectNode(null);
 		n.set("name", new TextNode(name()));
+		n.set("development", new TextNode("" + DevelopmentView.class.isAssignableFrom(getClass())));
+		n.set("technical", new TextNode("" + TechnicalView.class.isAssignableFrom(getClass())));
 		n.set("contentType", new TextNode(contentType()));
 		return n;
 	}

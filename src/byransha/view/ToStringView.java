@@ -6,7 +6,7 @@ import byransha.BNode;
 import byransha.TextView;
 import byransha.User;
 
-public class ToStringView extends TextView<BNode> {
+public class ToStringView extends TextView<BNode> implements DevelopmentView {
 
 	@Override
 	public String contentType() {
@@ -22,4 +22,5 @@ public class ToStringView extends TextView<BNode> {
 	protected void content(BNode node, User u, PrintWriter pw) {
 		pw.print(node.toString());
 	}
+	
 }

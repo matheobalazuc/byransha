@@ -7,7 +7,7 @@ import byransha.ListNode;
 import byransha.SetNode;
 import byransha.StringNode;
 import byransha.View;
-import byransha.view.StructureView;
+import labmodel.model.v0.view.StructureView;
 
 public class Structure extends BNode {
 	public StringNode name = new StringNode();

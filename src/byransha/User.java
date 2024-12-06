@@ -11,6 +11,7 @@ public class User extends BNode {
 	public StringNode name = new StringNode();
 	public StringNode passwordNode = new StringNode();
 	public BooleanNode adminNode = new BooleanNode();
+	public BooleanNode isTechnicianNode = new BooleanNode();
 	public Stack<BNode> stack = new Stack<BNode>();
 	public SSLSession session;
 

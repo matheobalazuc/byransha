@@ -10,7 +10,7 @@ import byransha.HTMLView;
 import byransha.User;
 import toools.text.TextUtilities;
 
-final public class DBView extends HTMLView<DB> {
+final public class DBView extends HTMLView<DB>  implements TechnicalView{
 
 	@Override
 	protected void content(DB node, User user, PrintWriter pw) {
@@ -42,5 +42,5 @@ final public class DBView extends HTMLView<DB> {
 		}
 		pw.println("</ul>");
 	}
-
+	 
 }

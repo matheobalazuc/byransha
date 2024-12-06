@@ -7,7 +7,7 @@ import byransha.TextView;
 import byransha.User;
 import toools.src.Source;
 
-public class SourceView extends TextView<BNode> {
+public class SourceView extends TextView<BNode> implements DevelopmentView {
 
 	@Override
 	public String contentType() {
@@ -18,4 +18,5 @@ public class SourceView extends TextView<BNode> {
 	protected void content(BNode node, User u, PrintWriter pw) {
 		pw.print(Source.getClassSourceCode(node.getClass()));
 	}
+
 }

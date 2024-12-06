@@ -39,5 +39,6 @@ final public class BasicView extends JSONView<BNode> {
 		n.set("canEdit", new TextNode("" + node.canEdit(u)));
 		return n;
 	}
+	
 
 }

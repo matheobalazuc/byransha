@@ -1,4 +1,4 @@
-package byransha.view;
+package labmodel.model.v0.view;
 
 import java.io.PrintWriter;
 
@@ -18,6 +18,10 @@ final public class StructureView extends HTMLView<Structure> {
 		pw.println("<li>avg surface/user: " + s.occupationRatio());
 		pw.println("<li>occupationRatio: " + s.occupationRatio());
 		pw.println("</ul>");
+	}
+	@Override
+	public boolean isTechnical() {
+		return false;
 	}
 
 }

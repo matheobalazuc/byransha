@@ -27,5 +27,5 @@ public class OutsInsView extends HTMLView<BNode> {
 		pw.println("</ul>");
 
 	}
-
+	
 }

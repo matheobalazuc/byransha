@@ -15,9 +15,8 @@ import byransha.ListNode;
 import byransha.TextView;
 import byransha.User;
 import byransha.ValuedNode;
-import toools.io.Cout;
 
-public class ModelDOTView extends TextView<DB> {
+public class ModelDOTView extends TextView<DB>  implements DevelopmentView{
 
 	@Override
 	public String contentType() {
@@ -121,5 +120,7 @@ public class ModelDOTView extends TextView<DB> {
 	public static int id(Class n) {
 //		System.err.println(n);
 		return Math.abs(n.hashCode());
-	}
+	}	
+
+
 }

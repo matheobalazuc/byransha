@@ -1,4 +1,4 @@
-package byransha.view;
+package labmodel.model.v0.view;
 
 import java.io.PrintWriter;
 
@@ -19,6 +19,10 @@ final public class LabView extends TextView<Lab> {
 		pw.println("<ul>");
 		pw.println("<li>HFDS: " + lab.HFDS.name.get());
 		pw.println("</ul>");
+	}
+	@Override
+	public boolean isTechnical() {
+		return false;
 	}
 
 }

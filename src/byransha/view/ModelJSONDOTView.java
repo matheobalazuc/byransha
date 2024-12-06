@@ -9,7 +9,7 @@ import byransha.JSONView;
 import byransha.User;
 import toools.extern.Proces;
 
-public class ModelJSONDOTView extends JSONView<DB> {
+public class ModelJSONDOTView extends JSONView<DB>  implements DevelopmentView{
 
 	@Override
 	public String contentType() {
@@ -29,7 +29,7 @@ public class ModelJSONDOTView extends JSONView<DB> {
 	@Override
 	protected JsonNode jsonData(DB db, User u) {
 		var dot = new ModelDOTView().content(db, u);
-		var s = new String(Proces.exec("dot", dot, "-Tjson"));//json0 dot_json xdot_json
+		var s = new String(Proces.exec("dot", dot, "-Tjson"));// json0 dot_json xdot_json
 		// Jackson main object
 		ObjectMapper mapper = new ObjectMapper();
 
@@ -40,4 +40,7 @@ public class ModelJSONDOTView extends JSONView<DB> {
 			throw new RuntimeException(e);
 		}
 	}
+
+	
+
 }
