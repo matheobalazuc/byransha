@@ -3,6 +3,8 @@ package byransha;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.security.KeyStore;
 import java.security.SecureRandom;
@@ -28,6 +30,7 @@ import com.sun.net.httpserver.HttpsParameters;
 import com.sun.net.httpserver.HttpsServer;
 
 import labmodel.model.v0.AcademiaDB;
+import toools.exceptions.ExceptionUtilities;
 import toools.io.Cout;
 import toools.net.SSHParms;
 import toools.reflect.ClassPath;
@@ -69,7 +72,6 @@ public class WebServer {
 	static ObjectMapper mapper = new ObjectMapper();
 
 	public static void main(String[] args) throws Exception {
-
 		if (false && System.getProperty("user.name").equals("lhogie")) {
 			rsyncBinaries();
 		}
@@ -88,12 +90,11 @@ public class WebServer {
 		}
 
 		int port = Integer.valueOf(argMap.getOrDefault("-port", "8080"));
-
 		System.out.println("starting HTTP server on port " + port);
 
 		var httpsServer = HttpsServer.create(new InetSocketAddress(port), 0);
-		SSLContext sslContext = getSslContext();
-		httpsServer.setHttpsConfigurator(new HttpsConfigurator(sslContext) {
+		httpsServer.setHttpsConfigurator(new HttpsConfigurator(getSslContext()) {
+			@Override
 			public void configure(HttpsParameters params) {
 				try {
 					SSLContext context = getSSLContext();
@@ -108,48 +109,68 @@ public class WebServer {
 				}
 			}
 		});
-		httpsServer.createContext("/", http -> {
-			try {
-				var https = (HttpsExchange) http;
 
-				// get what is received by POST (encrypted if HTTPS is used)
-				ObjectNode inputJson = inputJSON(http);
-				User user = getUser(inputJson, https);
-
-				if (user == null) {
-					new Response(403, "text/plain", "No user authentified. Access denied").send(http);
-				} else {
-					user.session = https.getSSLSession();
-					var idNode = inputJson.get("node");
-					var currentNode = node(idNode, user);
-					user.stack.push(currentNode);
-
-					var viewNameNode = inputJson.get("view");
-					final User u = user;
-					if (viewNameNode == null) {
-						ObjectNode root = new ObjectNode(null);
-						root.set("id", new TextNode("" + currentNode.id()));
-						root.set("username", new TextNode(user.name.get()));
-						root.set("can read", new TextNode("" + currentNode.canSee(user)));
-						root.set("can write", new TextNode("" + currentNode.canSee(user)));
-						ArrayNode viewsNode = new ArrayNode(null);
-						root.set("views", viewsNode);
-						var views = currentNode.compliantViews();
-						views.forEach(v -> viewsNode.add(v.toJSONNode(currentNode, u, v.sendContentByDefault)));
-						new Response(200, "text/json", root.toString()).send(http);
-					} else {
-						var v = currentNode.compliantViews().get(Integer.valueOf(viewNameNode.asText()));
-						new Response(200, v.contentType(), v.content(currentNode, user)).send(http);
-					}
-				}
-			} catch (Throwable err) {
-				err.printStackTrace();
-				new Response(500, "text/plain", "" + err).send(http);
-			}
-		});
-
+		httpsServer.createContext("/", http -> process((HttpsExchange) http).send(http));
 		httpsServer.setExecutor(Executors.newSingleThreadExecutor());
 		httpsServer.start();
+	}
+
+	public static Response process(HttpsExchange https) {
+		try {
+			// get what is received by POST (encrypted if HTTPS is used)
+			ObjectNode inputJson = inputJSON(https);
+			User user = getUser(inputJson, https);
+
+			if (user == null) {
+				return new Response(403, "text/plain", "No user authentified. Access denied");
+			} else {
+				if (user.session == null) { // first connexion, send frontend
+					user.session = https.getSSLSession();
+					return nour("index.html");
+				}
+
+				var path = https.getRequestURI().getPath();
+
+				if (!path.isEmpty()) {
+					return nour(path);
+				}
+
+				var node = node(inputJson.get("node"), user);
+
+				if (node == null) {
+					return new Response(404, "text/plain", "no such node");
+				}
+
+				user.stack.push(node);
+				var viewNameNode = inputJson.get("view");
+
+				if (viewNameNode == null) {// no request for a specific view
+					ObjectNode root = new ObjectNode(null);
+					root.set("id", new TextNode("" + node.id()));
+					root.set("username", new TextNode(user.name.get()));
+					root.set("can read", new TextNode("" + node.canSee(user)));
+					root.set("can write", new TextNode("" + node.canSee(user)));
+					ArrayNode viewsNode = new ArrayNode(null);
+					root.set("views", viewsNode);
+					var views = node.compliantViews();
+					views.forEach(v -> viewsNode.add(v.toJSONNode(node, user, v.sendContentByDefault)));
+					return new Response(200, "text/json", root.toString());
+				} else {
+					var v = node.compliantViews().get(Integer.valueOf(viewNameNode.asText()));
+					return new Response(200, v.contentType(), v.content(node, user));
+				}
+			}
+		} catch (Throwable err) {
+			err.printStackTrace();
+			return new Response(500, "text/plain", "" + ExceptionUtilities.toString(err));
+		}
+	}
+
+	private static Response nour(String path) throws MalformedURLException, IOException {
+		var url = "https://raw.githubusercontent.com/NourElBazzal/Project_DS4H/refs/heads/gh-pages/" + path;
+		System.out.println("downloading " + url);
+		var data = new URL(url).openStream().readAllBytes();
+		return new Response(200, "text/html", data);
 	}
 
 	private static User getUser(ObjectNode inputJson, HttpsExchange https) {

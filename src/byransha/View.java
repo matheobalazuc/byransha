@@ -1,39 +1,20 @@
 package byransha;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-import byransha.view.AllViews;
-import byransha.view.BasicView;
-import byransha.view.DBView;
-import byransha.view.ModelDOTView;
-import byransha.view.ModelGraphivzSVGView;
-import byransha.view.ModelJSONDOTView;
-import byransha.view.OutsInsView;
-import byransha.view.ToStringView;
 import toools.io.JavaResource;
 import toools.reflect.Clazz;
 
 public abstract class View<N extends BNode> {
 
-	public final static List<View> views = new ArrayList<>();
-
-	static {
-		views.add(new BasicView());
-		views.add(new ToStringView());
-		views.add(new OutsInsView());
-		views.add(new DBView());
-		views.add(new ModelDOTView());
-		views.add(new ModelGraphivzSVGView());
-		views.add(new ModelJSONDOTView());
-		views.add(new AllViews());
-	}
+	public final static Map<Class<? extends View>, View> views = new HashMap<>();
 
 	public boolean sendContentByDefault = false;
-	
+
 	public View() {
 		if (getClass().isAnonymousClass() || getClass().getDeclaringClass() != null)
 			throw new IllegalStateException("views must in declaring in their own file");
@@ -57,7 +38,8 @@ public abstract class View<N extends BNode> {
 	}
 
 	public String name() {
-		return getClass().getSimpleName();
+		var n = getClass().getSimpleName();
+		return n.toLowerCase().endsWith("view") ? n.substring(0, n.length() - 4) : n;
 	}
 
 	public abstract byte[] content(N currentNode, User user);

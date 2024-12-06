@@ -13,6 +13,10 @@ import java.util.function.Consumer;
 
 import javax.net.ssl.SSLSession;
 
+import byransha.view.DBView;
+import byransha.view.ModelDOTView;
+import byransha.view.ModelGraphivzSVGView;
+import byransha.view.ModelJSONDOTView;
 import toools.reflect.Clazz;
 
 public class DB extends BNode {
@@ -39,7 +43,7 @@ public class DB extends BNode {
 			this.role = role;
 			this.c = c;
 		}
-		
+
 		@Override
 		public String toString() {
 			return c + "." + role;
@@ -175,6 +179,15 @@ public class DB extends BNode {
 		}
 
 		return null;
+	}
+
+	@Override
+	public void views(List<View> l) {
+		super.views(l);
+		l.add(new DBView());
+		l.add(new ModelDOTView());
+		l.add(new ModelGraphivzSVGView());
+		l.add(new ModelJSONDOTView());
 	}
 
 }

@@ -6,30 +6,21 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import byransha.DB;
-import byransha.TextView;
+import byransha.HTMLView;
 import byransha.User;
 import toools.text.TextUtilities;
 
-final public class DBView extends TextView<DB> {
-
-	@Override
-	public String name() {
-		return "DB info";
-	}
-
-	@Override
-	public String contentType() {
-		return "text/html";
-	}
+final public class DBView extends HTMLView<DB> {
 
 	@Override
 	protected void content(DB node, User user, PrintWriter pw) {
 		pw.println("<ul>");
 		pw.println("<li>" + DB.defaultDB.countNodes() + " nodes");
-		pw.println("<li>Node classes: <ul>" + DB.defaultDB.nodes.l.stream().map(n ->"<li>"+ n.getClass()).toList());
+		pw.println("<li>Node classes: <ul>" + DB.defaultDB.nodes.l.stream().map(n -> "<li>" + n.getClass()).toList());
 		pw.println("</ul>");
 		var users = DB.defaultDB.users();
-		pw.println("<li>" + users.size() + " users: " + users.stream().map(u -> u.name.get() + (u.isAdmin() ? "*" : "")).toList());
+		pw.println("<li>" + users.size() + " users: "
+				+ users.stream().map(u -> u.name.get() + (u.isAdmin() ? "*" : "")).toList());
 		try {
 			pw.println("<li>IP adress: " + InetAddress.getLocalHost().getHostName());
 		} catch (UnknownHostException e) {

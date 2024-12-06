@@ -15,6 +15,7 @@ public class Person extends BNode {
 	private Nationality nationality;
 
 	protected ListNode<EmailNode> emailAddresses;
+	protected ListNode<ACMClassifier> topics;
 
 	@Override
 	public String toString() {

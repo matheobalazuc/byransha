@@ -15,6 +15,11 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import byransha.DB.Ref;
+import byransha.view.AllViews;
+import byransha.view.BasicView;
+import byransha.view.OutsInsView;
+import byransha.view.SourceView;
+import byransha.view.ToStringView;
 import toools.reflect.Clazz;
 
 public class BNode {
@@ -128,8 +133,9 @@ public class BNode {
 	}
 
 	public List<View> compliantViews() {
-		// gets only the views that can be used for this class of node
-		return View.views.stream().filter(v -> matches(v)).toList();
+		var l = new ArrayList<View>();
+		views(l);
+		return l;
 	}
 
 	public boolean matches(View<?> v) {
@@ -207,6 +213,14 @@ public class BNode {
 	@Override
 	public final boolean equals(Object obj) {
 		return this.hashCode() == ((BNode) obj).hashCode();
+	}
+
+	public void views(List<View> l) {
+		l.add(new BasicView());
+		l.add(new OutsInsView());
+		l.add(new SourceView());
+		l.add(new ToStringView());
+		l.add(new AllViews());
 	}
 
 }
