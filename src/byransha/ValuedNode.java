@@ -12,11 +12,6 @@ public abstract class ValuedNode<V> extends BNode {
 	V value;
 
 	@Override
-	public String toString() {
-		return get().toString();
-	}
-
-	@Override
 	public void forEachOut(BiConsumer<String, BNode> consumer) {
 	}
 
@@ -41,7 +36,7 @@ public abstract class ValuedNode<V> extends BNode {
 
 	public void set(V newValue) {
 		this.value = newValue;
-		
+
 		if (directory() != null) {
 			saveValue(DB.sysoutPrinter);
 		}
@@ -58,7 +53,7 @@ public abstract class ValuedNode<V> extends BNode {
 		writingFiles.accept(valueFile);
 
 		try {
-			Files.write(valueFile.toPath(), get().toString().getBytes());
+			Files.write(valueFile.toPath(), value.toString().getBytes());
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -66,8 +61,8 @@ public abstract class ValuedNode<V> extends BNode {
 
 	public void loadValue(Consumer<File> readingFiles) throws IOException {
 		var valueFile = new File(directory(), "value.txt");
-		
-		if( valueFile.exists()) {
+
+		if (valueFile.exists()) {
 			readingFiles.accept(valueFile);
 			byte[] bytes = Files.readAllBytes(valueFile.toPath());
 			fromString(new String(bytes));

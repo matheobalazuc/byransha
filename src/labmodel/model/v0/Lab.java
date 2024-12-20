@@ -1,13 +1,17 @@
 package labmodel.model.v0;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import byransha.View;
+import byransha.web.View;
 import labmodel.model.v0.view.LabView;
 
 public class Lab extends Structure {
+
+	static {
+		View.views.add(new LabView());
+	}
+
 	public Person HFDS;
 
 	enum HFDSAvisE {
@@ -15,11 +19,5 @@ public class Lab extends Structure {
 	}
 
 	Map<Person, HFDSAvisE> HFDSAvisfds = new HashMap<>();
-
-	@Override
-	public void views(List<View> l) {
-		super.views(l);
-		l.add(new LabView());
-	}
 
 }

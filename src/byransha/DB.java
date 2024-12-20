@@ -2,10 +2,12 @@ package byransha;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
@@ -13,20 +15,39 @@ import java.util.function.Consumer;
 
 import javax.net.ssl.SSLSession;
 
-import byransha.view.DBView;
-import byransha.view.ModelDOTView;
-import byransha.view.ModelGraphivzSVGView;
-import byransha.view.ModelJSONDOTView;
+import com.fasterxml.jackson.databind.JsonNode;
+
+import byransha.graph.BGraph;
+import byransha.web.HTMLView;
+import byransha.web.JSONView;
+import byransha.web.TechnicalView;
+import byransha.web.View;
+import byransha.web.view.ModelDOTView;
+import byransha.web.view.ModelGraphivzDotDOT_JSON;
+import byransha.web.view.ModelGraphivzDotJSON0;
+import byransha.web.view.ModelGraphivzDotXDOT_JSON;
+import byransha.web.view.ModelGraphivzSVGView;
 import toools.reflect.Clazz;
 
 public class DB extends BNode {
-	public static DB defaultDB = new DB(new File(System.getProperty("user.home") + "/." + DB.class.getPackageName()));
+	public static DB instance = new DB(new File(System.getProperty("user.home") + "/." + DB.class.getPackageName()));
 
 	public static Consumer<File> sysoutPrinter = f -> System.out.println("writing " + f.getAbsolutePath());
 
 	public final File directory;
 	public ListNode<BNode> nodes = new ListNode<>();
 	public BNode root;
+
+	static {
+		View.views.add(new DBView());
+		View.views.add(new ModelDOTView());
+		View.views.add(new ModelGraphivzSVGView());
+		View.views.add(new ModelGraphivzDotDOT_JSON());
+		View.views.add(new ModelGraphivzDotJSON0());
+		View.views.add(new ModelGraphivzDotDOT_JSON());
+		View.views.add(new ModelGraphivzDotXDOT_JSON());
+		View.views.add(new GraphView());
+	}
 
 	public DB(File directory) {
 		this.directory = directory;
@@ -171,9 +192,9 @@ public class DB extends BNode {
 		return (List<User>) (List) nodes.l.stream().filter(n -> n instanceof User).toList();
 	}
 
-	public User findUser(SSLSession sslSession) {
+	public User findUser(SSLSession s) {
 		for (var n : nodes.l) {
-			if (n instanceof User u && u.session == sslSession) {
+			if (n instanceof User u && u.session != null && Arrays.equals(u.session.getId(), s.getId())) {
 				return u;
 			}
 		}
@@ -181,13 +202,42 @@ public class DB extends BNode {
 		return null;
 	}
 
-	@Override
-	public void views(List<View> l) {
-		super.views(l);
-		l.add(new DBView());
-		l.add(new ModelDOTView());
-		l.add(new ModelGraphivzSVGView());
-		l.add(new ModelJSONDOTView());
+	public static class DBView extends HTMLView<DB> implements TechnicalView {
+		@Override
+		protected void print(DB node, User user, PrintWriter pw) {
+			pw.println("<ul>");
+			pw.println("<li>" + DB.instance.countNodes() + " nodes");
+			pw.println(
+					"<li>Node classes: <ul>" + DB.instance.nodes.l.stream().map(n -> "<li>" + n.getClass()).toList());
+			pw.println("</ul>");
+			var users = DB.instance.users();
+			pw.println("<li>" + users.size() + " users: "
+					+ users.stream().map(u -> u.name.get() + (u.isAdmin() ? "*" : "")).toList());
+			pw.println("</ul>");
+		}
+
 	}
 
+	public static class GraphView extends JSONView<DB> {
+
+		@Override
+		protected JsonNode jsonData(DB db, User u) {
+			var g = new BGraph();
+
+			db.forEachNode(v -> {
+				g.addVertex(v.toVertex());
+				v.forEachOut((s, o) -> {
+					var a = g.newArc(g.ensureHasVertex(v), g.ensureHasVertex(o));
+					a.label = s;
+				});
+			});
+
+			return g.toNivoJSON();
+		}
+
+		@Override
+		protected String jsonDialect() {
+			return "nivo";
+		}
+	}
 }

@@ -34,18 +34,23 @@ public class Server {
 				out.println(node.getClass());
 			}
 		});
+
 		allCmds.add(new Command("views", "v", "list_views") {
 
 			@Override
-			void f(PrintStream out, List<String> parms, Socket client) {
+			void f(PrintStream out, List<String> parms, Socket client) throws Throwable {
 				if (parms.isEmpty()) {
 					out.println(node.compliantViews().stream().map(v -> v.name()).toList());
 				} else if (parms.size() == 1 && parms.get(0).equals("*")) {
-					node.compliantViews()
-							.forEach(v -> out.println(v.name() + "\n" + v.toJSONNode(node, null, true).toPrettyString()));
+					for (var v : node.compliantViews()) {
+						out.println(v.name() + "\n" + v.content(node, null).toJson().toPrettyString());
+					}
 				} else {
-					node.compliantViews().stream().filter(v -> parms.contains(v.name()))
-							.forEach(v -> out.println(v.toJSONNode(node, null, true).toPrettyString()));
+					for (var v : node.compliantViews()) {
+						if (parms.contains(v.name())) {
+							out.println(v.content(node, null).toJson().toPrettyString());
+						}
+					}
 				}
 			}
 		});
@@ -119,7 +124,9 @@ public class Server {
 							out.println("multiple command have this name:");
 							matchingCmds.forEach(c -> out.println(c.names));
 						} else {
-							matchingCmds.forEach(cmd -> cmd.f(out, commandLine, client));
+							for (var cmd : matchingCmds) {
+								cmd.f(out, commandLine, client);
+							}
 						}
 					}
 
@@ -138,6 +145,6 @@ public class Server {
 			this.names = Arrays.asList(names);
 		}
 
-		abstract void f(PrintStream out, List<String> parms, Socket client);
+		abstract void f(PrintStream out, List<String> parms, Socket client) throws Throwable;
 	}
 }

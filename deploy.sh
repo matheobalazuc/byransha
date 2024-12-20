@@ -1,5 +1,23 @@
+set -e
 
-ssh dronic.i3s.unice.fr tar czf byransha.tgz byransha/
-scp dronic.i3s.unice.fr:byransha.tgz .
-scp byransha.tgz hogie@bastion.i3s.unice.fr:public_html/
-echo last version is there: 'https://webusers.i3s.unice.fr/~hogie/byransha.tgz'
+
+rsync -a --delete --copy-links $(cat byransha-classpath.lst) bin/
+
+echo "rsync to dronic"
+rsync --progress -a --delete ./ byransha@dronic.i3s.unice.fr:backend/
+echo "restarting service"
+echo response from server : $(curl -k 'https://dronic.i3s.unice.fr:8080?kill')
+
+
+exit
+mkdir -p /tmp/byransha/bin/
+echo "coping to tmp"
+rsync -a --delete --copy-links $(cat byransha-classpath.lst) /tmp/byransha/bin/
+
+echo Releasing to I3S website
+N=byransha-$(date | tr ' ' '_').tgz
+echo creating "/tmp/$N" 
+tar czf "/tmp/$N" /tmp/byransha/bin/
+echo "scp..."
+scp /tmp/"$N" hogie@bastion.i3s.unice.fr:public_html/software/
+echo last version is there: "https://webusers.i3s.unice.fr/~hogie/software/$N"

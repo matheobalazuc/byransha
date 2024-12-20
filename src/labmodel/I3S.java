@@ -30,7 +30,7 @@ public class I3S extends Lab {
 	}
 
 	public static void main(String[] args) throws IOException {
-		DB.defaultDB.delete();
+		DB.instance.delete();
 		Lab i3s = new Lab();
 		i3s.name.set("I3S");
 
@@ -41,10 +41,10 @@ public class I3S extends Lab {
 		});
 
 		i3s.bfs(c -> System.out.println("* : " + c));
-		i3s.bfs(c -> DB.defaultDB.accept(c));
+		i3s.bfs(c -> DB.instance.accept(c));
 		System.out.println(i3s.subStructures);
-		System.out.println(DB.defaultDB.countNodes());
-		DB.defaultDB.saveAll(DB.defaultDB.sysoutPrinter);
+		System.out.println(DB.instance.countNodes());
+		DB.instance.saveAll(DB.instance.sysoutPrinter);
 
 		System.exit(0);
 

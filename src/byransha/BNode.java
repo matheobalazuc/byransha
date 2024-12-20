@@ -3,6 +3,7 @@ package byransha;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,12 +15,23 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+
 import byransha.DB.Ref;
-import byransha.view.AllViews;
-import byransha.view.BasicView;
-import byransha.view.OutsInsView;
-import byransha.view.SourceView;
-import byransha.view.ToStringView;
+import byransha.graph.BGraph;
+import byransha.graph.BVertex;
+import byransha.web.JSONView;
+import byransha.web.View;
+import byransha.web.endpoint.Jump;
+import byransha.web.view.AllViews;
+import byransha.web.view.CharExampleDistribution;
+import byransha.web.view.CharExampleXY;
+import byransha.web.view.CharExampleXY_2;
+import byransha.web.view.OutsInsView;
+import byransha.web.view.SourceView;
+import byransha.web.view.ToStringView;
 import toools.reflect.Clazz;
 
 public class BNode {
@@ -28,13 +40,30 @@ public class BNode {
 	static int idCount = 0;
 	private int id = idCount++;
 
-	public List<Ref> refs() {
-		return refs == null ? DB.defaultDB.findRefsTO(this) : refs;
+	static {
+		View.views.add(new BasicView());
+		View.views.add(new OutsInsView());
+		View.views.add(new SourceView());
+		View.views.add(new ToStringView());
+		View.views.add(new AllViews());
+		View.views.add(new Nav2());
+		View.views.add(new CharExampleXY());
+		View.views.add(new CharExampleXY_2());
+		View.views.add(new CharExampleDistribution());
+		View.views.add(new GraphView());
+		View.views.add(new Jump());
+	}
+
+	public List<Ref> ins() {
+		return refs == null ? DB.instance.findRefsTO(this) : refs;
 	}
 
 	public void forEachOutNodeField(Consumer<Field> consumer) {
 		for (var c : Clazz.bfs(getClass())) {
 			for (var f : c.getDeclaredFields()) {
+				if ((f.getModifiers() & Modifier.STATIC) != 0)
+					continue;
+
 				if (BNode.class.isAssignableFrom(f.getType())) {
 					try {
 						f.setAccessible(true);
@@ -62,7 +91,7 @@ public class BNode {
 	}
 
 	public void forEachIn(BiConsumer<String, BNode> consumer) {
-		refs().forEach(r -> consumer.accept(r.role, r.c));
+		ins().forEach(r -> consumer.accept(r.role, r.c));
 	}
 
 	public boolean isLeaf() {
@@ -133,9 +162,16 @@ public class BNode {
 	}
 
 	public List<View> compliantViews() {
-		var l = new ArrayList<View>();
-		views(l);
-		return l;
+		List<View> views = views = new ArrayList<>();
+
+		for (var v : View.views.l) {
+			if (v.getTargetNodeType().isAssignableFrom(getClass())) {
+				views.add(v);
+			}
+		}
+
+		Collections.sort(views, (a, b) -> a.getTargetNodeType().isAssignableFrom(b.getTargetNodeType()) ? 1 : -1);
+		return views;
 	}
 
 	public boolean matches(View<?> v) {
@@ -188,9 +224,10 @@ public class BNode {
 	}
 
 	public File directory() {
-		if (DB.defaultDB == null)
+		if (DB.instance == null)
 			return null;
-		return new File(DB.defaultDB.directory, getClass().getName() + "/" + id());
+
+		return new File(DB.instance.directory, getClass().getName() + "/" + id());
 	}
 
 	public File outsDirectory() {
@@ -215,12 +252,112 @@ public class BNode {
 		return this.hashCode() == ((BNode) obj).hashCode();
 	}
 
-	public void views(List<View> l) {
-		l.add(new BasicView());
-		l.add(new OutsInsView());
-		l.add(new SourceView());
-		l.add(new ToStringView());
-		l.add(new AllViews());
+	public static class BasicView extends JSONView<BNode> {
+		public BasicView() {
+			sendContentByDefault = true;
+		}
+
+		@Override
+		public ObjectNode jsonData(BNode node, User u) {
+			var n = new ObjectNode(null);
+			n.set("class", new TextNode(node.getClass().getName()));
+			n.set("id", new TextNode("" + node.id()));
+			n.set("comment", new TextNode(node.comment));
+			n.set("directory", new TextNode(node.directory().getAbsolutePath()));
+			n.set("out-degree", new TextNode("" + node.outDegree()));
+			n.set("outs", new TextNode(
+					node.outs().entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).toList().toString()));
+			n.set("views", new TextNode(node.compliantViews().stream().map(v -> v.name()).toList().toString()));
+			n.set("in-degree", new TextNode("" + node.ins().size()));
+			n.set("ins", new TextNode(node.ins().stream().map(e -> e.toString()).toList().toString()));
+			n.set("canSee", new TextNode("" + node.canSee(u)));
+			n.set("canEdit", new TextNode("" + node.canEdit(u)));
+			return n;
+		}
+
+		@Override
+		protected String jsonDialect() {
+			return "bv";
+		}
 	}
 
+	public static class Nav2 extends JSONView<BNode> {
+		public Nav2() {
+			sendContentByDefault = true;
+		}
+
+		@Override
+		protected JsonNode jsonData(BNode n, User u) {
+			var r = new ObjectNode(null);
+
+			var outs = new ObjectNode(null);
+			n.forEachOut((name, o) -> outs.set(name, new TextNode("" + o.id())));
+			r.set("outs", outs);
+			var ins = new ObjectNode(null);
+			n.forEachIn((name, o) -> ins.set(name, new TextNode("" + o.id())));
+			r.set("ins", ins);
+			return r;
+		}
+
+		@Override
+		protected String jsonDialect() {
+			return "nav";
+		}
+	}
+
+	public BVertex toVertex() {
+		var v = new BVertex("" + id());
+		v.label = toString();
+		return v;
+	}
+
+	public static class GraphView extends JSONView<BNode> {
+
+		@Override
+		protected JsonNode jsonData(BNode n, User u) {
+			var g = new BGraph();
+			g.addVertex(n.toVertex());
+
+			n.forEachOut((s, o) -> {
+				var a = g.newArc(g.ensureHasVertex(n), g.ensureHasVertex(o));
+				a.label = s;
+			});
+
+			n.forEachIn((s, i) -> {
+				var a = g.newArc(g.ensureHasVertex(n), g.ensureHasVertex(i));
+				a.style = "dotted";
+				a.label = s;
+			});
+
+			return g.toNivoJSON();
+		}
+
+		@Override
+		protected String jsonDialect() {
+			return "nivo network";
+		}
+	}
+
+	/*
+	 * public static class BFS extends JSONView<BNode> {
+	 * 
+	 * @Override protected JsonNode jsonData(BNode n, User u) { ObjectNode r = null;
+	 * 
+	 * List<BNode> q = new ArrayList<>(); BNode c = n; q.add(c); var visited = new
+	 * Int2ObjectOpenHashMap<ObjectNode>();
+	 * 
+	 * while (!q.isEmpty()) { c = q.remove(0); var nn = visited.put(c.id(), new
+	 * ObjectNode(null)); r.add(nn);
+	 * 
+	 * c.forEachOut((f, out) -> { if (!visited.containsKey(out)) { visited.add(new
+	 * ObjectNode(null)); q.add(out); } }); }
+	 * 
+	 * 
+	 * 
+	 * 
+	 * var outs = new ObjectNode(null); n.forEachOut((name, o) -> outs.set(name, new
+	 * TextNode("" + o))); r.set("outs", outs); var ins = new ObjectNode(null);
+	 * n.forEachIn((name, o) -> ins.set(name, new TextNode("" + o))); r.set("ins",
+	 * ins); return r; } }
+	 */
 }
