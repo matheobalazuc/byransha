@@ -1,7 +1,9 @@
 package byransha.web;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
@@ -358,8 +360,8 @@ public class WebServer extends BNode {
 
 	private SSLContext getSslContext() throws Exception {
 		var keyStore = KeyStore.getInstance("JKS");
-//			InputStream fis = new FileInputStream(filename);
-		var fis = WebServer.class.getResourceAsStream("keystore.jks");
+		InputStream fis = new FileInputStream("./src/byransha/web/keystore.jks");
+		//var fis = WebServer.class.getResourceAsStream("keystore.jks");
 		var password = "password".toCharArray();
 		keyStore.load(fis, password);
 
