@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - 'src/byransha/frontend/**'
+  workflow_dispatch:
 
 jobs:
   build-and-commit:
@@ -34,3 +35,5 @@ jobs:
           git add build/frontend
           git commit -m "Update frontend build [skip ci]" || echo "No changes to commit"
           git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
