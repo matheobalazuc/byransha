@@ -256,8 +256,8 @@ public class BNode {
 			n.set("out-degree", new TextNode("" + node.outDegree()));
 			n.set("outs", new TextNode(
 					node.outs().entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).toList().toString()));
-			n.set("in-degree", new TextNode("" + node.ins().size()));
-			n.set("ins", new TextNode(node.ins().stream().map(e -> e.toString()).toList().toString()));
+//			n.set("in-degree", new TextNode("" + node.ins().size()));
+//			n.set("ins", new TextNode(node.ins().stream().map(e -> e.toString()).toList().toString()));
 			n.set("canSee", new TextNode("" + node.canSee(u)));
 			n.set("canEdit", new TextNode("" + node.canEdit(u)));
 			return new EndpointJsonResponse(n, this);

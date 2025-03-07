@@ -214,7 +214,7 @@ public class WebServer extends BNode {
 		endpoints.put(e.name(), e);
 	}
 
-	static final File buildDir = new File(System.getProperty("user.home"), "frontend/Project_DS4H");
+	static final File frontendDir = new File(System.getProperty("user.home"), "frontend");
 
 	private HTTPResponse processRequest(HttpsExchange https) {
 		try {
@@ -280,10 +280,10 @@ public class WebServer extends BNode {
 
 				return new HTTPResponse(200, "text/json", response.toPrettyString().getBytes());
 			} else {
-				var file = new File(buildDir, path);
+				var file = new File(frontendDir, path);
 
 				if (!file.exists() || !file.isFile()) {
-					file = new File(buildDir, "index.html");
+					file = new File(frontendDir, "index.html");
 				}
 
 				System.out.println("serving " + file);

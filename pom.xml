@@ -19,7 +19,7 @@
 		<dependency>
 			<groupId>io.github.lhogie</groupId>
 			<artifactId>toools</artifactId>
-			<version>master-SNAPSHOT</version>
+			<version>[0.0.0,)</version>
 		</dependency>
 		<dependency>
 			<groupId>com.opencsv</groupId>
