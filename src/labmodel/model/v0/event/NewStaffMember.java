@@ -23,9 +23,4 @@ public class NewStaffMember extends Event<Lab> {
 		lab.members.remove(p);
 	}
 
-	@Override
-	public void initFromCSV(List<String> l, Lab s) {
-		p = new Person();
-		p.name.set(l.get(0));
-	}
 }

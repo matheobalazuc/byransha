@@ -19,6 +19,9 @@ public abstract class EndpointResponse<R> {
 		r.set("data", data());
 		return r;
 	}
+	
+	
+	public abstract String toRawText();
 
-	protected abstract JsonNode data();
+	public abstract JsonNode data();
 }

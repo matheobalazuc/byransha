@@ -33,7 +33,7 @@ public class HJKReader {
 			var node = nme_node.get(1);
 			var event = (Event) eventClass.getConstructor(BNode.class).newInstance(node);
 			event.date = dateFormat.parse(line.remove(0)).toInstant();
-			event.initFromCSV(line.stream().map(e -> e.trim()).toList(), node);
+		//	event.initFromCSV(line.stream().map(e -> e.trim()).toList(), node);
 			events.add(event);
 		}
 

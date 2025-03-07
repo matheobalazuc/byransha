@@ -11,6 +11,15 @@ import toools.text.TextUtilities;
 public abstract class ValuedNode<V> extends BNode {
 	V value;
 
+	public ValuedNode(BBGraph db) {
+		super(db);
+	}
+
+	@Override
+	public String toString() {
+		return super.toString() + "(" + get() + ")";
+	}
+
 	@Override
 	public void forEachOut(BiConsumer<String, BNode> consumer) {
 	}
@@ -38,21 +47,23 @@ public abstract class ValuedNode<V> extends BNode {
 		this.value = newValue;
 
 		if (directory() != null) {
-			saveValue(DB.sysoutPrinter);
+			saveValue(BBGraph.sysoutPrinter);
 		}
 	}
 
 	public void saveValue(Consumer<File> writingFiles) {
 		var valueFile = new File(directory(), "value.txt");
+		var dir = valueFile.getParentFile();
 
-		if (!valueFile.getParentFile().exists()) {
-			writingFiles.accept(valueFile.getParentFile());
-			valueFile.getParentFile().mkdirs();
+		if (!dir.exists()) {
+			writingFiles.accept(dir);
+			dir.mkdirs();
 		}
 
 		writingFiles.accept(valueFile);
 
 		try {
+//			System.out.println(graph.findRefsTO(this));
 			Files.write(valueFile.toPath(), value.toString().getBytes());
 		} catch (IOException e) {
 			throw new RuntimeException(e);

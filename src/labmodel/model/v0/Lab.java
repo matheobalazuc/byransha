@@ -3,21 +3,23 @@ package labmodel.model.v0;
 import java.util.HashMap;
 import java.util.Map;
 
-import byransha.web.View;
-import labmodel.model.v0.view.LabView;
+import byransha.BBGraph;
+import byransha.ListNode;
 
 public class Lab extends Structure {
 
-	static {
-		View.views.add(new LabView());
+	public Lab(BBGraph g) {
+		super(g);
+		// TODO Auto-generated constructor stub
 	}
 
-	public Person HFDS;
+	public Person HFDS; // haut fonctionnaire defense securité
 
 	enum HFDSAvisE {
 		YES, NO, INBETWEEN
 	}
 
 	Map<Person, HFDSAvisE> HFDSAvisfds = new HashMap<>();
+	ListNode<Structure> tutelles = new ListNode<>(graph);
 
 }

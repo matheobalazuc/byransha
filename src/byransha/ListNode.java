@@ -6,7 +6,12 @@ import java.util.Random;
 import java.util.function.BiConsumer;
 
 public class ListNode<N extends BNode> extends BNode {
-	 public final List<N> l = new ArrayList<>();
+	 public ListNode(BBGraph db) {
+		super(db);
+		// TODO Auto-generated constructor stub
+	}
+
+	public final List<N> l = new ArrayList<>();
 
 	@Override
 	public void forEachOut(BiConsumer<String, BNode> consumer) {

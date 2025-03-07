@@ -5,6 +5,11 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 
 public class MapNode<N extends BNode> extends BNode {
+	public MapNode(BBGraph db) {
+		super(db);
+		// TODO Auto-generated constructor stub
+	}
+
 	private final Map<String, N> l = new HashMap<>();
 
 	@Override

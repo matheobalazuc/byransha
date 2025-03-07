@@ -1,8 +1,12 @@
 package labmodel.model.v0;
 
 import byransha.BNode;
-import byransha.ListNode;
+import byransha.BBGraph;
 
 public class Building extends BNode {
-	ListNode<Office> offices;
+
+	public Building(BBGraph g) {
+		super(g);
+		// TODO Auto-generated constructor stub
+	}
 }

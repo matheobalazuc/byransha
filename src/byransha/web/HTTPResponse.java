@@ -15,9 +15,6 @@ class HTTPResponse {
 		this.contentType = contentType;
 	}
 
-	public HTTPResponse(int i, String contentType, String content) {
-		this(i, contentType, content.getBytes());
-	}
 
 	void send(HttpExchange e) throws IOException {
 		var output = e.getResponseBody();

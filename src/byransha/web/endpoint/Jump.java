@@ -1,19 +1,26 @@
 package byransha.web.endpoint;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.BNode;
+import byransha.BBGraph;
 import byransha.User;
-import byransha.web.JSONView;
-import byransha.web.View;
+import byransha.web.EndpointJsonResponse;
+import byransha.web.NodeEndpoint;
+import byransha.web.WebServer;
 
-public class Jump extends JSONView<BNode> {
+public class Jump extends NodeEndpoint<BNode> {
+
+	public Jump(BBGraph g) {
+		super(g);
+	}
 
 	@Override
-	protected JsonNode jsonData(BNode node, User user) throws Throwable {
+	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode node)
+			throws Throwable {
 		user.stack.push(node);
 
 		var r = new ObjectNode(null);
@@ -24,30 +31,25 @@ public class Jump extends JSONView<BNode> {
 		r.set("can write", new TextNode("" + node.canSee(user)));
 
 		ArrayNode viewsNode = new ArrayNode(null);
-		var views = node.compliantViews();
+		var views = webServer.compliantEndpoints(node);
 
 		for (var v : views) {
 			var n = new ObjectNode(null);
-			n.set("label", new TextNode(name()));
+			n.set("label", new TextNode(v.label()));
+			n.set("id", new TextNode("" + v.id()));
 			n.set("target", new TextNode(v.getTargetNodeType().getName()));
 			n.set("development", new TextNode("" + v.isDevelopmentView()));
 			n.set("technical", new TextNode("" + v.isTechnicalView()));
 
 			if (v.sendContentByDefault) {
-				n.set("content", v.content(node, user).toJson());
+				n.set("content", v.exec(in, user, webServer, exchange, user).toJson());
 			}
 
 			viewsNode.add(n);
 		}
 
 		r.set("views", viewsNode);
-
-		return r;
-	}
-
-	@Override
-	protected String jsonDialect() {
-		return "jump";
+		return new EndpointJsonResponse(r, this);
 	}
 
 }

@@ -10,7 +10,13 @@ public class EndpointTextResponse extends EndpointResponse<String> {
 	}
 
 	@Override
-	protected JsonNode data() {
+	public JsonNode data() {
 		return new TextNode(data.replaceAll("\n", "\n"));
 	}
+	
+	@Override
+	public String toRawText() {
+		return data;
+	}
+
 }

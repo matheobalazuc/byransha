@@ -5,6 +5,10 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 public class SetNode<N extends BNode> extends BNode {
+	public SetNode(BBGraph db) {
+		super(db);
+	}
+
 	private final Set<N> l = new HashSet<>();
 
 	@Override

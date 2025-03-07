@@ -2,16 +2,27 @@ package labmodel.model.v0.view;
 
 import java.io.PrintWriter;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.sun.net.httpserver.HttpsExchange;
+
+import byransha.BBGraph;
 import byransha.User;
 import byransha.web.HTMLView;
+import byransha.web.WebServer;
 import labmodel.model.v0.Structure;
 
 final public class StructureView extends HTMLView<Structure> {
 
+	public StructureView(BBGraph g) {
+		super(g);
+		// TODO Auto-generated constructor stub
+	}
+
 	@Override
-	protected void print(Structure s, User user, PrintWriter pw) {
+	protected void print(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, Structure s,
+			PrintWriter pw) {
 		pw.println("<ul>");
-		pw.println("<li>Director: " + s.director.name.get());
+		pw.println("<li>Director: " + s.director.etatCivil.name.get());
 		pw.println("<li>" + s.members.size() + " members");
 		pw.println("<li>#offices: " + s.offices.size());
 		pw.println("<li>Office surface: " + s.totalSurface());
@@ -19,5 +30,4 @@ final public class StructureView extends HTMLView<Structure> {
 		pw.println("<li>occupationRatio: " + s.occupationRatio());
 		pw.println("</ul>");
 	}
-
 }

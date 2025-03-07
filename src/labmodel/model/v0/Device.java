@@ -1,15 +1,15 @@
 package labmodel.model.v0;
 
 import byransha.BNode;
-import byransha.ListNode;
+import byransha.BBGraph;
 import byransha.StringNode;
 
 public class Device extends BNode {
-	public StringNode title = new StringNode();
-	private ListNode<Person> positions = new ListNode<>();
-
-	@Override
-	public String toString() {
-		return title.get();
+	public Device(BBGraph g) {
+		super(g);
+		// TODO Auto-generated constructor stub
 	}
+
+	public StringNode serialNumber;
+
 }

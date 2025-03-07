@@ -1,8 +1,13 @@
 package byransha.web;
 
 import byransha.BNode;
+import byransha.BBGraph;
 
-public abstract class HTMLView<E extends BNode> extends TextView<E> {
+public abstract class HTMLView<E extends BNode> extends TextOutputEndpoint<E> {
+
+	public HTMLView(BBGraph g) {
+		super(g);
+	}
 
 	@Override
 	public String textMimeType() {
@@ -10,7 +15,6 @@ public abstract class HTMLView<E extends BNode> extends TextView<E> {
 	}
 
 	protected String linkTo(BNode n, String label) {
-		return "<a href='?node=" + n.id() + "'>" + label + "</a>";
+		return "<a href='?endpoint=jump&nodeID=" + n.id() + "'>" + label + "</a>";
 	}
-
 }

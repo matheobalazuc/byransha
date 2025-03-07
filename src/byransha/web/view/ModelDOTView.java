@@ -9,22 +9,31 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.sun.net.httpserver.HttpsExchange;
+
 import byransha.BNode;
-import byransha.DB;
+import byransha.BBGraph;
 import byransha.ListNode;
 import byransha.User;
 import byransha.ValuedNode;
 import byransha.web.DevelopmentView;
-import byransha.web.TextView;
+import byransha.web.EndpointJsonResponse;
+import byransha.web.TextOutputEndpoint;
+import byransha.web.WebServer;
 
-public class ModelDOTView extends TextView<DB> implements DevelopmentView {
+public class ModelDOTView extends TextOutputEndpoint<BBGraph> implements DevelopmentView {
+	public ModelDOTView(BBGraph db) {
+		super(db);
+		// TODO Auto-generated constructor stub
+	}
 
 	@Override
-	protected void print(DB db, User u, PrintWriter pw) {
-		System.out.println(DB.instance.nodes.size());
+	protected void print(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BBGraph db, PrintWriter pw) {
+		System.out.println(graph.nodes.size());
 		var relations = new ArrayList<ModelDOTView.Relation>();
 		var class_attrs = new HashMap<Class<?>, Set<String>>();
-		DB.instance.forEachNode(n -> {
+		graph.forEachNode(n -> {
 			List<Class<BNode>> stack = new ArrayList<>();
 
 			for (Class c = n.getClass(); c != null && c.getPackage() != BNode.class.getPackage()

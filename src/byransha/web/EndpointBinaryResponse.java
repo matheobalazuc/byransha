@@ -22,7 +22,12 @@ public class EndpointBinaryResponse extends EndpointResponse<byte[]> {
 	}
 
 	@Override
-	protected JsonNode data() {
+	public JsonNode data() {
 		return new TextNode(new String(Base64.getMimeEncoder().encode(data)));
+	}
+
+	@Override
+	public String toRawText() {
+		return new String(data);
 	}
 }

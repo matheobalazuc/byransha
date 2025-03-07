@@ -2,11 +2,21 @@ package labmodel.model.v0.view;
 
 import java.io.PrintWriter;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.sun.net.httpserver.HttpsExchange;
+
+import byransha.BBGraph;
 import byransha.User;
-import byransha.web.TextView;
+import byransha.web.TextOutputEndpoint;
+import byransha.web.WebServer;
 import labmodel.model.v0.Lab;
 
-final public class LabView extends TextView<Lab> {
+final public class LabView extends TextOutputEndpoint<Lab> {
+
+	public LabView(BBGraph db) {
+		super(db);
+		// TODO Auto-generated constructor stub
+	}
 
 	@Override
 	public String textMimeType() {
@@ -14,9 +24,10 @@ final public class LabView extends TextView<Lab> {
 	}
 
 	@Override
-	protected void print(Lab lab, User user, PrintWriter pw) {
+	protected void print(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, Lab lab,
+			PrintWriter pw) {
 		pw.println("<ul>");
-		pw.println("<li>HFDS: " + lab.HFDS.name.get());
+		pw.println("<li>HFDS: " + lab.HFDS.etatCivil.name.get());
 		pw.println("</ul>");
 	}
 

@@ -1,60 +1,47 @@
 package byransha.web.view;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.DoubleNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.BNode;
+import byransha.Byransha.Function;
+import byransha.BBGraph;
 import byransha.User;
-import byransha.web.JSONView;
+import byransha.web.EndpointJsonResponse;
+import byransha.web.EndpointJsonResponse.dialects;
+import byransha.web.NodeEndpoint;
+import byransha.web.WebServer;
 
-public class CharExampleXY extends JSONView<BNode> {
-	public CharExampleXY()
-	{
+public class CharExampleXY extends NodeEndpoint<BNode> {
+	public CharExampleXY(BBGraph g) {
+		super(g);
 		sendContentByDefault = true;
 	}
 
 	@Override
-	protected JsonNode jsonData(BNode n, User u) {
+	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode n) {
 		var r = new ObjectNode(null);
-		
+
 		{
-			var f = new ObjectNode(null);
-			var xs = new ArrayNode(null);
-			var ys = new ArrayNode(null);
+			Function f = new Function();
 
 			for (double x = 0; x < 50; ++x) {
-				xs.add(new DoubleNode(x));
-				ys.add(new DoubleNode(Math.cos(x)));
+				f.addXY(x, Math.cos(x));
 			}
 
-			f.set("x", xs);
-			f.set("y", xs);
-			r.set("cos(x)", f);
+			r.set("cos(x)", f.toJson());
 		}
-		
+
 		{
-			var f = new ObjectNode(null);
-			var xs = new ArrayNode(null);
-			var ys = new ArrayNode(null);
+			Function f = new Function();
 
 			for (double x = 0; x < 50; ++x) {
-				xs.add(new DoubleNode(x));
-				ys.add(new DoubleNode(Math.sin(x)));
+				f.addXY(x, Math.sin(x));
 			}
 
-			f.set("x", xs);
-			f.set("y", xs);
-			r.set("sin(x)", f);
+			r.set("sin(x)", f.toJson());
 		}
-		
-		return r;
-	}
-	
-	@Override
-	protected String jsonDialect() {
-		return "xy";
-	}
 
+		return new EndpointJsonResponse(r, dialects.xy);
+	}
 }

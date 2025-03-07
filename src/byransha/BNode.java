@@ -15,47 +15,43 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.sun.net.httpserver.HttpsExchange;
 
-import byransha.DB.Ref;
+import byransha.BBGraph.Ref;
 import byransha.graph.BGraph;
 import byransha.graph.BVertex;
-import byransha.web.JSONView;
-import byransha.web.View;
-import byransha.web.endpoint.Jump;
-import byransha.web.view.AllViews;
-import byransha.web.view.CharExampleDistribution;
-import byransha.web.view.CharExampleXY;
-import byransha.web.view.CharExampleXY_2;
-import byransha.web.view.OutsInsView;
-import byransha.web.view.SourceView;
-import byransha.web.view.ToStringView;
+import byransha.web.EndpointJsonResponse;
+import byransha.web.EndpointJsonResponse.dialects;
+import byransha.web.EndpointResponse;
+import byransha.web.NodeEndpoint;
+import byransha.web.WebServer;
 import toools.reflect.Clazz;
 
 public class BNode {
 	public String comment;
 	private List<Ref> refs;
-	static int idCount = 0;
-	private int id = idCount++;
+	public final BBGraph graph;
+	private int id;
 
-	static {
-		View.views.add(new BasicView());
-		View.views.add(new OutsInsView());
-		View.views.add(new SourceView());
-		View.views.add(new ToStringView());
-		View.views.add(new AllViews());
-		View.views.add(new Nav2());
-		View.views.add(new CharExampleXY());
-		View.views.add(new CharExampleXY_2());
-		View.views.add(new CharExampleDistribution());
-		View.views.add(new GraphView());
-		View.views.add(new Jump());
+	public BNode(BBGraph g) {
+		if (g != null) {
+			id = g.idCount++;
+			this.graph = g;
+			g.accept(this);
+		} else {
+			if (this instanceof BBGraph bbg) {
+				id = 0;
+				graph = bbg;
+			} else {
+				throw new IllegalStateException();
+			}
+		}
 	}
 
 	public List<Ref> ins() {
-		return refs == null ? DB.instance.findRefsTO(this) : refs;
+		return refs == null ? graph.findRefsTO(this) : refs;
 	}
 
 	public void forEachOutNodeField(Consumer<Field> consumer) {
@@ -91,7 +87,7 @@ public class BNode {
 	}
 
 	public void forEachIn(BiConsumer<String, BNode> consumer) {
-		ins().forEach(r -> consumer.accept(r.role, r.c));
+		ins().forEach(r -> consumer.accept(r.role, r.source));
 	}
 
 	public boolean isLeaf() {
@@ -158,29 +154,16 @@ public class BNode {
 	}
 
 	public boolean canEdit(User user) {
-		return user.isAdmin();
+		return false;
 	}
 
-	public List<View> compliantViews() {
-		List<View> views = views = new ArrayList<>();
-
-		for (var v : View.views.l) {
-			if (v.getTargetNodeType().isAssignableFrom(getClass())) {
-				views.add(v);
-			}
-		}
-
-		Collections.sort(views, (a, b) -> a.getTargetNodeType().isAssignableFrom(b.getTargetNodeType()) ? 1 : -1);
-		return views;
-	}
-
-	public boolean matches(View<?> v) {
+	public boolean matches(NodeEndpoint<?> v) {
 		return v.getTargetNodeType().isAssignableFrom(getClass());
 	}
 
 	@Override
 	public String toString() {
-		return getClass().getName() + "@" + id();
+		return getClass().getSimpleName() + "@" + id();
 	}
 
 	public void saveOuts(Consumer<File> writingFiles) {
@@ -193,7 +176,7 @@ public class BNode {
 
 		forEachOut((name, outNode) -> {
 			try {
-				var symlink = new File(outD, name + "@" + outNode.id());
+				var symlink = new File(outD, name);// + "@" + outNode.id());
 				writingFiles.accept(symlink);
 				Files.createSymbolicLink(symlink.toPath(), outNode.directory().toPath());
 			} catch (IOException e) {
@@ -224,14 +207,18 @@ public class BNode {
 	}
 
 	public File directory() {
-		if (DB.instance == null)
+		if (graph == null)
 			return null;
 
-		return new File(DB.instance.directory, getClass().getName() + "/" + id());
+		if (graph.directory == null)
+			return null;
+
+		return new File(graph.directory, getClass().getName() + "/." + id());
 	}
 
 	public File outsDirectory() {
-		return new File(directory(), "outs");
+		var d = directory();
+		return d == null ? null : new File(directory(), "outs");
 	}
 
 	public final int id() {
@@ -252,13 +239,15 @@ public class BNode {
 		return this.hashCode() == ((BNode) obj).hashCode();
 	}
 
-	public static class BasicView extends JSONView<BNode> {
-		public BasicView() {
+	public static class BasicView extends NodeEndpoint<BNode> {
+		public BasicView(BBGraph g) {
+			super(g);
 			sendContentByDefault = true;
 		}
 
 		@Override
-		public ObjectNode jsonData(BNode node, User u) {
+		public EndpointResponse exec(ObjectNode in, User u, WebServer webServer, HttpsExchange exchange, BNode node)
+				throws Throwable {
 			var n = new ObjectNode(null);
 			n.set("class", new TextNode(node.getClass().getName()));
 			n.set("id", new TextNode("" + node.id()));
@@ -267,41 +256,30 @@ public class BNode {
 			n.set("out-degree", new TextNode("" + node.outDegree()));
 			n.set("outs", new TextNode(
 					node.outs().entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).toList().toString()));
-			n.set("views", new TextNode(node.compliantViews().stream().map(v -> v.name()).toList().toString()));
 			n.set("in-degree", new TextNode("" + node.ins().size()));
 			n.set("ins", new TextNode(node.ins().stream().map(e -> e.toString()).toList().toString()));
 			n.set("canSee", new TextNode("" + node.canSee(u)));
 			n.set("canEdit", new TextNode("" + node.canEdit(u)));
-			return n;
-		}
-
-		@Override
-		protected String jsonDialect() {
-			return "bv";
+			return new EndpointJsonResponse(n, this);
 		}
 	}
 
-	public static class Nav2 extends JSONView<BNode> {
-		public Nav2() {
+	public static class Nav2 extends NodeEndpoint<BNode> {
+		public Nav2(BBGraph g) {
+			super(g);
 			sendContentByDefault = true;
 		}
 
 		@Override
-		protected JsonNode jsonData(BNode n, User u) {
+		public EndpointResponse exec(ObjectNode in, User u, WebServer webServer, HttpsExchange exchange, BNode n) {
 			var r = new ObjectNode(null);
-
 			var outs = new ObjectNode(null);
 			n.forEachOut((name, o) -> outs.set(name, new TextNode("" + o.id())));
 			r.set("outs", outs);
 			var ins = new ObjectNode(null);
 			n.forEachIn((name, o) -> ins.set(name, new TextNode("" + o.id())));
 			r.set("ins", ins);
-			return r;
-		}
-
-		@Override
-		protected String jsonDialect() {
-			return "nav";
+			return new EndpointJsonResponse(r, this);
 		}
 	}
 
@@ -311,10 +289,15 @@ public class BNode {
 		return v;
 	}
 
-	public static class GraphView extends JSONView<BNode> {
+	public static class GraphView extends NodeEndpoint<BNode> {
+
+		public GraphView(BBGraph db) {
+			super(db);
+			// TODO Auto-generated constructor stub
+		}
 
 		@Override
-		protected JsonNode jsonData(BNode n, User u) {
+		public EndpointResponse exec(ObjectNode in, User u, WebServer webServer, HttpsExchange exchange, BNode n) {
 			var g = new BGraph();
 			g.addVertex(n.toVertex());
 
@@ -329,12 +312,23 @@ public class BNode {
 				a.label = s;
 			});
 
-			return g.toNivoJSON();
+			return new EndpointJsonResponse(g.toNivoJSON(), dialects.nivoNetwork);
+		}
+	}
+
+	public static class OutNodeDistribution extends NodeEndpoint<BNode> {
+
+		public OutNodeDistribution(BBGraph db) {
+			super(db);
+			// TODO Auto-generated constructor stub
 		}
 
 		@Override
-		protected String jsonDialect() {
-			return "nivo network";
+		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode node)
+				throws Throwable {
+			var d = new Byransha.Distribution<String>();
+			forEachOut((n, o) -> d.addOccurence(o.getClass().getName()));
+			return new EndpointJsonResponse(d.toJson(), dialects.distribution);
 		}
 	}
 

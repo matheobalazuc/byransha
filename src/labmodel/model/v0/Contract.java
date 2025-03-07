@@ -1,13 +1,18 @@
 package labmodel.model.v0;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 import byransha.BNode;
+import byransha.BBGraph;
 import byransha.ListNode;
 import byransha.StringNode;
 
-public class Contract  extends BNode{
+public class Contract extends BNode {
+	public Contract(BBGraph g) {
+		super(g);
+		// TODO Auto-generated constructor stub
+	}
+
 	StringNode name;
 	Person holder;
 	List<Person> subHolders;
@@ -15,7 +20,4 @@ public class Contract  extends BNode{
 	ListNode<Person> partners;
 	ListNode<Person> misc;
 
-	public void forEachMember(Consumer<Person> c) {
-
-	}
 }
