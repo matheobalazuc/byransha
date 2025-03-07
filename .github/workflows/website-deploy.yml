@@ -17,11 +17,15 @@ jobs:
         with:
           node-version: 18
           cache: npm
+          cache-dependency-path: src/byransha/frontend/package-lock.json
 
       - name: Install dependencies
         run: npm ci
+        working-directory: src/byransha/frontend
+
       - name: Build frontend
         run: npm run build:ci
+        working-directory: src/byransha/frontend
 
       - name: Commit build files
         run: |
