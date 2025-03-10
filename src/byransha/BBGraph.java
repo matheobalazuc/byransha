@@ -29,17 +29,21 @@ import byransha.web.NodeEndpoint;
 import byransha.web.TechnicalView;
 import byransha.web.WebServer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import toools.reflect.Clazz;
 
 public class BBGraph extends BNode {
 	public static Consumer<File> sysoutPrinter = f -> System.out.println("writing " + f.getAbsolutePath());
-	public final File directory;
-	public final List<BNode> nodes;
+	public final File directory; // where the graph is stored
+	public final List<BNode> nodes; // all nodes in the graph
 	private Map<Class<? extends BNode>, List<BNode>> byClass;
 	private Int2ObjectMap<BNode> byID;// = new Int2ObjectOpenHashMap<>();
 	int idCount = 1;
 
+	/**
+	 * Create a new graph with a given directory
+	 *
+	 * @param directory the directory where the graph is stored
+	 */
 	public BBGraph(File directory) {
 		super(null);
 		nodes = new ArrayList<BNode>();
