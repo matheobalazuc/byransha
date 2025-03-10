@@ -5,13 +5,13 @@ import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.BBGraph;
 import byransha.User;
+import byransha.web.Endpoint;
 import byransha.web.EndpointBinaryResponse;
 import byransha.web.TechnicalView;
-import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
 import toools.extern.Proces;
 
-public class ModelGraphivzSVGView extends NodeEndpoint<BBGraph> implements TechnicalView {
+public class ModelGraphivzSVGView extends Endpoint<BBGraph> implements TechnicalView {
 
 	public ModelGraphivzSVGView(BBGraph db) {
 		super(db);

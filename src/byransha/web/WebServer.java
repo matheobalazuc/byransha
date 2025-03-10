@@ -2,6 +2,8 @@ package byransha.web;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
@@ -24,8 +26,10 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLParameters;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.DoubleNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -48,7 +52,6 @@ import byransha.web.endpoint.Authenticate;
 import byransha.web.endpoint.CurrentNode;
 import byransha.web.endpoint.Endpoints;
 import byransha.web.endpoint.Jump;
-import byransha.web.endpoint.Kill;
 import byransha.web.endpoint.NodeEndpoints;
 import byransha.web.endpoint.NodeIDs;
 import byransha.web.endpoint.Nodes;
@@ -102,7 +105,7 @@ public class WebServer extends BNode {
 	final OSNode operatingSystem;
 
 	List<User> nbRequestsInProgress = Collections.synchronizedList(new ArrayList<>());
-	public Map<String, EndPoint> endpoints = new HashMap<>();
+	public Map<String, Endpoint> endpoints = new HashMap<>();
 
 	private HttpsServer httpsServer;
 	public final List<Log> logs = new ArrayList<>();
@@ -114,7 +117,7 @@ public class WebServer extends BNode {
 		operatingSystem = new OSNode(g);
 		registerEndpoint(new Jump(g));
 		registerEndpoint(new Endpoints(g));
-		registerEndpoint(new Kill(g));
+		registerEndpoint(new JVMNode.Kill(g));
 		registerEndpoint(new Authenticate(g));
 		registerEndpoint(new CurrentNode(g));
 		registerEndpoint(new NodeIDs(g));
@@ -176,11 +179,11 @@ public class WebServer extends BNode {
 		httpsServer.start();
 	}
 
-	public List<NodeEndpoint> compliantEndpoints(BNode n) {
-		List<NodeEndpoint> r = new ArrayList<>();
+	public List<Endpoint> compliantEndpoints(BNode n) {
+		List<Endpoint> r = new ArrayList<>();
 
-		for (var e : endpoints.values()) {
-			if (e instanceof NodeEndpoint v && v.getTargetNodeType().isAssignableFrom(n.getClass())) {
+		for (var v : endpoints.values()) {
+			if (v instanceof View && v.getTargetNodeType().isAssignableFrom(n.getClass())) {
 				r.add(v);
 			}
 		}
@@ -207,9 +210,9 @@ public class WebServer extends BNode {
 		return activeUsers;
 	}
 
-	private void registerEndpoint(EndPoint e) {
+	private void registerEndpoint(Endpoint<? extends BNode> e) {
 		if (endpoints.containsKey(e.name()))
-			throw new IllegalStateException(e.name());
+			throw new IllegalStateException("endpoint already registered: " + e.name());
 
 		endpoints.put(e.name(), e);
 	}
@@ -218,16 +221,18 @@ public class WebServer extends BNode {
 
 	private HTTPResponse processRequest(HttpsExchange https) {
 		try {
+			long startTimeNs = System.nanoTime();
 			ObjectNode inputJson = grabInputFromURLandPOST(https);
 			final var inputJson2sendBack = inputJson.deepCopy();
 
 			User user = graph.findUser(https.getSSLSession());
-//			System.out.println("found user from session : " + user);
 
 			if (user == null) {
 				user = new User(graph, "user", "test");
 				user.session = https.getSSLSession();
 				user.stack.push(graph.root());
+			} else {
+				System.out.println("found user from session : " + user);
 			}
 
 			var path = https.getRequestURI().getPath();
@@ -248,28 +253,43 @@ public class WebServer extends BNode {
 					response.set("username", new TextNode(user.name.get()));
 				}
 
-				var endpointNode = inputJson.remove("endpoint");
-				long startTimeNs = System.nanoTime();
+				var endpoints = endpoints(inputJson.remove("endpoints"), user.currentNode());
+				var currentNode = user.currentNode();
 
-				if (endpointNode != null) {
-					var endpoint = endpoints.get(endpointNode.asText());
-					response.set("endpoint name", endpointNode);
+				if (inputJson.remove("raw") != null) {
+					if (endpoints.size() != 1)
+						throw new IllegalArgumentException("only 1 endpoint allowed");
 
-					if (endpoint == null) {
-						throw new IllegalArgumentException("no such endpoint: " + endpointNode.asText());
-					} else {
-						EndpointResponse<?> result = endpoint.exec(inputJson, user, this, https);
-						endpoint.nbCalls++;
-						endpoint.timeSpentNs += System.nanoTime() - startTimeNs;
+					if (inputJson.size() > 0)
+						throw new IllegalArgumentException("parms unused: " + inputJson.toPrettyString());
 
-						if (inputJson.remove("raw") != null) {
-							if (inputJson.size() > 0)
-								throw new IllegalArgumentException("parms unused: " + inputJson.toPrettyString());
+					var endpoint = endpoints.get(0);
+					var result = endpoint.exec(inputJson, user, this, https, currentNode);
+					return new HTTPResponse(200, result.contentType, result.toRawText().getBytes());
+				} else {
+					var resultsNode = new ArrayNode(null);
+					response.set("results", resultsNode);
 
-							return new HTTPResponse(200, result.contentType, result.toRawText().getBytes());
-						} else {
-							response.set("result", result.toJson());
+//					System.err.println(endpoints);
+					for (var endpoint : endpoints) {
+						ObjectNode er = new ObjectNode(null);
+						er.set("endpoint", new TextNode(endpoint.name()));
+						long startTimeNs2 = System.nanoTime();
+						
+						try {
+							EndpointResponse<?> result = endpoint.exec(inputJson, user, this, https, currentNode);
+							er.set("result", result.toJson());
 						}
+						catch (Throwable err) {
+							var sw = new StringWriter();
+							err.printStackTrace(new PrintWriter(sw));
+							er.set("error", new TextNode(sw.toString()));
+						}
+						endpoint.nbCalls++;
+						double duration = System.nanoTime() - startTimeNs2;
+						endpoint.timeSpentNs += duration;
+						er.set("duration", new DoubleNode(duration));
+						resultsNode.add(er);
 					}
 				}
 
@@ -308,6 +328,26 @@ public class WebServer extends BNode {
 			return new HTTPResponse(500, "text/plain", n.toPrettyString().getBytes());
 		} finally {
 			nbRequestsInProgress.remove(https);
+		}
+	}
+
+	private List<Endpoint> endpoints(JsonNode endpointJsonNode, BNode currentNode) {
+		if (endpointJsonNode == null) {
+			return compliantEndpoints(currentNode);
+		} else if (!endpointJsonNode.asText().contains(",")) {
+			return List.of(endpoints.get(endpointJsonNode.asText()));
+		} else {
+			List<Endpoint> r = new ArrayList<>();
+
+			for (var s : endpointJsonNode.asText().split(",")) {
+				var e = endpoints.get(s);
+
+				if (e == null) {
+					throw new IllegalArgumentException("no such endpoint: " + s);
+				}
+			}
+
+			return r;
 		}
 	}
 
@@ -374,7 +414,7 @@ public class WebServer extends BNode {
 		logs.add(new Log(new Date(), msg));
 	}
 
-	public static class Info extends NodeEndpoint<WebServer> {
+	public static class Info extends Endpoint<WebServer> {
 
 		public Info(BBGraph db) {
 			super(db);
@@ -397,10 +437,9 @@ public class WebServer extends BNode {
 		}
 	}
 
-	public static class LogsView extends NodeEndpoint<WebServer> {
+	public static class LogsView extends Endpoint<WebServer> {
 		public LogsView(BBGraph db) {
 			super(db);
-			// TODO Auto-generated constructor stub
 		}
 
 		@Override
@@ -417,14 +456,14 @@ public class WebServer extends BNode {
 		}
 	}
 
-	public static class EndpointCallDistributionView extends EndPoint {
+	public static class EndpointCallDistributionView extends Endpoint<WebServer> {
 		public EndpointCallDistributionView(BBGraph db) {
 			super(db);
-			// TODO Auto-generated constructor stub
 		}
 
 		@Override
-		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange) {
+		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
+				WebServer ws) {
 			var d = new Byransha.Distribution();
 			webServer.endpoints.values().forEach(e -> d.addXY(e.name(), e.nbCalls));
 			return new EndpointJsonResponse(d.toJson(), "logs");

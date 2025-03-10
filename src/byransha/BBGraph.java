@@ -21,15 +21,14 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.graph.BGraph;
+import byransha.web.Endpoint;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.EndpointJsonResponse.dialects;
 import byransha.web.EndpointResponse;
 import byransha.web.HTMLView;
-import byransha.web.NodeEndpoint;
 import byransha.web.TechnicalView;
 import byransha.web.WebServer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import toools.reflect.Clazz;
 
 public class BBGraph extends BNode {
@@ -260,11 +259,10 @@ public class BBGraph extends BNode {
 		}
 	}
 
-	public static class GraphView extends NodeEndpoint<BBGraph> {
+	public static class GraphView extends Endpoint<BBGraph> {
 
 		public GraphView(BBGraph db) {
 			super(db);
-			// TODO Auto-generated constructor stub
 		}
 
 		@Override

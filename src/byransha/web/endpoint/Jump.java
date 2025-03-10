@@ -5,14 +5,15 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-import byransha.BNode;
 import byransha.BBGraph;
+import byransha.BNode;
 import byransha.User;
+import byransha.web.Endpoint;
 import byransha.web.EndpointJsonResponse;
-import byransha.web.NodeEndpoint;
+import byransha.web.EndpointResponse;
 import byransha.web.WebServer;
 
-public class Jump extends NodeEndpoint<BNode> {
+public class Jump extends Endpoint<BNode> {
 
 	public Jump(BBGraph g) {
 		super(g);
@@ -52,4 +53,5 @@ public class Jump extends NodeEndpoint<BNode> {
 		return new EndpointJsonResponse(r, this);
 	}
 
+	
 }

@@ -22,10 +22,11 @@ import com.sun.net.httpserver.HttpsExchange;
 import byransha.BBGraph.Ref;
 import byransha.graph.BGraph;
 import byransha.graph.BVertex;
+import byransha.web.Endpoint;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.EndpointJsonResponse.dialects;
 import byransha.web.EndpointResponse;
-import byransha.web.NodeEndpoint;
+import byransha.web.View;
 import byransha.web.WebServer;
 import toools.reflect.Clazz;
 
@@ -157,7 +158,7 @@ public class BNode {
 		return false;
 	}
 
-	public boolean matches(NodeEndpoint<?> v) {
+	public boolean matches(Endpoint<?> v) {
 		return v.getTargetNodeType().isAssignableFrom(getClass());
 	}
 
@@ -239,7 +240,7 @@ public class BNode {
 		return this.hashCode() == ((BNode) obj).hashCode();
 	}
 
-	public static class BasicView extends NodeEndpoint<BNode> {
+	public static class BasicView extends Endpoint<BNode> implements View {
 		public BasicView(BBGraph g) {
 			super(g);
 			sendContentByDefault = true;
@@ -264,7 +265,7 @@ public class BNode {
 		}
 	}
 
-	public static class Nav2 extends NodeEndpoint<BNode> {
+	public static class Nav2 extends Endpoint<BNode> implements View {
 		public Nav2(BBGraph g) {
 			super(g);
 			sendContentByDefault = true;
@@ -289,11 +290,10 @@ public class BNode {
 		return v;
 	}
 
-	public static class GraphView extends NodeEndpoint<BNode> {
+	public static class GraphView extends Endpoint<BNode> implements View {
 
 		public GraphView(BBGraph db) {
 			super(db);
-			// TODO Auto-generated constructor stub
 		}
 
 		@Override
@@ -316,11 +316,10 @@ public class BNode {
 		}
 	}
 
-	public static class OutNodeDistribution extends NodeEndpoint<BNode> {
+	public static class OutNodeDistribution extends Endpoint<BNode> implements View {
 
 		public OutNodeDistribution(BBGraph db) {
 			super(db);
-			// TODO Auto-generated constructor stub
 		}
 
 		@Override

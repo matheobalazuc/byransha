@@ -6,19 +6,18 @@ import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.BBGraph;
 import byransha.User;
-import byransha.web.EndPoint;
+import byransha.web.Endpoint;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.WebServer;
 
-public class Authenticate extends EndPoint {
+public class Authenticate extends Endpoint<BBGraph> {
 
 	public Authenticate(BBGraph db) {
 		super(db);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange https)
+	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange https, BBGraph g)
 			throws Throwable {
 		user = auth(requireParm(in, "username").asText(), requireParm(in, "password").asText());
 

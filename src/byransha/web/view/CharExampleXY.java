@@ -3,16 +3,16 @@ package byransha.web.view;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
+import byransha.BBGraph;
 import byransha.BNode;
 import byransha.Byransha.Function;
-import byransha.BBGraph;
 import byransha.User;
+import byransha.web.Endpoint;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.EndpointJsonResponse.dialects;
-import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
 
-public class CharExampleXY extends NodeEndpoint<BNode> {
+public class CharExampleXY extends Endpoint<BNode> {
 	public CharExampleXY(BBGraph g) {
 		super(g);
 		sendContentByDefault = true;

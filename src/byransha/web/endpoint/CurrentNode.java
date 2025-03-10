@@ -5,23 +5,22 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.BBGraph;
+import byransha.BNode;
 import byransha.User;
-import byransha.web.EndPoint;
+import byransha.web.Endpoint;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.EndpointResponse;
 import byransha.web.WebServer;
 
-public class CurrentNode extends EndPoint {
+public class CurrentNode extends Endpoint<BNode> {
 
 	public CurrentNode(BBGraph db) {
 		super(db);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	public EndpointResponse exec(ObjectNode inputJson, User user, WebServer webServer, HttpsExchange exchange) {
-		var n = user.currentNode();
-
+	public EndpointResponse exec(ObjectNode inputJson, User user, WebServer webServer, HttpsExchange exchange,
+			BNode n) {
 		if (n == null) {
 			return null;
 		} else {
