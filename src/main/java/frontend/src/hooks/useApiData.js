@@ -7,7 +7,7 @@ export const useApiData = (endpoints, params = {}) => {
     const url = `${import.meta.env.VITE_API_BASE_URL}?${queryParams}`;
 
     return useQuery({
-        queryKey: ['apiData', endpoint, params], // Unique key for caching
+        queryKey: ['apiData', endpoints, params], // Unique key for caching
         queryFn: () => axios.get(url).then(res => res.data),
     });
 };
