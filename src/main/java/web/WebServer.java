@@ -283,6 +283,7 @@ public class WebServer extends BNode {
                             EndpointResponse<?> result = endpoint.exec(inputJson, user, this, https);
                             er.set("result", result.toJson());
                         } catch (Throwable err) {
+                        	err.printStackTrace();
                             var sw = new StringWriter();
                             err.printStackTrace(new PrintWriter(sw));
                             er.set("error", new TextNode(sw.toString()));

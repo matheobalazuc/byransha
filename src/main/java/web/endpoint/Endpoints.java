@@ -7,19 +7,20 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 import main.java.BBGraph;
+import main.java.BNode;
 import main.java.User;
 import main.java.web.NodeEndpoint;
 import main.java.web.EndpointJsonResponse;
 import main.java.web.WebServer;
 
-public class Endpoints extends NodeEndpoint<WebServer> {
+public class Endpoints extends NodeEndpoint<BNode> {
 
 	public Endpoints(BBGraph db) {
 		super(db);
 	}
 
 	@Override
-	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange http, WebServer ws) {
+	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange http, BNode ws) {
 		var currentNode = user.currentNode();
 
 		var data = new ArrayNode(null);
