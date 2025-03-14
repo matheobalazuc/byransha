@@ -8,12 +8,11 @@ import com.sun.net.httpserver.HttpsExchange;
 import byransha.BBGraph;
 import byransha.BNode;
 import byransha.User;
-import byransha.web.Endpoint;
 import byransha.web.EndpointJsonResponse;
-import byransha.web.EndpointResponse;
+import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
 
-public class Jump extends Endpoint<BNode> {
+public class Jump extends NodeEndpoint<BNode> {
 
 	public Jump(BBGraph g) {
 		super(g);

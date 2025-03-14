@@ -7,12 +7,12 @@ import com.sun.net.httpserver.HttpsExchange;
 import byransha.BBGraph;
 import byransha.BNode;
 import byransha.User;
-import byransha.web.Endpoint;
+import byransha.web.NodeEndpoint;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.EndpointResponse;
 import byransha.web.WebServer;
 
-public class CurrentNode extends Endpoint<BNode> {
+public class CurrentNode extends NodeEndpoint<BNode> {
 
 	public CurrentNode(BBGraph db) {
 		super(db);

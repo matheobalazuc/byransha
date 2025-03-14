@@ -8,11 +8,11 @@ import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.BBGraph;
 import byransha.User;
-import byransha.web.Endpoint;
+import byransha.web.NodeEndpoint;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.WebServer;
 
-public class Endpoints extends Endpoint<WebServer> {
+public class Endpoints extends NodeEndpoint<WebServer> {
 
 	public Endpoints(BBGraph db) {
 		super(db);

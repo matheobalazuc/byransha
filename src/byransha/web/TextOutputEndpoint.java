@@ -10,7 +10,7 @@ import byransha.BBGraph;
 import byransha.BNode;
 import byransha.User;
 
-public abstract class TextOutputEndpoint<N extends BNode> extends Endpoint<N> {
+public abstract class TextOutputEndpoint<N extends BNode> extends NodeEndpoint<N> {
 
 	public TextOutputEndpoint(BBGraph db) {
 		super(db);

@@ -6,7 +6,7 @@ import java.lang.management.ManagementFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-import byransha.web.Endpoint;
+import byransha.web.NodeEndpoint;
 import byransha.web.EndpointResponse;
 import byransha.web.EndpointTextResponse;
 import byransha.web.HTMLView;
@@ -43,7 +43,7 @@ public class JVMNode extends BNode {
 		}
 	}
 	
-	public static class Kill extends Endpoint<JVMNode> {
+	public static class Kill extends NodeEndpoint<JVMNode> {
 
 		public Kill(BBGraph db) {
 			super(db);

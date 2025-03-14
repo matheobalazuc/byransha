@@ -14,7 +14,7 @@ import byransha.BNode;
 import byransha.User;
 import toools.text.TextUtilities;
 
-public abstract class Endpoint<N extends BNode> extends BNode {
+public abstract class Endpoint extends BNode {
 	public int nbCalls = 0;
 	public long timeSpentNs = 0;
 	public boolean sendContentByDefault = false;
@@ -23,9 +23,7 @@ public abstract class Endpoint<N extends BNode> extends BNode {
 		super(db);
 	}
 
-	
-	public abstract EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
-			N node) throws Throwable;
+	public abstract EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange) throws Throwable;
 
 	public <N extends BNode> Class<N> getTargetNodeType() {
 		for (Class c = getClass(); c != null; c = c.getSuperclass()) {
@@ -39,13 +37,6 @@ public abstract class Endpoint<N extends BNode> extends BNode {
 		throw new IllegalStateException();
 	}
 
-	public BNode node(int id) {
-		return graph.findByID(Integer.valueOf(id));
-	}
-
-	public List<BNode> nodes(int... ids) {
-		return Arrays.stream(ids).mapToObj(id -> node(id)).toList();
-	}
 
 	public final String name() {
 		var name = getClass().getSimpleName();

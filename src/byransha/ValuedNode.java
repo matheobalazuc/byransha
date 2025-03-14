@@ -34,7 +34,7 @@ public abstract class ValuedNode<V> extends BNode {
 	public V get() {
 		if (value == null) {
 			try {
-				loadValue(f -> System.out.println("loading value for " + this));
+				loadValue(f -> System.out.println("loading value for " + id()));
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}

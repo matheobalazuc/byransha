@@ -29,6 +29,7 @@ import javax.net.ssl.SSLParameters;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.DoubleNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -105,7 +106,7 @@ public class WebServer extends BNode {
 	final OSNode operatingSystem;
 
 	List<User> nbRequestsInProgress = Collections.synchronizedList(new ArrayList<>());
-	public Map<String, Endpoint> endpoints = new HashMap<>();
+	public Map<String, NodeEndpoint<?>> endpoints = new HashMap<>();
 
 	private HttpsServer httpsServer;
 	public final List<Log> logs = new ArrayList<>();
@@ -179,8 +180,8 @@ public class WebServer extends BNode {
 		httpsServer.start();
 	}
 
-	public List<Endpoint> compliantEndpoints(BNode n) {
-		List<Endpoint> r = new ArrayList<>();
+	public List<NodeEndpoint> compliantEndpoints(BNode n) {
+		List<NodeEndpoint> r = new ArrayList<>();
 
 		for (var v : endpoints.values()) {
 			if (v instanceof View && v.getTargetNodeType().isAssignableFrom(n.getClass())) {
@@ -210,7 +211,7 @@ public class WebServer extends BNode {
 		return activeUsers;
 	}
 
-	private void registerEndpoint(Endpoint<? extends BNode> e) {
+	private void registerEndpoint(NodeEndpoint<?> e) {
 		if (endpoints.containsKey(e.name()))
 			throw new IllegalStateException("endpoint already registered: " + e.name());
 
@@ -254,7 +255,6 @@ public class WebServer extends BNode {
 				}
 
 				var endpoints = endpoints(inputJson.remove("endpoints"), user.currentNode());
-				var currentNode = user.currentNode();
 
 				if (inputJson.remove("raw") != null) {
 					if (endpoints.size() != 1)
@@ -264,7 +264,7 @@ public class WebServer extends BNode {
 						throw new IllegalArgumentException("parms unused: " + inputJson.toPrettyString());
 
 					var endpoint = endpoints.get(0);
-					var result = endpoint.exec(inputJson, user, this, https, currentNode);
+					var result = endpoint.exec(inputJson, user, this, https);
 					return new HTTPResponse(200, result.contentType, result.toRawText().getBytes());
 				} else {
 					var resultsNode = new ArrayNode(null);
@@ -274,17 +274,20 @@ public class WebServer extends BNode {
 					for (var endpoint : endpoints) {
 						ObjectNode er = new ObjectNode(null);
 						er.set("endpoint", new TextNode(endpoint.name()));
+						er.set("is_view", BooleanNode.valueOf(endpoint instanceof View));
+						er.set("is_technical_view", BooleanNode.valueOf(endpoint instanceof TechnicalView));
+						er.set("is_development_view", BooleanNode.valueOf(endpoint instanceof DevelopmentView));
 						long startTimeNs2 = System.nanoTime();
-						
+
 						try {
-							EndpointResponse<?> result = endpoint.exec(inputJson, user, this, https, currentNode);
+							EndpointResponse<?> result = endpoint.exec(inputJson, user, this, https);
 							er.set("result", result.toJson());
-						}
-						catch (Throwable err) {
+						} catch (Throwable err) {
 							var sw = new StringWriter();
 							err.printStackTrace(new PrintWriter(sw));
 							er.set("error", new TextNode(sw.toString()));
 						}
+
 						endpoint.nbCalls++;
 						double duration = System.nanoTime() - startTimeNs2;
 						endpoint.timeSpentNs += duration;
@@ -331,13 +334,13 @@ public class WebServer extends BNode {
 		}
 	}
 
-	private List<Endpoint> endpoints(JsonNode endpointJsonNode, BNode currentNode) {
+	private List<NodeEndpoint> endpoints(JsonNode endpointJsonNode, BNode currentNode) {
 		if (endpointJsonNode == null) {
 			return compliantEndpoints(currentNode);
 		} else if (!endpointJsonNode.asText().contains(",")) {
 			return List.of(endpoints.get(endpointJsonNode.asText()));
 		} else {
-			List<Endpoint> r = new ArrayList<>();
+			List<NodeEndpoint> r = new ArrayList<>();
 
 			for (var s : endpointJsonNode.asText().split(",")) {
 				var e = endpoints.get(s);
@@ -414,7 +417,7 @@ public class WebServer extends BNode {
 		logs.add(new Log(new Date(), msg));
 	}
 
-	public static class Info extends Endpoint<WebServer> {
+	public static class Info extends NodeEndpoint<WebServer> {
 
 		public Info(BBGraph db) {
 			super(db);
@@ -437,7 +440,7 @@ public class WebServer extends BNode {
 		}
 	}
 
-	public static class LogsView extends Endpoint<WebServer> {
+	public static class LogsView extends NodeEndpoint<WebServer> {
 		public LogsView(BBGraph db) {
 			super(db);
 		}
@@ -456,7 +459,7 @@ public class WebServer extends BNode {
 		}
 	}
 
-	public static class EndpointCallDistributionView extends Endpoint<WebServer> {
+	public static class EndpointCallDistributionView extends NodeEndpoint<WebServer> {
 		public EndpointCallDistributionView(BBGraph db) {
 			super(db);
 		}

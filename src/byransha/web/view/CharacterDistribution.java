@@ -7,12 +7,12 @@ import byransha.BBGraph;
 import byransha.BNode;
 import byransha.Byransha.Distribution;
 import byransha.User;
-import byransha.web.Endpoint;
+import byransha.web.NodeEndpoint;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.EndpointJsonResponse.dialects;
 import byransha.web.WebServer;
 
-public class CharacterDistribution extends Endpoint<BNode> {
+public class CharacterDistribution extends NodeEndpoint<BNode> {
 
 	public CharacterDistribution(BBGraph g) {
 		super(g);

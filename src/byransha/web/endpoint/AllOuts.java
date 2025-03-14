@@ -7,11 +7,11 @@ import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.BBGraph;
 import byransha.User;
-import byransha.web.Endpoint;
+import byransha.web.NodeEndpoint;
 import byransha.web.EndpointTextResponse;
 import byransha.web.WebServer;
 
-public class AllOuts extends Endpoint<BBGraph> {
+public class AllOuts extends NodeEndpoint<BBGraph> {
 
 	public AllOuts(BBGraph db) {
 		super(db);

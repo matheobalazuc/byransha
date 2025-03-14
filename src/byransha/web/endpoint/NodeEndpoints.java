@@ -7,11 +7,11 @@ import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.BBGraph;
 import byransha.User;
-import byransha.web.Endpoint;
 import byransha.web.EndpointJsonResponse;
+import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
 
-public class NodeEndpoints extends Endpoint<WebServer> {
+public class NodeEndpoints extends NodeEndpoint<WebServer> {
 
 	public NodeEndpoints(BBGraph db) {
 		super(db);
@@ -25,12 +25,10 @@ public class NodeEndpoints extends Endpoint<WebServer> {
 			return null;
 		} else {
 			var data = new ArrayNode(null);
-			webServer.endpoints.values().stream().filter(e -> currentNode.matches(e)).forEach(e -> {
-				data.add(new TextNode(e.name()));
-			});
+			webServer.endpoints.values().stream().filter(e -> currentNode.matches(e))
+					.forEach(e -> data.add(new TextNode(e.name())));
 
 			return new EndpointJsonResponse(data, this);
 		}
 	}
-
 }

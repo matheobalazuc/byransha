@@ -6,11 +6,11 @@ import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.BBGraph;
 import byransha.User;
-import byransha.web.Endpoint;
+import byransha.web.NodeEndpoint;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.WebServer;
 
-public class Authenticate extends Endpoint<BBGraph> {
+public class Authenticate extends NodeEndpoint<BBGraph> {
 
 	public Authenticate(BBGraph db) {
 		super(db);
