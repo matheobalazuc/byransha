@@ -22,10 +22,11 @@ import com.sun.net.httpserver.HttpsExchange;
 import byransha.BBGraph.Ref;
 import byransha.graph.BGraph;
 import byransha.graph.BVertex;
+import byransha.web.NodeEndpoint;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.EndpointJsonResponse.dialects;
 import byransha.web.EndpointResponse;
-import byransha.web.NodeEndpoint;
+import byransha.web.View;
 import byransha.web.WebServer;
 import toools.reflect.Clazz;
 
@@ -239,7 +240,7 @@ public class BNode {
 		return this.hashCode() == ((BNode) obj).hashCode();
 	}
 
-	public static class BasicView extends NodeEndpoint<BNode> {
+	public static class BasicView extends NodeEndpoint<BNode> implements View {
 		public BasicView(BBGraph g) {
 			super(g);
 			sendContentByDefault = true;
@@ -256,15 +257,15 @@ public class BNode {
 			n.set("out-degree", new TextNode("" + node.outDegree()));
 			n.set("outs", new TextNode(
 					node.outs().entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).toList().toString()));
-			n.set("in-degree", new TextNode("" + node.ins().size()));
-			n.set("ins", new TextNode(node.ins().stream().map(e -> e.toString()).toList().toString()));
+//			n.set("in-degree", new TextNode("" + node.ins().size()));
+//			n.set("ins", new TextNode(node.ins().stream().map(e -> e.toString()).toList().toString()));
 			n.set("canSee", new TextNode("" + node.canSee(u)));
 			n.set("canEdit", new TextNode("" + node.canEdit(u)));
 			return new EndpointJsonResponse(n, this);
 		}
 	}
 
-	public static class Nav2 extends NodeEndpoint<BNode> {
+	public static class Nav2 extends NodeEndpoint<BNode> implements View {
 		public Nav2(BBGraph g) {
 			super(g);
 			sendContentByDefault = true;
@@ -289,11 +290,10 @@ public class BNode {
 		return v;
 	}
 
-	public static class GraphView extends NodeEndpoint<BNode> {
+	public static class GraphView extends NodeEndpoint<BNode> implements View {
 
 		public GraphView(BBGraph db) {
 			super(db);
-			// TODO Auto-generated constructor stub
 		}
 
 		@Override
@@ -316,11 +316,10 @@ public class BNode {
 		}
 	}
 
-	public static class OutNodeDistribution extends NodeEndpoint<BNode> {
+	public static class OutNodeDistribution extends NodeEndpoint<BNode> implements View {
 
 		public OutNodeDistribution(BBGraph db) {
 			super(db);
-			// TODO Auto-generated constructor stub
 		}
 
 		@Override

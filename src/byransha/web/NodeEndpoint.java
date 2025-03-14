@@ -1,12 +1,10 @@
 package byransha.web;
 
-import java.io.PrintWriter;
 import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.Random;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
@@ -14,52 +12,29 @@ import byransha.BBGraph;
 import byransha.BNode;
 import byransha.User;
 
-public abstract class NodeEndpoint<N extends BNode> extends EndPoint {
+public abstract class NodeEndpoint<N extends BNode> extends Endpoint {
 
 	public NodeEndpoint(BBGraph db) {
 		super(db);
 	}
 
-	public boolean sendContentByDefault = false;
-
 	@Override
-	public final EndpointResponse<?> exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange)
+	public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange)
 			throws Throwable {
-		N node = (N) node(in, user);
-		Objects.requireNonNull(node);
-		return exec(in, user, webServer, exchange, node);
+		N n = node(input.remove("node_id"), user);
+		return exec(input, user, webServer, exchange, n);
 	}
 
-	private BNode node(ObjectNode in, User user) {
-		var idNode = in.remove("nodeID");
-
-		if (idNode == null) { // no explicit node
-			if (user.currentNode() == null)
-				return graph.root();
-
-			return user.currentNode();
-		} else {
-			var nodeID = idNode.asText();
-
-			if (nodeID.equals("random")) {
-				return graph.nodes.get(new Random().nextInt(graph.nodes.size()));
-			} else if (nodeID.equals("current")) {
-				return user.stack.isEmpty() ? null : user.stack.peek();
-			} else if (nodeID.equals("previous")) {
-				if (user.stack.size() > 1) {
-					user.stack.pop();
-					return user.stack.peek();
-				}
-
-				return null;
-			} else {
-				return node(Integer.valueOf(nodeID));
-			}
+	private N node(JsonNode node, User user) {
+		if (node == null) {
+			return (N) user.currentNode();
 		}
+
+		return (N) node(node.asInt());
 	}
 
-	public abstract EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, N node)
-			throws Throwable;
+	public abstract EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
+			N node) throws Throwable;
 
 	public <N extends BNode> Class<N> getTargetNodeType() {
 		for (Class c = getClass(); c != null; c = c.getSuperclass()) {
@@ -81,22 +56,4 @@ public abstract class NodeEndpoint<N extends BNode> extends EndPoint {
 		return Arrays.stream(ids).mapToObj(id -> node(id)).toList();
 	}
 
-	public static class V extends HTMLView<NodeEndpoint> {
-		public V(BBGraph g) {
-			super(g);
-		}
-
-		@Override
-		protected void print(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, NodeEndpoint node,
-				PrintWriter pw) {
-			pw.println("<ul>");
-			pw.println("<li>name: " + node.name());
-			pw.println("<li>label: " + node.label());
-			pw.println("<li>target: " + node.getTargetNodeType().getName());
-			pw.println("<li>development" + isDevelopmentView());
-			pw.println("<li>technical" + node.isTechnicalView());
-			pw.println("<li>content by default" + node.sendContentByDefault);
-			pw.println("</ul>");
-		}
-	}
 }

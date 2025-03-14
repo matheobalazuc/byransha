@@ -6,6 +6,7 @@ import com.sun.net.httpserver.HttpsExchange;
 import byransha.BBGraph;
 import byransha.User;
 import byransha.ValuedNode;
+import byransha.web.NodeEndpoint;
 import byransha.web.EndpointBinaryResponse;
 import byransha.web.EndpointResponse;
 import byransha.web.WebServer;
@@ -14,14 +15,12 @@ public class Picture extends ValuedNode<byte[]> {
 
 	public Picture(BBGraph db) {
 		super(db);
-		// TODO Auto-generated constructor stub
 	}
 
-	public static class V extends byransha.web.NodeEndpoint<Picture> {
+	public static class V extends NodeEndpoint<Picture> {
 
 		public V(BBGraph db) {
 			super(db);
-			// TODO Auto-generated constructor stub
 		}
 
 		@Override

@@ -8,32 +8,26 @@ import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.BBGraph;
 import byransha.User;
-import byransha.web.EndPoint;
-import byransha.web.EndpointJsonResponse;
 import byransha.web.NodeEndpoint;
+import byransha.web.EndpointJsonResponse;
 import byransha.web.WebServer;
 
-public class Endpoints extends EndPoint {
+public class Endpoints extends NodeEndpoint<WebServer> {
 
 	public Endpoints(BBGraph db) {
 		super(db);
 	}
 
 	@Override
-	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange http) {
+	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange http, WebServer ws) {
 		var currentNode = user.currentNode();
 
 		var data = new ArrayNode(null);
 		webServer.endpoints.values().forEach(e -> {
 			var nn = new ObjectNode(null);
 			nn.set("name", new TextNode(e.name()));
-			boolean nodeEndpoint = e instanceof NodeEndpoint;
-			nn.set("node-endpoint", BooleanNode.valueOf(nodeEndpoint));
-
-			if (nodeEndpoint) {
-				nn.set("applicable to current node", BooleanNode.valueOf(currentNode.matches((NodeEndpoint) e)));
-			}
-
+			nn.set("endpoint target type", new TextNode(e.getTargetNodeType().getName()));
+			nn.set("applicable to current node", BooleanNode.valueOf(currentNode.matches(e)));
 			data.add(nn);
 		});
 

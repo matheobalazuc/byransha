@@ -6,8 +6,8 @@ import java.io.StringWriter;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-import byransha.BNode;
 import byransha.BBGraph;
+import byransha.BNode;
 import byransha.User;
 
 public abstract class TextOutputEndpoint<N extends BNode> extends NodeEndpoint<N> {
@@ -27,6 +27,7 @@ public abstract class TextOutputEndpoint<N extends BNode> extends NodeEndpoint<N
 
 	protected abstract String textMimeType();
 
-	protected abstract void print(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, N node,  PrintWriter pw) throws Throwable;
+	protected abstract void print(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, N node,
+			PrintWriter pw) throws Throwable;
 
 }

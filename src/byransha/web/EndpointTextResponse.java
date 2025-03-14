@@ -12,7 +12,7 @@ public class EndpointTextResponse extends EndpointResponse<String> {
 	@Override
 	public JsonNode data() {
 		return new TextNode(data.replaceAll("\n", "\n"));
-	}
+	}	
 	
 	@Override
 	public String toRawText() {

@@ -5,9 +5,9 @@ import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.BBGraph;
 import byransha.User;
+import byransha.web.NodeEndpoint;
 import byransha.web.EndpointBinaryResponse;
 import byransha.web.TechnicalView;
-import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
 import toools.extern.Proces;
 
