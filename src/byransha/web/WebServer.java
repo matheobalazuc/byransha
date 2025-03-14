@@ -218,7 +218,7 @@ public class WebServer extends BNode {
 		endpoints.put(e.name(), e);
 	}
 
-	static final File frontendDir = new File(System.getProperty("user.home"), "frontend");
+	static final File frontendDir = new File("build/frontend");
 
 	private HTTPResponse processRequest(HttpsExchange https) {
 		try {
