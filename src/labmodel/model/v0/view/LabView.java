@@ -5,10 +5,10 @@ import java.io.PrintWriter;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-import byransha.BBGraph;
-import byransha.User;
-import byransha.web.TextOutputEndpoint;
-import byransha.web.WebServer;
+import main.java.BBGraph;
+import main.java.User;
+import main.java.web.TextOutputEndpoint;
+import main.java.web.WebServer;
 import labmodel.model.v0.Lab;
 
 final public class LabView extends TextOutputEndpoint<Lab> {

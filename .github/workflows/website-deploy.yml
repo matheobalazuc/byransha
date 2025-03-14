@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'src/byransha/frontend/**'
+      - 'src/main/java/frontend/**'
   workflow_dispatch:
 
 jobs:
@@ -18,15 +18,15 @@ jobs:
         with:
           node-version: 18
           cache: npm
-          cache-dependency-path: src/byransha/frontend/package-lock.json
+          cache-dependency-path: src/main/java/frontend/package-lock.json
 
       - name: Install dependencies
         run: npm ci
-        working-directory: src/byransha/frontend
+        working-directory: src/main/java/frontend
 
       - name: Build frontend
         run: npm run build:ci
-        working-directory: src/byransha/frontend
+        working-directory: src/main/java/frontend
 
       - name: Commit build files
         run: |

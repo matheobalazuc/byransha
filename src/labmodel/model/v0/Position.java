@@ -1,8 +1,8 @@
 package labmodel.model.v0;
 
-import byransha.BNode;
-import byransha.BBGraph;
-import byransha.DateNode;
+import main.java.BNode;
+import main.java.BBGraph;
+import main.java.DateNode;
 
 public class Position extends BNode {
 	public Position(BBGraph g) {

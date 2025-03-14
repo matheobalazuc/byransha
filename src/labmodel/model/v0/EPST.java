@@ -1,6 +1,6 @@
 package labmodel.model.v0;
 
-import byransha.BBGraph;
+import main.java.BBGraph;
 
 public class EPST extends Structure {
 

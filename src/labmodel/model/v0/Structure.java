@@ -1,10 +1,10 @@
 package labmodel.model.v0;
 
-import byransha.BNode;
-import byransha.BBGraph;
-import byransha.ListNode;
-import byransha.SetNode;
-import byransha.StringNode;
+import main.java.BNode;
+import main.java.BBGraph;
+import main.java.ListNode;
+import main.java.SetNode;
+import main.java.StringNode;
 
 public class Structure extends BNode {
 	public StringNode name = new StringNode(graph);

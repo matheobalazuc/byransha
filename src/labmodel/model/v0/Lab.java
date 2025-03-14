@@ -3,8 +3,8 @@ package labmodel.model.v0;
 import java.util.HashMap;
 import java.util.Map;
 
-import byransha.BBGraph;
-import byransha.ListNode;
+import main.java.BBGraph;
+import main.java.ListNode;
 
 public class Lab extends Structure {
 

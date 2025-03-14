@@ -1,7 +1,7 @@
 package labmodel.model.v0;
 
-import byransha.BooleanNode;
-import byransha.BBGraph;
+import main.java.BooleanNode;
+import main.java.BBGraph;
 
 public class Software extends Publication {
 	public Software(BBGraph g) {

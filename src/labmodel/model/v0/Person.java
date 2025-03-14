@@ -1,12 +1,12 @@
 package labmodel.model.v0;
 
-import byransha.BNode;
-import byransha.BooleanNode;
-import byransha.BBGraph;
-import byransha.EmailNode;
-import byransha.ImageNode;
-import byransha.ListNode;
-import byransha.StringNode;
+import main.java.BNode;
+import main.java.BooleanNode;
+import main.java.BBGraph;
+import main.java.EmailNode;
+import main.java.ImageNode;
+import main.java.ListNode;
+import main.java.StringNode;
 
 public class Person extends BNode {
 	public Person(BBGraph g) {

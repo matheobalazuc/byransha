@@ -1,6 +1,6 @@
 package labmodel;
 
-import byransha.BBGraph;
+import main.java.BBGraph;
 import labmodel.model.v0.Lab;
 
 /*
