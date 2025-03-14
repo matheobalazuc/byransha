@@ -8,23 +8,15 @@ import {graphviz} from "d3-graphviz";
 import CustomCodeBlock from "../../global/CustomCodeBlock.jsx";
 import {ResponsiveNetwork} from "@nivo/network";
 import './View.css'
+import {useApiData} from "../../hooks/useApiData.js";
 
 const fetcher = url => axios.get(url);
 
 export const View = ({viewId}) => {
-    let {
-        data,
-        error,
-        isLoading: loading
-    } = useSWR(`https://dronic.i3s.unice.fr:8080/api?endpoint=GetViewContent&index=${viewId}`, fetcher);
-
-    const {
-        data: allViews,
-        isLoading: loadingAllViews,
-        error: errorAllViews
-    } = useSWR('https://dronic.i3s.unice.fr:8080/api?endpoint=GetNodeInfo', fetcher);
-
+    const { data, isLoading: loading, error } = useApiData('GetViewContent', { viewId });
+    const { data: allViews, isLoading: loadingAllViews, error: errorAllViews } = useApiData('GetNodeInfo');
     const graphvizRef = useRef(null);
+
 
     useEffect(() => {
         if (!data) return;
