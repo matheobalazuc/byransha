@@ -63,9 +63,9 @@ import main.java.web.view.ModelDOTView;
 import main.java.web.view.ModelGraphivzSVGView;
 import main.java.web.view.SourceView;
 import main.java.web.view.ToStringView;
-import labmodel.model.v0.Picture;
-import labmodel.model.v0.view.LabView;
-import labmodel.model.v0.view.StructureView;
+import main.java.labmodel.model.v0.Picture;
+import main.java.labmodel.model.v0.view.LabView;
+import main.java.labmodel.model.v0.view.StructureView;
 import toools.reflect.ClassPath;
 import toools.text.TextUtilities;
 
