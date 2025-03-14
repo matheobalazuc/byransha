@@ -3,12 +3,12 @@ import { Box, Card, CardContent, CircularProgress, Grid2, Typography } from '@mu
 import React from 'react';
 import { View } from "../Common/View.jsx";
 import { useTitle } from "../../global/useTitle.jsx";
-import { useApiData } from '../../hooks/useApiData';
+import {useMainApiData} from '../../hooks/useApiData';
 
 const GridView = () => {
     const navigate = useNavigate();
     useTitle("Views");
-    const { data, isLoading, error } = useApiData('GetNodeInfo');
+    const { data, isLoading, error } = useMainApiData();
 
     if (isLoading) {
         return (
@@ -29,11 +29,11 @@ const GridView = () => {
         return <div>Error: {error.message}</div>;
     }
 
-    if (!data || !data.result) {
+    if (!data || !data.results) {
         return <div>Error: Data is null.</div>;
     }
 
-    const views = data.result.views || [];
+    const views = data.results || [];
 
     return (
         <Box sx={{ padding: { xs: '5px', md: '40px' }, maxWidth: '100%', margin: '0 auto' }}>
@@ -55,7 +55,7 @@ const GridView = () => {
                                 display: 'flex',
                                 flexDirection: 'column',
                             }}
-                            onClick={() => navigate(`/information/${index}`)}
+                            onClick={() => navigate(`/information/${view.endpoint}`)}
                         >
                             <CardContent
                                 sx={{
@@ -67,7 +67,7 @@ const GridView = () => {
                                 }}
                             >
                                 <Typography variant="h6" sx={{ marginBottom: '16px', flexShrink: 0 }}>
-                                    {view.name}
+                                    {view.endpoint}
                                 </Typography>
                                 <Typography
                                     variant="body2"
@@ -81,7 +81,7 @@ const GridView = () => {
                                     }}
                                 >
                                     Content:
-                                    <View viewId={index} />
+                                    <View viewId={view.endpoint} />
                                 </Typography>
                             </CardContent>
                         </Card>

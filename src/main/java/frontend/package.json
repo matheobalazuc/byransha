@@ -38,7 +38,7 @@
   "scripts": {
     "start": "vite",
     "build": "vite build",
-    "build:ci": "vite build --outDir ../../../build/frontend --emptyOutDir",
+    "build:ci": "vite build --outDir ../../../../build/frontend --emptyOutDir",
     "serve": "vite preview"
   },
   "eslintConfig": {

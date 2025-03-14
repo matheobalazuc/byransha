@@ -13,18 +13,16 @@ import {useApiData} from "../../hooks/useApiData.js";
 const fetcher = url => axios.get(url);
 
 export const View = ({viewId}) => {
-    const { data, isLoading: loading, error } = useApiData('GetViewContent', { viewId });
-    const { data: allViews, isLoading: loadingAllViews, error: errorAllViews } = useApiData('GetNodeInfo');
+    const { data, isLoading: loading, error } = useApiData(viewId);
     const graphvizRef = useRef(null);
-
 
     useEffect(() => {
         if (!data) return;
         const {data: content, headers} = data;
         const contentType = headers['content-type'].replaceAll('+getViewContent', '')
 
-        if (contentType === 'text/dot' && graphvizRef.current) {
-            graphviz(graphvizRef.current).renderDot(content);
+        if (contentType === 'text/json' && viewId === "model_dotview" && graphvizRef.current) {
+            graphviz(graphvizRef.current).renderDot(content.results[0].result.data)
         }
     }, [data]);
 
@@ -32,26 +30,14 @@ export const View = ({viewId}) => {
         if (!content) {
             return <div className="error-message">No content available.</div>;
         }
+
+        if (!headers)
+            return;
+        
         const contentType = headers['content-type'].replaceAll('+getViewContent', '')
 
         if (contentType === 'text/json') {
-            if (loadingAllViews) {
-                return <div className="loading-container">
-                    <CircularProgress/>
-                </div>
-            }
-
-            if (errorAllViews) {
-                return <div className="error-message">Error: {errorAllViews.message}</div>
-            }
-
-            if (!allViews) {
-                return <div>Error: Data is null.</div>;
-            }
-
-            const viewInfo = allViews.data.result.views[viewId]
-
-            if (viewInfo.dialect === 'xy2') {
+            if (viewId === 'xy2') {
                 const parsedChartData = parseNivoChartData(content);
 
                 return (
@@ -95,7 +81,7 @@ export const View = ({viewId}) => {
                         />
                     </div>
                 );
-            } else if (viewInfo.dialect === 'distribution') {
+            } else if (viewId === 'distribution') {
                 const barChartData = parseBarChartData(content);
                 const keys = Object.keys(Object.values(content).reduce((a, b) => Object.assign({}, a, b))).sort();
                 return (
@@ -180,7 +166,7 @@ export const View = ({viewId}) => {
                         />
                     </div>
                 )
-            } else if (viewInfo.dialect === 'nivo') {
+            } else if (viewId === 'nivo') {
                 return (
                     <div className="graph">
                         <ResponsiveNetwork
@@ -206,6 +192,12 @@ export const View = ({viewId}) => {
                             linkBlendMode="multiply"
                             motionConfig="wobbly"
                         />
+                    </div>
+                );
+            } else if (viewId === 'model_dotview') {
+                return (
+                    <div className="content-container graphviz-container">
+                        <div ref={graphvizRef}/>
                     </div>
                 );
             } else {
@@ -239,13 +231,7 @@ export const View = ({viewId}) => {
                     <img src={`data:${contentType};base64,${content}`} alt="Content"/>
                 </div>
             );
-        } else if (contentType === 'text/dot') {
-            return (
-                <div className="content-container graphviz-container">
-                    <div ref={graphvizRef}/>
-                </div>
-            );
-        } else if (contentType === 'image/jsondot') {
+        }  else if (contentType === 'image/jsondot') {
             return <div className="content-container">
                 <CustomCodeBlock language="json" code={JSON.stringify(content, null, "\t")}/>
             </div>
@@ -260,7 +246,7 @@ export const View = ({viewId}) => {
                 </div>
             );
         }
-    }, [allViews, errorAllViews, loadingAllViews, viewId]);
+    }, [data, viewId]);
 
     const parseNivoChartData = (content) => {
         const result = [];
@@ -305,10 +291,14 @@ export const View = ({viewId}) => {
     }
 
     if (!data) {
-        return <div>Error: Data is null.</div>;
+        return <div className="error-message">No data available.</div>;
     }
 
-    const {data: content, headers} = data;
+    const {data: dataContent, headers} = data;
 
-    return displayContent(content, headers);
+    if (dataContent.results[0].error !== undefined) {
+        return <div className="error-message">Error: {dataContent.results[0].error}</div>;
+    }
+
+    return displayContent(dataContent.results[0].result.data, headers);
 }
