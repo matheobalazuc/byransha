@@ -1,8 +1,6 @@
 package labmodel.model.v0.event;
 
-import java.util.List;
-
-import byransha.Event;
+import main.java.Event;
 import labmodel.model.v0.Lab;
 import labmodel.model.v0.Person;
 

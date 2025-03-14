@@ -1,8 +1,8 @@
 package labmodel.model.v0;
 
-import byransha.BBGraph;
-import byransha.BNode;
-import byransha.StringNode;
+import main.java.BBGraph;
+import main.java.BNode;
+import main.java.StringNode;
 
 public class Status extends BNode {
 	StringNode name = new StringNode(graph);

@@ -3,13 +3,13 @@ package labmodel.model.v0;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-import byransha.BBGraph;
-import byransha.User;
-import byransha.ValuedNode;
-import byransha.web.NodeEndpoint;
-import byransha.web.EndpointBinaryResponse;
-import byransha.web.EndpointResponse;
-import byransha.web.WebServer;
+import main.java.BBGraph;
+import main.java.User;
+import main.java.ValuedNode;
+import main.java.web.NodeEndpoint;
+import main.java.web.EndpointBinaryResponse;
+import main.java.web.EndpointResponse;
+import main.java.web.WebServer;
 
 public class Picture extends ValuedNode<byte[]> {
 

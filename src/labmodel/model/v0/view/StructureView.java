@@ -5,10 +5,10 @@ import java.io.PrintWriter;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-import byransha.BBGraph;
-import byransha.User;
-import byransha.web.HTMLView;
-import byransha.web.WebServer;
+import main.java.BBGraph;
+import main.java.User;
+import main.java.web.HTMLView;
+import main.java.web.WebServer;
 import labmodel.model.v0.Structure;
 
 final public class StructureView extends HTMLView<Structure> {

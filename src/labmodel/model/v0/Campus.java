@@ -1,9 +1,9 @@
 package labmodel.model.v0;
 
-import byransha.BNode;
-import byransha.BBGraph;
-import byransha.ListNode;
-import byransha.StringNode;
+import main.java.BNode;
+import main.java.BBGraph;
+import main.java.ListNode;
+import main.java.StringNode;
 
 public class Campus extends BNode {
 	public Campus(BBGraph g) {

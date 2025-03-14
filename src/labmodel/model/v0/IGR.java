@@ -1,6 +1,6 @@
 package labmodel.model.v0;
 
-import byransha.BBGraph;
+import main.java.BBGraph;
 
 public class IGR extends Status {
 	public IGR(BBGraph g) {

@@ -1,7 +1,7 @@
 package labmodel.model.v0;
 
-import byransha.BBGraph;
-import byransha.ListNode;
+import main.java.BBGraph;
+import main.java.ListNode;
 
 public class University extends Structure {
 
