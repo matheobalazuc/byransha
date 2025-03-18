@@ -178,6 +178,7 @@ public class WebServer extends BNode {
         httpsServer.createContext("/", http -> processRequest((HttpsExchange) http).send(http));
         httpsServer.setExecutor(Executors.newCachedThreadPool());
         httpsServer.start();
+        System.out.println("HTTP server started at the URL : https://localhost:" + port);
     }
 
     public List<NodeEndpoint> compliantEndpoints(BNode n) {
@@ -277,6 +278,7 @@ public class WebServer extends BNode {
                         er.set("is_view", BooleanNode.valueOf(endpoint instanceof View));
                         er.set("is_technical_view", BooleanNode.valueOf(endpoint instanceof TechnicalView));
                         er.set("is_development_view", BooleanNode.valueOf(endpoint instanceof DevelopmentView));
+                        er.set("current node", new TextNode(user.currentNode().toString()));
                         long startTimeNs2 = System.nanoTime();
 
                         try {
@@ -299,7 +301,7 @@ public class WebServer extends BNode {
 
                 response.set("durationNs", new TextNode("" + (System.nanoTime() - startTimeNs)));
 
-                if (inputJson.size() > 0)
+                if (!inputJson.isEmpty())
                     throw new IllegalArgumentException("parms unused: " + inputJson.toPrettyString());
 
                 return new HTTPResponse(200, "text/json", response.toPrettyString().getBytes());
@@ -387,14 +389,12 @@ public class WebServer extends BNode {
 
     static Map<String, String> query(String s) {
         Map<String, String> query = new HashMap<>();
-
-        if (s != null && !s.isEmpty()) {
-            for (var e : TextUtilities.split(s, '&')) {
+        if(s != null && !s.isEmpty()){
+            for(var e : TextUtilities.split(s, '&')){
                 var a = e.split("=");
-                query.put(a[0], a.length == 2 ? a[1] : null);
+                query.put(a[0], a[1]);
             }
         }
-
         return query;
     }
 

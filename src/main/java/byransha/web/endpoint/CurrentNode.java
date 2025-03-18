@@ -1,5 +1,6 @@
 package byransha.web.endpoint;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
@@ -24,10 +25,27 @@ public class CurrentNode extends NodeEndpoint<BNode> {
 		if (n == null) {
 			return null;
 		} else {
-			var root = new ObjectNode(null);
-			root.set("id", new TextNode("" + n.id()));
-			root.set("class", new TextNode(n.getClass().getName()));
-			return new EndpointJsonResponse(root, this);
+			ArrayNode viewsNode = new ArrayNode(null);
+			var views = webServer.compliantEndpoints(n);
+
+			for(var v : views){
+				var root = new ObjectNode(null);
+				root.set("label", new TextNode(v.label()));
+				root.set("id", new TextNode("" + v.id()));
+				root.set("target", new TextNode(v.getTargetNodeType().getName()));
+				root.set("development", new TextNode("" + v.isDevelopmentView()));
+				root.set("technical", new TextNode("" + v.isTechnicalView()));
+				root.set("can read", new TextNode("" + v.canSee(user)));
+				root.set("can write", new TextNode("" + v.canSee(user)));
+
+//				if (v.sendContentByDefault) {
+//					root.set("content", v.exec(inputJson, user, webServer, exchange, user).toJson());
+//				}
+
+				viewsNode.add(root);
+			}
+			return new EndpointJsonResponse(viewsNode, this);
+
 		}
 	}
 }
