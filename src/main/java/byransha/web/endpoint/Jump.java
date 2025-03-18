@@ -21,7 +21,20 @@ public class Jump extends NodeEndpoint<BNode> {
 	@Override
 	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode node)
 			throws Throwable {
-		user.stack.push(node);
+
+		var id = requireParm(in, ("target_node")).asInt();
+		for(var search : webServer.compliantEndpoints(node)){
+			if(search.id() == id) {
+				node = search;
+				user.stack.push(node);
+				break;
+			}
+		}
+		if(node.id() != id) {
+			System.err.println("From the current node " + node.id() +" , the node "+ id+ " is not reachable");
+		}
+
+
 
 		var r = new ObjectNode(null);
 		r.set("id", new TextNode("" + node.id()));
@@ -41,9 +54,9 @@ public class Jump extends NodeEndpoint<BNode> {
 			n.set("development", new TextNode("" + v.isDevelopmentView()));
 			n.set("technical", new TextNode("" + v.isTechnicalView()));
 
-			if (v.sendContentByDefault) {
-				n.set("content", v.exec(in, user, webServer, exchange, user).toJson());
-			}
+//			if (v.sendContentByDefault) {
+//				n.set("content", v.exec(in, user, webServer, exchange, user).toJson());
+//			}
 
 			viewsNode.add(n);
 		}

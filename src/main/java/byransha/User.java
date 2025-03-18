@@ -25,6 +25,7 @@ public class User extends BNode {
 		name = new StringNode(g);
 		passwordNode = new StringNode(g);
 		passwordNode.set(password);
+		name.set(u);
 	}
 
 	public BNode currentNode() {
