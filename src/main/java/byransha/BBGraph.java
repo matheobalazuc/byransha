@@ -111,8 +111,8 @@ public class BBGraph extends BNode {
 			for (var symlink : d.listFiles()) {
 				Path targetFile = Files.readSymbolicLink(symlink.toPath());
 				String relationName = targetFile.getFileName().toString();
-				String targetClassName = targetFile.getName(targetFile.getNameCount() - 2).toString();
-				var targetNodeClass = (Class<? extends BNode>) Class.forName(targetClassName);
+//				String targetClassName = targetFile.getName(targetFile.getNameCount() - 2).toString();
+//				var targetNodeClass = (Class<? extends BNode>) Class.forName(targetClassName);
 				var fn = targetFile.getFileName().toString();
 				int id = Integer.valueOf(fn.substring(fn.indexOf("@") + 1));
 				BNode targetNode = findByID(id);
@@ -125,7 +125,9 @@ public class BBGraph extends BNode {
 	}
 
 	public void forEachNode(Consumer<BNode> h) {
-		nodes.forEach(n -> h.accept(n));
+		for (var n : nodes) {
+			h.accept(n);
+		}
 	}
 
 	public void saveAll(Consumer<File> writingFiles) throws IOException {

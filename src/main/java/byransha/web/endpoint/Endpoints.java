@@ -6,20 +6,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-<<<<<<< HEAD:src/main/java/web/endpoint/Endpoints.java
-import main.java.BBGraph;
-import main.java.BNode;
-import main.java.User;
-import main.java.web.NodeEndpoint;
-import main.java.web.EndpointJsonResponse;
-import main.java.web.WebServer;
-=======
 import byransha.BBGraph;
+import byransha.BNode;
 import byransha.User;
-import byransha.web.NodeEndpoint;
 import byransha.web.EndpointJsonResponse;
+import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
->>>>>>> 27ebd97a6c296ee32e0d47d28850eec089ead655:src/main/java/byransha/web/endpoint/Endpoints.java
 
 public class Endpoints extends NodeEndpoint<BNode> {
 
