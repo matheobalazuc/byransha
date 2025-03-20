@@ -259,6 +259,11 @@ public class BBGraph extends BNode {
 				pw.println("</ul>");
 			});
 		}
+
+		@Override
+		public boolean sendContentByDefault() {
+			return false;
+		}
 	}
 
 	public static class GraphView extends NodeEndpoint<BBGraph> {

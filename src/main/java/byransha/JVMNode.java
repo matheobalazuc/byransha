@@ -25,6 +25,11 @@ public class JVMNode extends BNode {
 		}
 
 		@Override
+		public boolean sendContentByDefault() {
+			return false;
+		}
+
+		@Override
 		public EndpointTextResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
 				BBGraph node) throws Throwable {
 			return new EndpointTextResponse("text/html", doc -> {

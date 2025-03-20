@@ -29,4 +29,9 @@ public class NodeIDs extends NodeEndpoint<BBGraph> implements View {
 
 		return new EndpointJsonResponse(a, this);
 	}
+
+	@Override
+	public boolean sendContentByDefault() {
+		return false;
+	}
 }

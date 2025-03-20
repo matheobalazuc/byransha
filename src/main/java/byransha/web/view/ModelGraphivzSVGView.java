@@ -18,6 +18,11 @@ public class ModelGraphivzSVGView extends NodeEndpoint<BBGraph> implements Techn
 	}
 
 	@Override
+	public boolean sendContentByDefault() {
+		return false;
+	}
+
+	@Override
 	public EndpointBinaryResponse exec(ObjectNode in, User u, WebServer webServer, HttpsExchange exchange, BBGraph db)
 			throws Throwable {
 		var dot = new ModelDOTView(graph).exec(in, u, webServer, exchange, db);

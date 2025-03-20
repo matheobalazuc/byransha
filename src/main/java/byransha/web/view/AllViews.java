@@ -25,9 +25,13 @@ final public class AllViews extends NodeEndpoint<BNode> implements DevelopmentVi
 	static List<String> imgFormats = List.of("svg", "png", "jpeg", "jpg");
 
 	@Override
+	public boolean sendContentByDefault() {
+		return false;
+	}
+
+	@Override
 	public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode n)
 			throws Throwable {
-		// TODO Auto-generated method stub
 		return new EndpointTextResponse("text/html", pw -> {
 			pw.println("<ul>");
 

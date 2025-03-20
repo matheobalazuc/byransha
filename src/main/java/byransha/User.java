@@ -53,6 +53,11 @@ public class User extends BNode {
 		}
 
 		@Override
+		public boolean sendContentByDefault() {
+			return false;
+		}
+
+		@Override
 		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
 				User node) throws Throwable {
 			return new EndpointTextResponse("text/html", pw -> {

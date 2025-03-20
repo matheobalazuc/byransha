@@ -18,6 +18,11 @@ public class ToStringView extends NodeEndpoint<BNode> implements DevelopmentView
 	}
 
 	@Override
+	public boolean sendContentByDefault() {
+		return true;
+	}
+
+	@Override
 	public EndpointTextResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
 			BNode node) {
 		return new EndpointTextResponse("text/plain", pw -> pw.print(node.toString()));

@@ -7,15 +7,20 @@ import byransha.BBGraph;
 import byransha.BNode;
 import byransha.Byransha.Function;
 import byransha.User;
-import byransha.web.NodeEndpoint;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.EndpointJsonResponse.dialects;
+import byransha.web.NodeEndpoint;
+import byransha.web.View;
 import byransha.web.WebServer;
 
-public class CharExampleXY extends NodeEndpoint<BNode> {
+public class CharExampleXY extends NodeEndpoint<BNode> implements View {
 	public CharExampleXY(BBGraph g) {
 		super(g);
-		sendContentByDefault = true;
+	}
+
+	@Override
+	public boolean sendContentByDefault() {
+		return true;
 	}
 
 	@Override

@@ -17,7 +17,6 @@ import byransha.ListNode;
 import byransha.User;
 import byransha.ValuedNode;
 import byransha.web.DevelopmentView;
-import byransha.web.EndpointResponse;
 import byransha.web.EndpointTextResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
@@ -25,6 +24,11 @@ import byransha.web.WebServer;
 public class ModelDOTView extends NodeEndpoint<BBGraph> implements DevelopmentView {
 	public ModelDOTView(BBGraph db) {
 		super(db);
+	}
+
+	@Override
+	public boolean sendContentByDefault() {
+		return false;
 	}
 
 	static class Relation {
@@ -45,8 +49,8 @@ public class ModelDOTView extends NodeEndpoint<BBGraph> implements DevelopmentVi
 	}
 
 	@Override
-	public EndpointTextResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange, BBGraph node)
-			throws Throwable {
+	public EndpointTextResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
+			BBGraph node) throws Throwable {
 		// TODO Auto-generated method stub
 		return new EndpointTextResponse("text/dot", pw -> {
 			System.out.println(graph.nodes.size());

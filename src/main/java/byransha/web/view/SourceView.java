@@ -20,6 +20,11 @@ public class SourceView extends NodeEndpoint<BNode> implements DevelopmentView {
 	}
 
 	@Override
+	public boolean sendContentByDefault() {
+		return true;
+	}
+
+	@Override
 	public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange, BNode node)
 			throws Throwable {
 		return new EndpointTextResponse("text/java", pw -> {

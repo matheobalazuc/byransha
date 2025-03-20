@@ -114,11 +114,12 @@ public class WebServer extends BNode {
 		jvm = new JVMNode(g);
 		byransha = new Byransha(g);
 		operatingSystem = new OSNode(g);
+		registerEndpoint(new CurrentNode(g));
+		registerEndpoint(new View.Views(g));
 		registerEndpoint(new Jump(g));
 		registerEndpoint(new Endpoints(g));
 		registerEndpoint(new JVMNode.Kill(g));
 		registerEndpoint(new Authenticate(g));
-		registerEndpoint(new CurrentNode(g));
 		registerEndpoint(new NodeIDs(g));
 		registerEndpoint(new Nodes(g));
 		registerEndpoint(new EndpointCallDistributionView(g));
@@ -266,8 +267,8 @@ public class WebServer extends BNode {
 						ObjectNode er = new ObjectNode(null);
 						er.set("endpoint", new TextNode(endpoint.name()));
 						er.set("is_view", BooleanNode.valueOf(endpoint instanceof View));
-						er.set("is_technical_view", BooleanNode.valueOf(endpoint instanceof TechnicalView));
-						er.set("is_development_view", BooleanNode.valueOf(endpoint instanceof DevelopmentView));
+						er.set("is_technical", BooleanNode.valueOf(endpoint instanceof TechnicalView));
+						er.set("is_development", BooleanNode.valueOf(endpoint instanceof DevelopmentView));
 						long startTimeNs2 = System.nanoTime();
 
 						try {
@@ -332,7 +333,7 @@ public class WebServer extends BNode {
 		}
 
 		if (endpointName == null || endpointName.isEmpty()) {
-			return endpointsUsableFrom(currentNode);
+			return List.of(new CurrentNode(graph));
 		} else {
 			var e = endpoints.get(endpointName);
 

@@ -22,10 +22,10 @@ import com.sun.net.httpserver.HttpsExchange;
 import byransha.BBGraph.Ref;
 import byransha.graph.BGraph;
 import byransha.graph.BVertex;
-import byransha.web.NodeEndpoint;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.EndpointJsonResponse.dialects;
 import byransha.web.EndpointResponse;
+import byransha.web.NodeEndpoint;
 import byransha.web.View;
 import byransha.web.WebServer;
 import toools.reflect.Clazz;
@@ -243,7 +243,6 @@ public class BNode {
 	public static class BasicView extends NodeEndpoint<BNode> implements View {
 		public BasicView(BBGraph g) {
 			super(g);
-			sendContentByDefault = true;
 		}
 
 		@Override
@@ -263,12 +262,22 @@ public class BNode {
 			n.set("canEdit", new TextNode("" + node.canEdit(u)));
 			return new EndpointJsonResponse(n, this);
 		}
+
+		@Override
+		public boolean sendContentByDefault() {
+			return true;
+		}
+
 	}
 
 	public static class Nav2 extends NodeEndpoint<BNode> implements View {
 		public Nav2(BBGraph g) {
 			super(g);
-			sendContentByDefault = true;
+		}
+
+		@Override
+		public boolean sendContentByDefault() {
+			return true;
 		}
 
 		@Override
@@ -294,6 +303,11 @@ public class BNode {
 
 		public GraphView(BBGraph db) {
 			super(db);
+		}
+
+		@Override
+		public boolean sendContentByDefault() {
+			return false;
 		}
 
 		@Override
@@ -329,6 +343,12 @@ public class BNode {
 			forEachOut((n, o) -> d.addOccurence(o.getClass().getName()));
 			return new EndpointJsonResponse(d.toJson(), dialects.distribution);
 		}
+
+		@Override
+		public boolean sendContentByDefault() {
+			return false;
+		}
+
 	}
 
 	/*

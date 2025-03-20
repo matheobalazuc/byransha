@@ -14,7 +14,6 @@ import toools.text.TextUtilities;
 public abstract class Endpoint extends BNode {
 	public int nbCalls = 0;
 	public long timeSpentNs = 0;
-	public boolean sendContentByDefault = false;
 
 	public Endpoint(BBGraph db) {
 		super(db);
@@ -81,11 +80,15 @@ public abstract class Endpoint extends BNode {
 				pw.println("<li>name: " + node.name());
 				pw.println("<li>label: " + node.label());
 				pw.println("<li>target: " + node.getTargetNodeType().getName());
-				pw.println("<li>development" + isDevelopmentView());
-				pw.println("<li>technical" + node.isTechnicalView());
-				pw.println("<li>content by default" + node.sendContentByDefault);
+				
+				if(node instanceof View v) {
+					pw.println("<li>development" + isDevelopmentView());
+					pw.println("<li>technical" + node.isTechnicalView());
+					pw.println("<li>content by default" + v.sendContentByDefault());
+				}
 				pw.println("</ul>");
 			});
 		}
+
 	}
 }
