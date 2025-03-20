@@ -1,63 +1,67 @@
 package byransha.web.view;
 
-import java.io.PrintWriter;
 import java.util.Base64;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-import byransha.BNode;
 import byransha.BBGraph;
+import byransha.BNode;
 import byransha.User;
 import byransha.web.DevelopmentView;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.EndpointResponse;
-import byransha.web.TextOutputEndpoint;
+import byransha.web.EndpointTextResponse;
+import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
 
-final public class AllViews extends TextOutputEndpoint<BNode> implements DevelopmentView {
+final public class AllViews extends NodeEndpoint<BNode> implements DevelopmentView {
 
 	public AllViews(BBGraph db) {
 		super(db);
-		// TODO Auto-generated constructor stub
 	}
 
 	static List<String> imgFormats = List.of("svg", "png", "jpeg", "jpg");
 
 	@Override
-	protected void print(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode n, PrintWriter pw)
+	public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode n)
 			throws Throwable {
-		pw.println("<ul>");
-
-		for (var v : webServer.compliantEndpoints(n)) {
-			if (v == this)
-				continue;
-
-			pw.println("<li><h3>" + v.name() + "</h3>");
+		// TODO Auto-generated method stub
+		return new EndpointTextResponse("text/html", pw -> {
 			pw.println("<ul>");
-			EndpointResponse r = v.exec(in, user, webServer, exchange, n);
-			pw.println("<li>");
 
-			if (v instanceof TextOutputEndpoint) {
-				pw.println(new String((String) r.data));
-			} else if (imgFormats.contains(r.contentType)) {
-				pw.println("<img src=\"data:image/png;base64," + Base64.getEncoder().encode((byte[]) r.data) + "\" />");
-			} else if (r instanceof EndpointJsonResponse) {
-				pw.println("<script>obj = " + r.data()
-						+ "; document.write(\"<pre>\" + JSON.stringify(obj) + \"</pre>\");</script>");
-			} else {
-				pw.println("Raw data: " + new String((byte[]) r.data));
+			for (var v : webServer.endpointsUsableFrom(n)) {
+				if (v == this)
+					continue;
+
+				pw.println("<li><h3>" + v.name() + "</h3>");
+				pw.println("<ul>");
+				pw.println("<li>");
+				try {
+					EndpointResponse r = v.exec(in, user, webServer, exchange, n);
+
+					if (r instanceof EndpointTextResponse) {
+						pw.println((String) r.data);
+					} else if (imgFormats.contains(r.contentType)) {
+						pw.println("<img src=\"data:image/png;base64," + Base64.getEncoder().encode((byte[]) r.data)
+								+ "\" />");
+					} else if (r instanceof EndpointJsonResponse) {
+						pw.println("<script>obj = " + r.data()
+								+ "; document.write(\"<pre>\" + JSON.stringify(obj) + \"</pre>\");</script>");
+					} else {
+						pw.println("Raw data: " + new String((byte[]) r.data));
+					}
+				}
+				catch (Throwable err) {
+					pw.println("Error: " + err.getMessage());
+				}
+
+				pw.println("</ul>");
 			}
 
 			pw.println("</ul>");
-		}
-
-		pw.println("</ul>");
+		});
 	}
 
-	@Override
-	protected String textMimeType() {
-		return "text/html";
-	}
 }

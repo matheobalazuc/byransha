@@ -2,7 +2,6 @@ package byransha;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,11 +20,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.graph.BGraph;
-import byransha.web.NodeEndpoint;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.EndpointJsonResponse.dialects;
 import byransha.web.EndpointResponse;
-import byransha.web.HTMLView;
+import byransha.web.EndpointTextResponse;
+import byransha.web.NodeEndpoint;
 import byransha.web.TechnicalView;
 import byransha.web.WebServer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -241,23 +240,24 @@ public class BBGraph extends BNode {
 		return find(User.class, u -> u.session != null && Arrays.equals(u.session.getId(), s.getId()));
 	}
 
-	public static class DBView extends HTMLView<BBGraph> implements TechnicalView {
+	public static class DBView extends NodeEndpoint<BBGraph> implements TechnicalView {
 
 		public DBView(BBGraph g) {
 			super(g);
-			// TODO Auto-generated constructor stub
 		}
 
 		@Override
-		protected void print(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BBGraph node,
-				PrintWriter pw) throws Throwable {
-			pw.println("<ul>");
-			pw.println("<li>" + graph.countNodes() + " nodes");
-			pw.println("<li>Node classes: <ul>" + graph.nodes.stream().map(n -> "<li>" + n.getClass()).toList());
-			pw.println("</ul>");
-			var users = graph.users();
-			pw.println("<li>" + users.size() + " users: " + users.stream().map(u -> u.name.get()).toList());
-			pw.println("</ul>");
+		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
+				BBGraph node) throws Throwable {
+			return new EndpointTextResponse("text/html", pw -> {
+				pw.println("<ul>");
+				pw.println("<li>" + graph.countNodes() + " nodes");
+				pw.println("<li>Node classes: <ul>" + graph.nodes.stream().map(n -> "<li>" + n.getClass()).toList());
+				pw.println("</ul>");
+				var users = graph.users();
+				pw.println("<li>" + users.size() + " users: " + users.stream().map(u -> u.name.get()).toList());
+				pw.println("</ul>");
+			});
 		}
 	}
 

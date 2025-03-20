@@ -1,5 +1,8 @@
 package byransha.web.endpoint;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -8,9 +11,8 @@ import com.sun.net.httpserver.HttpsExchange;
 import byransha.BBGraph;
 import byransha.BNode;
 import byransha.User;
-import byransha.web.NodeEndpoint;
 import byransha.web.EndpointJsonResponse;
-import byransha.web.EndpointResponse;
+import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
 
 public class CurrentNode extends NodeEndpoint<BNode> {
@@ -20,32 +22,44 @@ public class CurrentNode extends NodeEndpoint<BNode> {
 	}
 
 	@Override
-	public EndpointResponse exec(ObjectNode inputJson, User user, WebServer webServer, HttpsExchange exchange,
-			BNode n) {
-		if (n == null) {
-			return null;
-		} else {
-			ArrayNode viewsNode = new ArrayNode(null);
-			var views = webServer.compliantEndpoints(n);
+	public EndpointJsonResponse exec(ObjectNode inputJson, User user, WebServer webServer, HttpsExchange exchange,
+			BNode currentNode) {
+		var r = new ObjectNode(null);
+		r.set("id", new TextNode("" + currentNode.id()));
+		r.set("class", new TextNode(currentNode.getClass().getName()));
+		r.set("to_string", new TextNode(currentNode.toString()));
+		r.set("can read", new TextNode("" + currentNode.canSee(user)));
+		r.set("can write", new TextNode("" + currentNode.canSee(user)));
 
-			for(var v : views){
-				var root = new ObjectNode(null);
-				root.set("label", new TextNode(v.label()));
-				root.set("id", new TextNode("" + v.id()));
-				root.set("target", new TextNode(v.getTargetNodeType().getName()));
-				root.set("development", new TextNode("" + v.isDevelopmentView()));
-				root.set("technical", new TextNode("" + v.isTechnicalView()));
-				root.set("can read", new TextNode("" + v.canSee(user)));
-				root.set("can write", new TextNode("" + v.canSee(user)));
+		ArrayNode viewsNode = new ArrayNode(null);
+		var endpoints = webServer.endpointsUsableFrom(currentNode);
 
-//				if (v.sendContentByDefault) {
-//					root.set("content", v.exec(inputJson, user, webServer, exchange, user).toJson());
-//				}
+		for (var v : endpoints) {
+			var ev = new ObjectNode(null);
+			ev.set("label", new TextNode(v.label()));
+			ev.set("id", new TextNode("" + v.id()));
+			ev.set("target", new TextNode(v.getTargetNodeType().getName()));
+			ev.set("development", new TextNode("" + v.isDevelopmentView()));
+			ev.set("technical", new TextNode("" + v.isTechnicalView()));
+			ev.set("can read", new TextNode("" + v.canSee(user)));
+			ev.set("can write", new TextNode("" + v.canSee(user)));
 
-				viewsNode.add(root);
+			if (v.sendContentByDefault) {
+				try {
+					ev.set("result", v.exec(inputJson, user, webServer, exchange, user).toJson());
+				} catch (Throwable err) {
+					err.printStackTrace();
+					var sw = new StringWriter();
+					err.printStackTrace(new PrintWriter(sw));
+					ev.set("error", new TextNode(sw.toString()));
+				}
 			}
-			return new EndpointJsonResponse(viewsNode, this);
 
+			viewsNode.add(ev);
 		}
+
+		r.set("views", viewsNode);
+
+		return new EndpointJsonResponse(r, this);
 	}
 }

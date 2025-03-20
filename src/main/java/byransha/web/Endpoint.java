@@ -1,6 +1,5 @@
 package byransha.web;
 
-import java.io.PrintWriter;
 import java.lang.reflect.ParameterizedType;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -21,7 +20,8 @@ public abstract class Endpoint extends BNode {
 		super(db);
 	}
 
-	public abstract EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange) throws Throwable;
+	public abstract EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange)
+			throws Throwable;
 
 	public <N extends BNode> Class<N> getTargetNodeType() {
 		for (Class c = getClass(); c != null; c = c.getSuperclass()) {
@@ -34,7 +34,6 @@ public abstract class Endpoint extends BNode {
 
 		throw new IllegalStateException();
 	}
-
 
 	public final String name() {
 		var name = getClass().getSimpleName();
@@ -69,23 +68,24 @@ public abstract class Endpoint extends BNode {
 		return TechnicalView.class.isAssignableFrom(getClass());
 	}
 
-	public static class V extends HTMLView<Endpoint> {
+	public static class V extends NodeEndpoint<Endpoint> {
 		public V(BBGraph g) {
 			super(g);
 		}
 
 		@Override
-		protected void print(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, Endpoint node,
-				PrintWriter pw) {
-			pw.println("<ul>");
-			pw.println("<li>name: " + node.name());
-			pw.println("<li>label: " + node.label());
-			pw.println("<li>target: " + node.getTargetNodeType().getName());
-			pw.println("<li>development" + isDevelopmentView());
-			pw.println("<li>technical" + node.isTechnicalView());
-			pw.println("<li>content by default" + node.sendContentByDefault);
-			pw.println("</ul>");
+		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
+				Endpoint node) throws Throwable {
+			return new EndpointTextResponse("text/html", pw -> {
+				pw.println("<ul>");
+				pw.println("<li>name: " + node.name());
+				pw.println("<li>label: " + node.label());
+				pw.println("<li>target: " + node.getTargetNodeType().getName());
+				pw.println("<li>development" + isDevelopmentView());
+				pw.println("<li>technical" + node.isTechnicalView());
+				pw.println("<li>content by default" + node.sendContentByDefault);
+				pw.println("</ul>");
+			});
 		}
 	}
-
 }

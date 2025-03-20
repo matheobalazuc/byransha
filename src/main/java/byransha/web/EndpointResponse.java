@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 
 public abstract class EndpointResponse<R> {
 	public final String contentType;
-	public final R data; // byte[] or JsonNode
+	public final R data;
 
 	public EndpointResponse(R d, String contentType) {
 		this.data = d;
@@ -19,8 +19,7 @@ public abstract class EndpointResponse<R> {
 		r.set("data", data());
 		return r;
 	}
-	
-	
+
 	public abstract String toRawText();
 
 	public abstract JsonNode data();

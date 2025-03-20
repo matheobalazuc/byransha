@@ -7,17 +7,17 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
 public class EndpointBinaryResponse extends EndpointResponse<byte[]> {
-	final String binaryContentType;
+//	final String binaryContentType;
 
-	public EndpointBinaryResponse(byte[] d, String binaryContentType) {
+	public EndpointBinaryResponse(String binaryContentType, byte[] d) {
 		super(d, binaryContentType);
-		this.binaryContentType = binaryContentType;
+//		this.binaryContentType = binaryContentType;
 	}
 
 	@Override
 	public ObjectNode toJson() {
 		var r = super.toJson();
-		r.set("binaryContentType", new TextNode(binaryContentType));
+//		r.set("binaryContentType", new TextNode(binaryContentType));
 		return r;
 	}
 

@@ -1,34 +1,29 @@
 package byransha.labmodel.model.v0.view;
 
-import java.io.PrintWriter;
-
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.BBGraph;
 import byransha.User;
-import byransha.web.TextOutputEndpoint;
-import byransha.web.WebServer;
 import byransha.labmodel.model.v0.Lab;
+import byransha.web.EndpointResponse;
+import byransha.web.EndpointTextResponse;
+import byransha.web.NodeEndpoint;
+import byransha.web.WebServer;
 
-final public class LabView extends TextOutputEndpoint<Lab> {
+final public class LabView extends NodeEndpoint<Lab> {
 
 	public LabView(BBGraph db) {
 		super(db);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	public String textMimeType() {
-		return "text/html";
+	public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange, Lab lab)
+			throws Throwable {
+		return new EndpointTextResponse("text/html", pw -> {
+			pw.println("<ul>");
+			pw.println("<li>HFDS: " + lab.HFDS.etatCivil.name.get());
+			pw.println("</ul>");
+		});
 	}
-
-	@Override
-	protected void print(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, Lab lab,
-			PrintWriter pw) {
-		pw.println("<ul>");
-		pw.println("<li>HFDS: " + lab.HFDS.etatCivil.name.get());
-		pw.println("</ul>");
-	}
-
 }

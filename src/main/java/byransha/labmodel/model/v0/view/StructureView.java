@@ -1,33 +1,35 @@
 package byransha.labmodel.model.v0.view;
 
-import java.io.PrintWriter;
-
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.BBGraph;
 import byransha.User;
-import byransha.web.HTMLView;
-import byransha.web.WebServer;
 import byransha.labmodel.model.v0.Structure;
+import byransha.web.EndpointResponse;
+import byransha.web.EndpointTextResponse;
+import byransha.web.NodeEndpoint;
+import byransha.web.WebServer;
 
-final public class StructureView extends HTMLView<Structure> {
+final public class StructureView extends NodeEndpoint<Structure> {
 
 	public StructureView(BBGraph g) {
 		super(g);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	protected void print(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, Structure s,
-			PrintWriter pw) {
-		pw.println("<ul>");
-		pw.println("<li>Director: " + s.director.etatCivil.name.get());
-		pw.println("<li>" + s.members.size() + " members");
-		pw.println("<li>#offices: " + s.offices.size());
-		pw.println("<li>Office surface: " + s.totalSurface());
-		pw.println("<li>avg surface/user: " + s.occupationRatio());
-		pw.println("<li>occupationRatio: " + s.occupationRatio());
-		pw.println("</ul>");
+	public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
+			Structure s) throws Throwable {
+		return new EndpointTextResponse("text/html", pw -> {
+			pw.println("<ul>");
+			pw.println("<li>Director: " + s.director.etatCivil.name.get());
+			pw.println("<li>" + s.members.size() + " members");
+			pw.println("<li>#offices: " + s.offices.size());
+			pw.println("<li>Office surface: " + s.totalSurface());
+			pw.println("<li>avg surface/user: " + s.occupationRatio());
+			pw.println("<li>occupationRatio: " + s.occupationRatio());
+			pw.println("</ul>");
+		});
 	}
+
 }

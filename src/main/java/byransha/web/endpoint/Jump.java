@@ -1,8 +1,8 @@
 package byransha.web.endpoint;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import java.util.Objects;
+
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.BBGraph;
@@ -19,51 +19,12 @@ public class Jump extends NodeEndpoint<BNode> {
 	}
 
 	@Override
-	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode node)
-			throws Throwable {
-
-		var id = requireParm(in, ("target_node")).asInt();
-		for(var search : webServer.compliantEndpoints(node)){
-			if(search.id() == id) {
-				node = search;
-				user.stack.push(node);
-				break;
-			}
-		}
-		if(node.id() != id) {
-			System.err.println("From the current node " + node.id() +" , the node "+ id+ " is not reachable");
-		}
-
-
-
-		var r = new ObjectNode(null);
-		r.set("id", new TextNode("" + node.id()));
-		r.set("class", new TextNode(node.getClass().getName()));
-		r.set("name", new TextNode(node.toString()));
-		r.set("can read", new TextNode("" + node.canSee(user)));
-		r.set("can write", new TextNode("" + node.canSee(user)));
-
-		ArrayNode viewsNode = new ArrayNode(null);
-		var views = webServer.compliantEndpoints(node);
-
-		for (var v : views) {
-			var n = new ObjectNode(null);
-			n.set("label", new TextNode(v.label()));
-			n.set("id", new TextNode("" + v.id()));
-			n.set("target", new TextNode(v.getTargetNodeType().getName()));
-			n.set("development", new TextNode("" + v.isDevelopmentView()));
-			n.set("technical", new TextNode("" + v.isTechnicalView()));
-
-//			if (v.sendContentByDefault) {
-//				n.set("content", v.exec(in, user, webServer, exchange, user).toJson());
-//			}
-
-			viewsNode.add(n);
-		}
-
-		r.set("views", viewsNode);
-		return new EndpointJsonResponse(r, this);
+	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
+			BNode currentNode) throws Throwable {
+		var targetID = requireParm(in, "target").asInt();
+		var target = node(targetID);
+		Objects.requireNonNull(target, "no such node: " + targetID);
+		user.stack.push(target); // effective jump
+		return new CurrentNode(graph).exec(in, user, webServer, exchange, target);
 	}
-
-	
 }

@@ -49,7 +49,7 @@ public abstract class NodeEndpoint<N extends BNode> extends Endpoint {
 	}
 
 	public BNode node(int id) {
-		return graph.findByID(Integer.valueOf(id));
+		return graph.findByID(id);
 	}
 
 	public List<BNode> nodes(int... ids) {

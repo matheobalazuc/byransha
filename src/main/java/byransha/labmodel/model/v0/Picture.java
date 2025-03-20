@@ -26,7 +26,7 @@ public class Picture extends ValuedNode<byte[]> {
 		@Override
 		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
 				Picture node) {
-			return new EndpointBinaryResponse(node.get(), "image/jpeg");
+			return new EndpointBinaryResponse("image/jpeg", node.get());
 		}
 	}
 

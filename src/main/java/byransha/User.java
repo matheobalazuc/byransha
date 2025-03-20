@@ -1,6 +1,5 @@
 package byransha;
 
-import java.io.PrintWriter;
 import java.util.Stack;
 
 import javax.net.ssl.SSLSession;
@@ -8,7 +7,9 @@ import javax.net.ssl.SSLSession;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-import byransha.web.HTMLView;
+import byransha.web.EndpointResponse;
+import byransha.web.EndpointTextResponse;
+import byransha.web.NodeEndpoint;
 import byransha.web.TechnicalView;
 import byransha.web.WebServer;
 import toools.text.TextUtilities;
@@ -46,22 +47,24 @@ public class User extends BNode {
 		return name.get().equals(username) && passwordNode.get().equals(p);
 	}
 
-	public static class UserView extends HTMLView<User> implements TechnicalView {
+	public static class UserView extends NodeEndpoint<User> implements TechnicalView {
 		public UserView(BBGraph g) {
 			super(g);
-			// TODO Auto-generated constructor stub
 		}
 
 		@Override
-		protected void print(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, User u,
-				PrintWriter pw) {
-			pw.println("<ul>");
-			pw.print("<li>Navigation history: ");
-			u.stack.forEach(n -> pw.print(linkTo(n, "X")));
-			pw.println("<li>admin? " + false);
-			pw.println("<li>Session ID: "
-					+ (u.session.isValid() ? TextUtilities.toHex(u.session.getId()) : "no active session"));
-			pw.println("</ul>");
+		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
+				User node) throws Throwable {
+			return new EndpointTextResponse("text/html", pw -> {
+				pw.println("<ul>");
+				pw.print("<li>Navigation history: ");
+//				user.stack.forEach(n -> pw.print(linkTo(n, "X")));
+				pw.println("<li>admin? " + false);
+				pw.println("<li>Session ID: "
+						+ (user.session.isValid() ? TextUtilities.toHex(user.session.getId()) : "no active session"));
+				pw.println("</ul>");
+			});
 		}
+
 	}
 }

@@ -50,7 +50,6 @@ import byransha.User;
 import byransha.labmodel.model.v0.Picture;
 import byransha.labmodel.model.v0.view.LabView;
 import byransha.labmodel.model.v0.view.StructureView;
-import byransha.web.endpoint.AllOuts;
 import byransha.web.endpoint.Authenticate;
 import byransha.web.endpoint.CurrentNode;
 import byransha.web.endpoint.Endpoints;
@@ -126,7 +125,6 @@ public class WebServer extends BNode {
 		registerEndpoint(new Info(g));
 		registerEndpoint(new LogsView(g));
 
-		registerEndpoint(new AllOuts(g));
 		registerEndpoint(new BasicView(g));
 		registerEndpoint(new CharacterDistribution(g));
 		registerEndpoint(new CharExampleXY(g));
@@ -177,19 +175,6 @@ public class WebServer extends BNode {
 		httpsServer.createContext("/", http -> processRequest((HttpsExchange) http).send(http));
 		httpsServer.setExecutor(Executors.newCachedThreadPool());
 		httpsServer.start();
-	}
-
-	public List<NodeEndpoint> compliantEndpoints(BNode n) {
-		List<NodeEndpoint> r = new ArrayList<>();
-
-		for (var v : endpoints.values()) {
-			if (v instanceof View && v.getTargetNodeType().isAssignableFrom(n.getClass())) {
-				r.add(v);
-			}
-		}
-
-		Collections.sort(r, (a, b) -> a.getTargetNodeType().isAssignableFrom(b.getTargetNodeType()) ? 1 : -1);
-		return r;
 	}
 
 	@Override
@@ -347,7 +332,7 @@ public class WebServer extends BNode {
 		}
 
 		if (endpointName == null || endpointName.isEmpty()) {
-			return compliantEndpoints(currentNode);
+			return endpointsUsableFrom(currentNode);
 		} else {
 			var e = endpoints.get(endpointName);
 
@@ -357,6 +342,19 @@ public class WebServer extends BNode {
 
 			return List.of(e);
 		}
+	}
+
+	public List<NodeEndpoint> endpointsUsableFrom(BNode n) {
+		List<NodeEndpoint> r = new ArrayList<>();
+
+		for (var v : endpoints.values()) {
+			if (v.getTargetNodeType().isAssignableFrom(n.getClass())) {
+				r.add(v);
+			}
+		}
+
+		Collections.sort(r, (a, b) -> a.getTargetNodeType().isAssignableFrom(b.getTargetNodeType()) ? 1 : -1);
+		return r;
 	}
 
 	static String mimeType(String url) {
@@ -389,7 +387,7 @@ public class WebServer extends BNode {
 		return inputJson;
 	}
 
-	static Map<String, String> query(String s) {
+	private static Map<String, String> query(String s) {
 		Map<String, String> query = new HashMap<>();
 
 		if (s != null && !s.isEmpty()) {

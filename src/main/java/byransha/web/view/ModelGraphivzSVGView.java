@@ -5,8 +5,8 @@ import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.BBGraph;
 import byransha.User;
-import byransha.web.NodeEndpoint;
 import byransha.web.EndpointBinaryResponse;
+import byransha.web.NodeEndpoint;
 import byransha.web.TechnicalView;
 import byransha.web.WebServer;
 import toools.extern.Proces;
@@ -15,7 +15,6 @@ public class ModelGraphivzSVGView extends NodeEndpoint<BBGraph> implements Techn
 
 	public ModelGraphivzSVGView(BBGraph db) {
 		super(db);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -23,8 +22,7 @@ public class ModelGraphivzSVGView extends NodeEndpoint<BBGraph> implements Techn
 			throws Throwable {
 		var dot = new ModelDOTView(graph).exec(in, u, webServer, exchange, db);
 		var stdout = Proces.exec("dot", dot.data.getBytes(), "-Tsvg");
-		return new EndpointBinaryResponse(stdout, "image/svg");
+		return new EndpointBinaryResponse("image/svg", stdout);
 //		return Proces.exec("fdp", dot, "-Tsvg", "-Gmaxiter=10000", "-GK=1");
 	}
-
 }
