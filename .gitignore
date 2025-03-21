@@ -64,11 +64,6 @@ deploy.exclude.lst
 # IDE et éditeurs
 ################################################################################
 
-# IntelliJ IDEA
-.idea/
-*.iml
-out/
-
 # Eclipse
 .project
 .classpath
