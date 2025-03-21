@@ -3,7 +3,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { DashboardLayout, PageContainer } from "@toolpad/core";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import { Box, MenuItem, Select } from "@mui/material";
-import {useApiData, useMainApiData} from '../hooks/useApiData';
+import {useApiData} from '../hooks/useApiData';
 
 const MainLayout = () => {
     const navigate = useNavigate();
@@ -11,13 +11,13 @@ const MainLayout = () => {
     const [currentView, setCurrentView] = useState(location.pathname.startsWith("/grid") ? "grid" : "default");
     const hideSidebar = location.pathname.startsWith("/grid");
 
-    const { data, isLoading, error } = useMainApiData();
+    const { data, isLoading, error } = useApiData('current_node');
 
-    const NAVIGATION = !isLoading && !error && data?.results
-        ? data.results.map((view, index) => ({
+    const NAVIGATION = !isLoading && !error && data?.data?.results
+        ? data.data.results[0].result.data.views.data.map((view, index) => ({
             kind: 'link',
-            title: view.endpoint,
-            segment: `information/${view.endpoint}`,
+            title: view.label,
+            segment: `information/${view.label.replaceAll(' ', '_')}`,
             icon: <MenuOutlinedIcon />
         }))
         : [{ kind: 'link', title: 'Loading...', segment: 'home', icon: <MenuOutlinedIcon /> }];
