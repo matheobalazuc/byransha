@@ -61,23 +61,6 @@ main.java-classpath.lst
 deploy.exclude.lst
 
 ################################################################################
-# IDE et éditeurs
-################################################################################
-
-# Eclipse
-.project
-.classpath
-.settings/
-.mtj.tmp/
-
-# NetBeans
-.nb-gradle/
-.nbproject/
-
-# Visual Studio Code
-.vscode/
-
-################################################################################
 # Autres fichiers potentiellement sensibles
 ################################################################################
 
