@@ -48,7 +48,6 @@ bin/
 target/
 
 # Gradle: répertoire de build et dossiers locaux
-build/
 .gradle/
 
 # Gradle wrapper
@@ -79,7 +78,6 @@ out/
 # NetBeans
 .nb-gradle/
 .nbproject/
-build/
 
 # Visual Studio Code
 .vscode/
@@ -95,3 +93,4 @@ build/
 # Si tu génères un coverage local ou si tu utilises Jacoco
 coverage/
 .jacoco/
+bun.lock
