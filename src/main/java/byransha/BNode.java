@@ -38,7 +38,8 @@ public class BNode {
 
 	public BNode(BBGraph g) {
 		if (g != null) {
-			id = g.idCount++;
+			while (g.findByID(g.idCount) != null){g.incrementIDCount();}
+			id = g.idCount;
 			this.graph = g;
 			g.accept(this);
 		} else {

@@ -2,13 +2,13 @@ package byransha;
 
 public class StringNode extends ValuedNode<String> {
 
-	public StringNode(BBGraph g) {
-		super(g);
-	}
-
 	public StringNode(BBGraph g, String init) {
 		this(g);
 		set(init);
+	}
+
+	public StringNode(BBGraph g) {
+		super(g);
 	}
 
 	@Override

@@ -20,12 +20,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLParameters;
 
+import byransha.*;
+import byransha.labmodel.I3S;
+import byransha.web.endpoint.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.BooleanNode;
@@ -39,24 +43,9 @@ import com.sun.net.httpserver.HttpsExchange;
 import com.sun.net.httpserver.HttpsParameters;
 import com.sun.net.httpserver.HttpsServer;
 
-import byransha.BBGraph;
-import byransha.BNode;
-import byransha.Byransha;
-import byransha.JVMNode;
-import byransha.ListNode;
-import byransha.Log;
-import byransha.OSNode;
-import byransha.User;
 import byransha.labmodel.model.v0.Picture;
 import byransha.labmodel.model.v0.view.LabView;
 import byransha.labmodel.model.v0.view.StructureView;
-import byransha.web.endpoint.Authenticate;
-import byransha.web.endpoint.CurrentNode;
-import byransha.web.endpoint.Endpoints;
-import byransha.web.endpoint.Jump;
-import byransha.web.endpoint.NodeEndpoints;
-import byransha.web.endpoint.NodeIDs;
-import byransha.web.endpoint.Nodes;
 import byransha.web.view.AllViews;
 import byransha.web.view.CharExampleXY;
 import byransha.web.view.CharacterDistribution;
@@ -64,6 +53,7 @@ import byransha.web.view.ModelDOTView;
 import byransha.web.view.ModelGraphivzSVGView;
 import byransha.web.view.SourceView;
 import byransha.web.view.ToStringView;
+import org.w3c.dom.NodeList;
 import toools.reflect.ClassPath;
 import toools.text.TextUtilities;
 
@@ -93,7 +83,9 @@ public class WebServer extends BNode {
 		} else if (argMap.containsKey("-dbClass")) {
 			return (BBGraph) Class.forName(argMap.get("-dbClass")).getConstructor().newInstance();
 		} else {
-			return new BBGraph(new File(System.getProperty("user.home") + "/." + BBGraph.class.getPackageName()));
+			BBGraph g = new BBGraph(new File(System.getProperty("user.home") + "/." + BBGraph.class.getPackageName()));
+			g.load(n -> {}, (n, s) -> {});
+			return g;
 		}
 	}
 
@@ -145,6 +137,7 @@ public class WebServer extends BNode {
 		registerEndpoint(new ToStringView(g));
 		registerEndpoint(new StructureView(g));
 		registerEndpoint(new NodeEndpoints(g));
+		registerEndpoint(new SetValue(g));
 
 		try {
 			Path classPathFile = new File(Byransha.class.getPackageName() + "-classpath.lst").toPath();
@@ -476,5 +469,4 @@ public class WebServer extends BNode {
 			return new EndpointJsonResponse(d.toJson(), "logs");
 		}
 	}
-
 }

@@ -2,6 +2,7 @@ package byransha;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,17 +17,12 @@ import java.util.function.Predicate;
 
 import javax.net.ssl.SSLSession;
 
+import byransha.web.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.graph.BGraph;
-import byransha.web.EndpointJsonResponse;
 import byransha.web.EndpointJsonResponse.dialects;
-import byransha.web.EndpointResponse;
-import byransha.web.EndpointTextResponse;
-import byransha.web.NodeEndpoint;
-import byransha.web.TechnicalView;
-import byransha.web.WebServer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import toools.reflect.Clazz;
 
@@ -77,24 +73,28 @@ public class BBGraph extends BNode {
 	}
 
 	public void load(Consumer<BNode> newNodeInstantiated, BiConsumer<BNode, String> setRelation) {
-		intantiateNodes(newNodeInstantiated);
+		instantiateNodes(newNodeInstantiated);
 		forEachNode(n -> loadOuts(n, setRelation));
 	}
 
-	private void intantiateNodes(Consumer<BNode> newNodeInstantiated) {
-		for (File classDir : directory.listFiles()) {
-			String className = classDir.getName();
-			var nodeClass = (Class<? extends BNode>) Clazz.findClassOrFail(className);
+	private void instantiateNodes(Consumer<BNode> newNodeInstantiated) {
+		File[] files = directory.listFiles();
+		if (files == null) return;
+		else {
+			for (File classDir : directory.listFiles()) {
+				String className = classDir.getName();
+				var nodeClass = (Class<? extends BNode>) Clazz.findClassOrFail(className);
 
-			for (File nodeDir : classDir.listFiles()) {
-				try {
-					BNode node = nodeClass.getConstructor().newInstance();
-					node.setID(Integer.valueOf(nodeDir.getName()));
-					nodes.add(node);
-					newNodeInstantiated.accept(node);
-				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException | NoSuchMethodException | SecurityException err) {
-					throw new RuntimeException(err);
+				for (File nodeDir : classDir.listFiles()) {
+					try {
+						Constructor<? extends BNode> constructor = nodeClass.getConstructor(BBGraph.class);
+						BNode node = constructor.newInstance(graph);
+						node.setID(Integer.valueOf(nodeDir.getName().split("\\.")[1]));
+						newNodeInstantiated.accept(node);
+					} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+							 | InvocationTargetException | NoSuchMethodException | SecurityException err) {
+						throw new RuntimeException(err);
+					}
 				}
 			}
 		}
@@ -125,7 +125,8 @@ public class BBGraph extends BNode {
 
 	public void forEachNode(Consumer<BNode> h) {
 		for (var n : nodes) {
-			h.accept(n);
+			if(n instanceof WebServer) {}
+			else {h.accept(n);}
 		}
 	}
 
@@ -221,7 +222,6 @@ public class BBGraph extends BNode {
 			for (var node : nodes) {
 				if (nodeClass.isAssignableFrom(node.getClass())) {
 					C nn = (C) node;
-
 					if (p.test(nn)) {
 						return nn;
 					}
@@ -287,5 +287,10 @@ public class BBGraph extends BNode {
 			return new EndpointJsonResponse(g.toNivoJSON(), dialects.nivoNetwork);
 		}
 	}
+
+	public void incrementIDCount(){
+		idCount++;
+	}
+
 
 }
