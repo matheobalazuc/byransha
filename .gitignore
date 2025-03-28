@@ -67,6 +67,7 @@ deploy.exclude.lst
 # Clés ou variables d'environnement
 .env
 .env.*
+.idea
 
 # Si tu génères un coverage local ou si tu utilises Jacoco
 coverage/
