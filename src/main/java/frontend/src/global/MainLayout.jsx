@@ -1,15 +1,16 @@
-import React, { useState } from "react";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Outlet, useLocation, useNavigate, Link as RouterLink } from "react-router-dom";
 import { DashboardLayout, PageContainer } from "@toolpad/core";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
-import {Box, MenuItem, Select, Typography, Breadcrumbs, Link, Stack} from "@mui/material";
-import {useApiData} from '../hooks/useApiData';
+import { Box, MenuItem, Select, Typography, Breadcrumbs, Link, Stack } from "@mui/material";
+import { useApiData } from '../hooks/useApiData';
 
 const MainLayout = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [currentView, setCurrentView] = useState(location.pathname.startsWith("/grid") ? "grid" : "default");
     const hideSidebar = location.pathname.startsWith("/grid");
+    const [visitedPages, setVisitedPages] = useState(location.pathname === "/home" || location.pathname === "/grid" ? [] : [location.pathname]);
 
     const { data, isLoading, error } = useApiData('current_node');
 
@@ -22,17 +23,43 @@ const MainLayout = () => {
         }))
         : [{ kind: 'link', title: 'Loading...', segment: 'home', icon: <MenuOutlinedIcon /> }];
 
+    useEffect(() => {
+        setVisitedPages((prevVisitedPages) => {
+            if (location.pathname === "/home" || location.pathname === "/grid") {
+                return [];
+            }
+            const pathParts = location.pathname.split("/information/");
+            const secondPart = pathParts[1] ? `/information/${pathParts[1]}` : location.pathname;
+            if (!prevVisitedPages.includes(secondPart)) {
+                return [...prevVisitedPages, secondPart];
+            }
+            return prevVisitedPages;
+        });
+    }, [location]);
+
     const handleViewChange = (event) => {
         const selectedView = event.target.value;
         setCurrentView(selectedView);
         if (selectedView === "grid") {
             navigate(`/grid`);
         } else if (selectedView === "default") {
-            navigate(`/information/0`);
+            navigate(`/home`);
         }
     };
 
-    let pathnames = ["test", "test2", "test3"];
+    const handleBreadcrumbClick = (path) => {
+        setVisitedPages((prevVisitedPages) => {
+            const index = prevVisitedPages.indexOf(path);
+            if (index !== -1) {
+                return prevVisitedPages.slice(0, index + 1);
+            }
+            return prevVisitedPages;
+        });
+        navigate(path);
+    };
+
+    const visiblePages = visitedPages.length > 3 ? visitedPages.slice(-2) : visitedPages;
+
     return (
         <Box sx={{
             '& .MuiDrawer-root .MuiDrawer-paper, & [role="navigation"]': {
@@ -53,7 +80,7 @@ const MainLayout = () => {
                 hideNavigation={hideSidebar}
                 disableCollapsibleSidebar={hideSidebar}
                 slots={{
-                    appTitle: () =>(
+                    appTitle: () => (
                         <Stack direction='row' alignItems='center' spacing={5}>
                             <Box sx={{
                                 display: 'flex',
@@ -61,26 +88,25 @@ const MainLayout = () => {
                                 '& .MuiSvgIcon-root': { cursor: 'pointer' },
                                 height: '40px'
                             }}>
-                            <img src="/logo.svg" alt="I3S" color={"inherit"} width={'100%'} height={'100%'}/>
+                                <img src="/logo.svg" alt="I3S" color={"inherit"} width={'100%'} height={'100%'}/>
                             </Box>
                             <Breadcrumbs separator=">" aria-label="breadcrumb">
-                                <Link to="/home" color="inherit">
-                                    Home
+                                <Link component={RouterLink} to={currentView === "grid" ? "/grid" : "/home"} color="inherit">
+                                    {currentView === "grid" ? "Grid" : "Home"}
                                 </Link>
-                                {pathnames.map((value, index) => {
-                                    const last = index === pathnames.length - 1;
-                                    const to = `/${pathnames.slice(0, index + 1).join('/')}`;
-
-                                    return last ? (
-                                        <Typography color="textPrimary" key={to}>
-                                            {value}
-                                        </Typography>
-                                    ) : (
-                                        <Link color="inherit" to={to} key={to}>
-                                            {value}
-                                        </Link>
-                                    );
-                                })}
+                                {visitedPages.length > 3 && (
+                                    <Typography color="textPrimary">...</Typography>
+                                )}
+                                {visiblePages.map((page, index) => (
+                                    <Link
+                                        component="button"
+                                        color="inherit"
+                                        onClick={() => handleBreadcrumbClick(page)}
+                                        key={page}
+                                    >
+                                        {page}
+                                    </Link>
+                                ))}
                             </Breadcrumbs>
                         </Stack>),
                     toolbarActions: () => (
