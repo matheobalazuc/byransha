@@ -159,14 +159,17 @@ public class BBGraph extends BNode {
 	/**
 	 * Executes the given consumer for each node in the graph, except WebServer nodes.
 	 * WebServer nodes are excluded to prevent circular references during serialization.
+	 * Uses synchronization to prevent ConcurrentModificationException.
 	 * 
 	 * @param h The consumer to execute for each node
 	 */
 	public void forEachNode(Consumer<BNode> h) {
-		for (var n : nodes) {
-			// Skip WebServer nodes to prevent circular references
-			if (!(n instanceof WebServer)) {
-				h.accept(n);
+		synchronized (nodes) {
+			for (var n : nodes) {
+				// Skip WebServer nodes to prevent circular references
+				if (!(n instanceof WebServer)) {
+					h.accept(n);
+				}
 			}
 		}
 	}
@@ -190,26 +193,34 @@ public class BBGraph extends BNode {
 		return r.get();
 	}
 
-	void accept(BNode n) {
+	synchronized void accept(BNode n) {
 		var already = findByID(n.id());
 
 		if (already != null)
 			throw new IllegalStateException("can't add node " + n + " with id " + n.id() + " because of : " + already);
 
-		nodes.add(n);
+		synchronized (nodes) {
+			nodes.add(n);
+		}
 
 		if (byClass != null) {
-			var s = byClass.get(n.getClass());
+			synchronized (byClass) {
+				var s = byClass.get(n.getClass());
 
-			if (s == null) {
-				s = byClass.put(n.getClass(), new ArrayList<>());
+				if (s == null) {
+					s = byClass.put(n.getClass(), new ArrayList<>());
+				}
+
+				synchronized (s) {
+					s.add(n);
+				}
 			}
-
-			s.add(n);
 		}
 
 		if (byID != null) {
-			byID.put(n.id(), n);
+			synchronized (byID) {
+				byID.put(n.id(), n);
+			}
 		}
 	}
 
@@ -252,9 +263,11 @@ public class BBGraph extends BNode {
 		if (byID != null) {
 			return byID.get(id);
 		} else {
-			for (var n : nodes) {
-				if (n.id() == id) {
-					return n;
+			synchronized (nodes) {
+				for (var n : nodes) {
+					if (n.id() == id) {
+						return n;
+					}
 				}
 			}
 		}
@@ -266,24 +279,28 @@ public class BBGraph extends BNode {
 		if (byClass != null) {
 			for (var s : byClass.entrySet()) {
 				if (nodeClass.isAssignableFrom(s.getKey())) {
-					for (var node : s.getValue()) {
-						// Ensure the node is of the correct type before casting
-						if (nodeClass.isInstance(node)) {
-							C nn = nodeClass.cast(node);
-							if (p.test(nn)) {
-								return nn;
+					synchronized (s.getValue()) {
+						for (var node : s.getValue()) {
+							// Ensure the node is of the correct type before casting
+							if (nodeClass.isInstance(node)) {
+								C nn = nodeClass.cast(node);
+								if (p.test(nn)) {
+									return nn;
+								}
 							}
 						}
 					}
 				}
 			}
 		} else {
-			for (var node : nodes) {
-				// Use isInstance to check if the node is of the correct type
-				if (nodeClass.isInstance(node)) {
-					C nn = nodeClass.cast(node);
-					if (p.test(nn)) {
-						return nn;
+			synchronized (nodes) {
+				for (var node : nodes) {
+					// Use isInstance to check if the node is of the correct type
+					if (nodeClass.isInstance(node)) {
+						C nn = nodeClass.cast(node);
+						if (p.test(nn)) {
+							return nn;
+						}
 					}
 				}
 			}
@@ -293,7 +310,9 @@ public class BBGraph extends BNode {
 	}
 
 	public List<User> users() {
-		return (List<User>) (List) nodes.stream().filter(n -> n instanceof User).toList();
+		synchronized (nodes) {
+			return (List<User>) (List) nodes.stream().filter(n -> n instanceof User).toList();
+		}
 	}
 
 	public User findUser(SSLSession s) {
@@ -312,7 +331,9 @@ public class BBGraph extends BNode {
 			return new EndpointTextResponse("text/html", pw -> {
 				pw.println("<ul>");
 				pw.println("<li>" + graph.countNodes() + " nodes");
-				pw.println("<li>Node classes: <ul>" + graph.nodes.stream().map(n -> "<li>" + n.getClass()).toList());
+				synchronized (graph.nodes) {
+					pw.println("<li>Node classes: <ul>" + graph.nodes.stream().map(n -> "<li>" + n.getClass()).toList());
+				}
 				pw.println("</ul>");
 				var users = graph.users();
 				pw.println("<li>" + users.size() + " users: " + users.stream().map(u -> u.name.get()).toList());
