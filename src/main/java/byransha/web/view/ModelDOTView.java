@@ -53,7 +53,9 @@ public class ModelDOTView extends NodeEndpoint<BBGraph> implements DevelopmentVi
 			BBGraph node) throws Throwable {
 		// TODO Auto-generated method stub
 		return new EndpointTextResponse("text/dot", pw -> {
-			System.out.println(graph.nodes.size());
+			synchronized (graph.nodes) {
+				System.out.println(graph.nodes.size());
+			}
 			var relations = new ArrayList<ModelDOTView.Relation>();
 			var class_attrs = new HashMap<Class<?>, Set<String>>();
 			graph.forEachNode(n -> {

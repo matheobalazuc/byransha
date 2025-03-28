@@ -18,34 +18,46 @@ public class BGraph {
 		System.out.println(g.toNivoJSON().toPrettyString());
 	}
 
-	public BLinks newArc(BVertex v, BVertex w) {
-		nodes.add(v);
-		nodes.add(w);
+	public synchronized BLinks newArc(BVertex v, BVertex w) {
+		synchronized (nodes) {
+			nodes.add(v);
+			nodes.add(w);
+		}
 
-		var a = new BLinks(v, w);
-		links.add(a);
-		return a;
+		synchronized (links) {
+			var a = new BLinks(v, w);
+			links.add(a);
+			return a;
+		}
 	}
 
-	public JsonNode toNivoJSON() {
-		ObjectMapper mapper = new ObjectMapper();
-		return mapper.valueToTree(this);
-	}
-
-	public void addVertex(BVertex bVertex) {
-		nodes.add(bVertex);
-	}
-
-	public BVertex findVertexByID(String id) {
-		for (var v : nodes) {
-			if (v.id.equals(id)) {
-				return v;
+	public synchronized JsonNode toNivoJSON() {
+		synchronized (nodes) {
+			synchronized (links) {
+				ObjectMapper mapper = new ObjectMapper();
+				return mapper.valueToTree(this);
 			}
 		}
-		return null;
 	}
 
-	public BVertex ensureHasVertex(BNode o) {
+	public synchronized void addVertex(BVertex bVertex) {
+		synchronized (nodes) {
+			nodes.add(bVertex);
+		}
+	}
+
+	public synchronized BVertex findVertexByID(String id) {
+		synchronized (nodes) {
+			for (var v : nodes) {
+				if (v.id.equals(id)) {
+					return v;
+				}
+			}
+			return null;
+		}
+	}
+
+	public synchronized BVertex ensureHasVertex(BNode o) {
 		var v = findVertexByID("" + o.id());
 
 		if (v == null) {

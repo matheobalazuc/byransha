@@ -213,12 +213,13 @@ public class WebServer extends BNode {
 	static final File frontendDir = new File("build/frontend");
 
 	private HTTPResponse processRequest(HttpsExchange https) {
+		User user = null;
 		try {
 			long startTimeNs = System.nanoTime();
 			ObjectNode inputJson = grabInputFromURLandPOST(https);
 			final var inputJson2sendBack = inputJson.deepCopy();
 
-			User user = graph.findUser(https.getSSLSession());
+			user = graph.findUser(https.getSSLSession());
 
 			if (user == null) {
 				user = new User(graph, "user", "test");
@@ -286,9 +287,11 @@ public class WebServer extends BNode {
 							er.set("error", new TextNode(sw.toString()));
 						}
 
-						endpoint.nbCalls++;
 						double duration = System.nanoTime() - startTimeNs2;
-						endpoint.timeSpentNs += duration;
+						synchronized(endpoint) {
+							endpoint.nbCalls++;
+							endpoint.timeSpentNs += duration;
+						}
 						er.set("duration", new DoubleNode(duration));
 						resultsNode.add(er);
 					}
@@ -328,7 +331,10 @@ public class WebServer extends BNode {
 			n.set("stack trace", a);
 			return new HTTPResponse(500, "text/plain", n.toPrettyString().getBytes());
 		} finally {
-			nbRequestsInProgress.remove(https);
+			// Remove the user from nbRequestsInProgress if it was added
+			if (user != null) {
+				nbRequestsInProgress.remove(user);
+			}
 		}
 	}
 
@@ -413,7 +419,13 @@ public class WebServer extends BNode {
 //			InputStream fis = new FileInputStream(filename);
 		var fis = WebServer.class.getResourceAsStream("/web/keystore.jks");
 		var password = "password".toCharArray();
-		keyStore.load(fis, password);
+		try {
+			keyStore.load(fis, password);
+		} finally {
+			if (fis != null) {
+				fis.close();
+			}
+		}
 
 		var keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 		keyManagerFactory.init(keyStore, password);
