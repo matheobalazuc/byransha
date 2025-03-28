@@ -36,17 +36,36 @@ public class OSNode extends BNode {
 			return new EndpointTextResponse("text/html", pw -> {
 				pw.println("<ul>");
 				try {
-					pw.println("<li>IP adress: " + InetAddress.getLocalHost().getHostName());
+					String hostname = escapeHtml(InetAddress.getLocalHost().getHostName());
+					pw.println("<li>IP address: " + hostname + "</li>");
 				} catch (UnknownHostException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					// Log the error properly instead of just printing stack trace
+					System.err.println("Error getting hostname: " + e.getMessage());
+					pw.println("<li>IP address: Unable to determine</li>");
 				}
-				pw.println("<li>Arch: " + ManagementFactory.getOperatingSystemMXBean().getArch());
-				pw.println("<li>OS: " + ManagementFactory.getOperatingSystemMXBean().getName());
-				pw.println("<li>Load avg: " + ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage());
-				pw.println("<li>#cores: " + Runtime.getRuntime().availableProcessors());
+				String arch = escapeHtml(ManagementFactory.getOperatingSystemMXBean().getArch());
+				String osName = escapeHtml(ManagementFactory.getOperatingSystemMXBean().getName());
+				double loadAvg = ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage();
+				int cores = Runtime.getRuntime().availableProcessors();
+
+				pw.println("<li>Arch: " + arch + "</li>");
+				pw.println("<li>OS: " + osName + "</li>");
+				pw.println("<li>Load avg: " + loadAvg + "</li>");
+				pw.println("<li>#cores: " + cores + "</li>");
 				pw.println("</ul>");
 			});
+		}
+
+		// Helper method to escape HTML special characters
+		private String escapeHtml(String input) {
+			if (input == null) {
+				return "";
+			}
+			return input.replace("&", "&amp;")
+					.replace("<", "&lt;")
+					.replace(">", "&gt;")
+					.replace("\"", "&quot;")
+					.replace("'", "&#39;");
 		}
 	}
 }

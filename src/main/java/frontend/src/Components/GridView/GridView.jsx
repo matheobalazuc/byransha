@@ -42,7 +42,7 @@ const GridView = () => {
             </Typography>
             <Grid2 container spacing={4}>
                 {views.map((view, index) => (
-                    <Grid2 size={{ xs: 12, sm: 6 }} key={index}>
+                    <Grid2 xs={12} sm={6} key={index}>
                         <Card
                             sx={{
                                 cursor: 'pointer',

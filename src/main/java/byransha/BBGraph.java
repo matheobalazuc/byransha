@@ -106,27 +106,68 @@ public class BBGraph extends BNode {
 		if (!d.exists())
 			return;
 
-		try {
-			for (var symlink : d.listFiles()) {
+		File[] files = d.listFiles();
+		if (files == null) {
+			System.err.println("Warning: Could not list files in directory: " + d.getAbsolutePath());
+			return;
+		}
+
+		for (var symlink : files) {
+			try {
 				Path targetFile = Files.readSymbolicLink(symlink.toPath());
 				String relationName = targetFile.getFileName().toString();
-//				String targetClassName = targetFile.getName(targetFile.getNameCount() - 2).toString();
-//				var targetNodeClass = (Class<? extends BNode>) Class.forName(targetClassName);
 				var fn = targetFile.getFileName().toString();
-				int id = Integer.valueOf(fn.substring(fn.indexOf("@") + 1));
-				BNode targetNode = findByID(id);
-				node.getClass().getField(relationName).set(node, targetNode);
-				setRelation.accept(node, relationName);
+
+				// Check if the filename contains the expected format
+				int atIndex = fn.indexOf("@");
+				if (atIndex == -1) {
+					System.err.println("Warning: Invalid filename format for symlink: " + fn);
+					continue;
+				}
+
+				try {
+					int id = Integer.valueOf(fn.substring(atIndex + 1));
+					BNode targetNode = findByID(id);
+
+					if (targetNode == null) {
+						System.err.println("Warning: Could not find node with ID: " + id);
+						continue;
+					}
+
+					try {
+						node.getClass().getField(relationName).set(node, targetNode);
+						setRelation.accept(node, relationName);
+					} catch (NoSuchFieldException e) {
+						System.err.println("Error: Field '" + relationName + "' not found in class " + 
+							node.getClass().getName() + ": " + e.getMessage());
+					} catch (IllegalAccessException e) {
+						System.err.println("Error: Cannot access field '" + relationName + "' in class " + 
+							node.getClass().getName() + ": " + e.getMessage());
+					}
+				} catch (NumberFormatException e) {
+					System.err.println("Error: Invalid node ID in filename: " + fn + ": " + e.getMessage());
+				}
+			} catch (IOException e) {
+				System.err.println("Error reading symbolic link: " + symlink.getPath() + ": " + e.getMessage());
+			} catch (Exception e) {
+				System.err.println("Unexpected error processing symlink " + symlink.getPath() + ": " + e.getMessage());
+				e.printStackTrace();
 			}
-		} catch (Exception err) {
-			throw new RuntimeException(err);
 		}
 	}
 
+	/**
+	 * Executes the given consumer for each node in the graph, except WebServer nodes.
+	 * WebServer nodes are excluded to prevent circular references during serialization.
+	 * 
+	 * @param h The consumer to execute for each node
+	 */
 	public void forEachNode(Consumer<BNode> h) {
 		for (var n : nodes) {
-			if(n instanceof WebServer) {}
-			else {h.accept(n);}
+			// Skip WebServer nodes to prevent circular references
+			if (!(n instanceof WebServer)) {
+				h.accept(n);
+			}
 		}
 	}
 
@@ -182,13 +223,29 @@ public class BBGraph extends BNode {
 
 	private void delete(File d) {
 		if (d.isDirectory()) {
-			for (var c : d.listFiles()) {
-				delete(c);
+			File[] files = d.listFiles();
+			if (files != null) {
+				for (var c : files) {
+					delete(c);
+				}
+			} else {
+				System.err.println("Warning: Could not list files in directory: " + d.getAbsolutePath());
 			}
 		}
 
-		System.out.println("delete " + d);
-		d.delete();
+		System.out.println("Deleting " + d);
+		boolean success = d.delete();
+		if (!success) {
+			System.err.println("Warning: Failed to delete " + d.getAbsolutePath());
+			// Try to determine why deletion failed
+			if (!d.exists()) {
+				System.err.println("  File does not exist");
+			} else if (!d.canWrite()) {
+				System.err.println("  File is not writable");
+			} else if (d.isDirectory() && d.list() != null && d.list().length > 0) {
+				System.err.println("  Directory is not empty");
+			}
+		}
 	}
 
 	public BNode findByID(int id) {
@@ -205,23 +262,26 @@ public class BBGraph extends BNode {
 		return null;
 	}
 
-	public <C extends BNode> C find(Class<C> nodeClass, Predicate<C> p) {
+	public synchronized <C extends BNode> C find(Class<C> nodeClass, Predicate<C> p) {
 		if (byClass != null) {
 			for (var s : byClass.entrySet()) {
-				if (s.getKey().isAssignableFrom(nodeClass)) {
+				if (nodeClass.isAssignableFrom(s.getKey())) {
 					for (var node : s.getValue()) {
-						C nn = (C) node;
-
-						if (p.test(nn)) {
-							return nn;
+						// Ensure the node is of the correct type before casting
+						if (nodeClass.isInstance(node)) {
+							C nn = nodeClass.cast(node);
+							if (p.test(nn)) {
+								return nn;
+							}
 						}
 					}
 				}
 			}
 		} else {
 			for (var node : nodes) {
-				if (nodeClass.isAssignableFrom(node.getClass())) {
-					C nn = (C) node;
+				// Use isInstance to check if the node is of the correct type
+				if (nodeClass.isInstance(node)) {
+					C nn = nodeClass.cast(node);
 					if (p.test(nn)) {
 						return nn;
 					}
