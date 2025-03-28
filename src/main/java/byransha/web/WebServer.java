@@ -138,6 +138,7 @@ public class WebServer extends BNode {
 		registerEndpoint(new StructureView(g));
 		registerEndpoint(new NodeEndpoints(g));
 		registerEndpoint(new SetValue(g));
+		registerEndpoint(new Edit(g));
 
 		try {
 			Path classPathFile = new File(Byransha.class.getPackageName() + "-classpath.lst").toPath();
