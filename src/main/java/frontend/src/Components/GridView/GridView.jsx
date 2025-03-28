@@ -49,7 +49,7 @@ const GridView = () => {
     return (
         <Box sx={{ padding: { xs: '5px', md: '40px' }, maxWidth: '100%', margin: '0 auto' }}>
             {
-                navIsLoading && <CircularProgress />
+                navIsLoading || jumpMutation.isPending && <CircularProgress />
             }
             <Box>
                 {
