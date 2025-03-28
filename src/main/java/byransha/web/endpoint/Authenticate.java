@@ -30,13 +30,15 @@ public class Authenticate extends NodeEndpoint<BBGraph> {
 
 	}
 
-	private  User auth(String username, String password) {
-		for (var n : graph.nodes) {
-			if (n instanceof User u && u.accept(username, password)) {
-				return u;
+	private User auth(String username, String password) {
+		synchronized (graph.nodes) {
+			for (var n : graph.nodes) {
+				if (n instanceof User u && u.accept(username, password)) {
+					return u;
+				}
 			}
+			return null;
 		}
-		return null;
 	}
 
 }

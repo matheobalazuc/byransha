@@ -12,6 +12,8 @@ import byransha.web.EndpointJsonResponse;
 import byransha.web.View;
 import byransha.web.WebServer;
 
+import java.util.ArrayList;
+
 public class NodeIDs extends NodeEndpoint<BBGraph> implements View {
 
 	public NodeIDs(BBGraph db) {
@@ -23,8 +25,10 @@ public class NodeIDs extends NodeEndpoint<BBGraph> implements View {
 			BBGraph g) {
 		var a = new ArrayNode(null);
 
-		for (var n : g.nodes) {
-			a.add(new TextNode("" + n.id()));
+		synchronized (g.nodes) {
+			for (var n : g.nodes) {
+				a.add(new TextNode("" + n.id()));
+			}
 		}
 
 		return new EndpointJsonResponse(a, this);
