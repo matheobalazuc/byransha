@@ -28,7 +28,6 @@ import javax.net.ssl.SSLParameters;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.DoubleNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -57,6 +56,7 @@ import byransha.web.endpoint.Jump;
 import byransha.web.endpoint.NodeEndpoints;
 import byransha.web.endpoint.NodeIDs;
 import byransha.web.endpoint.Nodes;
+import byransha.web.endpoint.SetValue;
 import byransha.web.view.AllViews;
 import byransha.web.view.CharExampleXY;
 import byransha.web.view.CharacterDistribution;
@@ -76,12 +76,18 @@ public class WebServer extends BNode {
 		var argList = List.of(args);
 		var argMap = new HashMap<String, String>();
 		argList.stream().map(a -> a.split("=")).forEach(a -> argMap.put(a[0], a[1]));
-		BBGraph g = loadG(argMap);
+		BBGraph g = instantiateGraph(argMap);
+
+		if (g.directory != null) {
+			g.loadFromDisk(n -> System.out.println("loading node " + n),
+					(n, s) -> System.out.println("loading arc " + n + ", " + s));
+		}
+
 		int port = Integer.valueOf(argMap.getOrDefault("-port", "8080"));
 		new WebServer(g, port);
 	}
 
-	public static BBGraph loadG(Map<String, String> argMap)
+	public static BBGraph instantiateGraph(Map<String, String> argMap)
 			throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
 			NoSuchMethodException, SecurityException, ClassNotFoundException, IOException {
 		System.out.println("loading DB");
@@ -91,7 +97,7 @@ public class WebServer extends BNode {
 			return (BBGraph) Class.forName(Files.readString(new File(d, "dbClass.txt").toPath()))
 					.getConstructor(File.class).newInstance(d);
 		} else if (argMap.containsKey("-dbClass")) {
-			return (BBGraph) Class.forName(argMap.get("-dbClass")).getConstructor().newInstance();
+			return (BBGraph) Class.forName(argMap.get("-dbClass")).getConstructor().newInstance(null);
 		} else {
 			return new BBGraph(new File(System.getProperty("user.home") + "/." + BBGraph.class.getPackageName()));
 		}
@@ -145,6 +151,7 @@ public class WebServer extends BNode {
 		registerEndpoint(new ToStringView(g));
 		registerEndpoint(new StructureView(g));
 		registerEndpoint(new NodeEndpoints(g));
+		registerEndpoint(new SetValue(g));
 
 		try {
 			Path classPathFile = new File(Byransha.class.getPackageName() + "-classpath.lst").toPath();
@@ -266,9 +273,7 @@ public class WebServer extends BNode {
 					for (var endpoint : endpoints) {
 						ObjectNode er = new ObjectNode(null);
 						er.set("endpoint", new TextNode(endpoint.name()));
-						er.set("is_view", BooleanNode.valueOf(endpoint instanceof View));
-						er.set("is_technical", BooleanNode.valueOf(endpoint instanceof TechnicalView));
-						er.set("is_development", BooleanNode.valueOf(endpoint instanceof DevelopmentView));
+						er.set("reponse_type", new TextNode(endpoint.type()));
 						long startTimeNs2 = System.nanoTime();
 
 						try {
@@ -476,5 +481,4 @@ public class WebServer extends BNode {
 			return new EndpointJsonResponse(d.toJson(), "logs");
 		}
 	}
-
 }

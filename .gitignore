@@ -1,18 +1,37 @@
+################################################################################
+# Fichiers spécifiques au système d’exploitation
+################################################################################
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+desktop.ini
+
+################################################################################
+# Logs et fichiers temporaires
+################################################################################
+
+*.log
+*.tmp
+*.temp
+*.swp
+*.swo
+
+# Fichiers de crash logs de la JVM
+hs_err_pid*
+replay_pid*
+
+################################################################################
+# Binaires et dépendances
+################################################################################
+
+# Dossier /bin (généré par certaines configurations Java ou scripts)
 bin/
 
-# Compiled class file
+# Artifacts Java
 *.class
-
-# Log file
-*.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
 *.jar
 *.war
 *.nar
@@ -20,11 +39,36 @@ bin/
 *.zip
 *.tar.gz
 *.rar
-*.idea/
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
-/target/
+################################################################################
+# Moteur Java (Maven/Gradle)
+################################################################################
 
-.DS_Store
+# Maven: répertoire de build
+target/
+
+# Gradle: répertoire de build et dossiers locaux
+.gradle/
+
+# Gradle wrapper
+!gradlew
+!gradlew.bat
+.gradle-cache/
+.gradle-tasks-cache/
+
+byransha-classpath.lst
+main.java-classpath.lst
+deploy.exclude.lst
+
+################################################################################
+# Autres fichiers potentiellement sensibles
+################################################################################
+
+# Clés ou variables d'environnement
+.env
+.env.*
+
+# Si tu génères un coverage local ou si tu utilises Jacoco
+coverage/
+.jacoco/
+bun.lock

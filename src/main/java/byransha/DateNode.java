@@ -6,6 +6,10 @@ public class DateNode extends StringNode {
 		super(g, v);
 	}
 
+	public DateNode(BBGraph g) {
+		super(g);
+	}
+
 	@Override
 	public void fromString(String s) {
 		set(s);

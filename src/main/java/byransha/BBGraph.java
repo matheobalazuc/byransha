@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -37,7 +36,7 @@ public class BBGraph extends BNode {
 	public final List<BNode> nodes;
 	private Map<Class<? extends BNode>, List<BNode>> byClass;
 	private Int2ObjectMap<BNode> byID;// = new Int2ObjectOpenHashMap<>();
-//	int idCount = 1;
+	int idCount = 1;
 
 	public BBGraph(File directory) {
 		super(null);
@@ -77,25 +76,30 @@ public class BBGraph extends BNode {
 		return r;
 	}
 
-	public void load(Consumer<BNode> newNodeInstantiated, BiConsumer<BNode, String> setRelation) {
-		intantiateNodes(newNodeInstantiated);
+	public void loadFromDisk(Consumer<BNode> newNodeInstantiated, BiConsumer<BNode, String> setRelation) {
+		instantiateNodes(newNodeInstantiated);
 		forEachNode(n -> loadOuts(n, setRelation));
 	}
 
-	private void intantiateNodes(Consumer<BNode> newNodeInstantiated) {
-		for (File classDir : directory.listFiles()) {
-			String className = classDir.getName();
-			var nodeClass = (Class<? extends BNode>) Clazz.findClassOrFail(className);
+	private void instantiateNodes(Consumer<BNode> newNodeInstantiated) {
+		File[] files = directory.listFiles();
+		if (files == null)
+			return;
+		else {
+			for (File classDir : directory.listFiles()) {
+				String className = classDir.getName();
+				var nodeClass = (Class<? extends BNode>) Clazz.findClassOrFail(className);
 
-			for (File nodeDir : classDir.listFiles()) {
-				try {
-					BNode node = nodeClass.getConstructor().newInstance();
-					node.setID(Integer.valueOf(nodeDir.getName()));
-					nodes.add(node);
-					newNodeInstantiated.accept(node);
-				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException | NoSuchMethodException | SecurityException err) {
-					throw new RuntimeException(err);
+				for (File nodeDir : classDir.listFiles()) {
+					try {
+						var constructor = nodeClass.getConstructor(BBGraph.class);
+						BNode node = constructor.newInstance(graph);
+						node.setID(Integer.valueOf(nodeDir.getName().substring(1)));
+						newNodeInstantiated.accept(node);
+					} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+							| InvocationTargetException | NoSuchMethodException | SecurityException err) {
+						throw new RuntimeException(err);
+					}
 				}
 			}
 		}
@@ -126,10 +130,17 @@ public class BBGraph extends BNode {
 
 	public void forEachNode(Consumer<BNode> h) {
 		for (var n : nodes) {
-			System.err.println(n.getClass());
-			System.err.println(nodes.size());
+//			System.err.println(n.getClass());
+//			System.err.println(nodes.size());
 			h.accept(n);
-			System.err.println(nodes.size());
+//			System.err.println(nodes.size());
+
+			if (false) {
+				if (n instanceof WebServer) {
+				} else {
+					h.accept(n);
+				}
+			}
 		}
 	}
 
@@ -227,7 +238,6 @@ public class BBGraph extends BNode {
 			for (var node : nodes) {
 				if (nodeClass.isAssignableFrom(node.getClass())) {
 					C nn = (C) node;
-
 					if (p.test(nn)) {
 						return nn;
 					}
@@ -294,6 +304,8 @@ public class BBGraph extends BNode {
 		}
 	}
 
-	
+	public void incrementIDCount() {
+		idCount++;
+	}
 
 }

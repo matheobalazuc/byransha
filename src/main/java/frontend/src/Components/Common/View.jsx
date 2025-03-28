@@ -1,4 +1,3 @@
-import useSWR from "swr";
 import axios from "axios";
 import React, {useCallback, useEffect, useRef} from "react";
 import {ResponsiveLine} from "@nivo/line";
@@ -10,8 +9,6 @@ import {ResponsiveNetwork} from "@nivo/network";
 import './View.css'
 import {useApiData} from "../../hooks/useApiData.js";
 
-const fetcher = url => axios.get(url);
-
 export const View = ({viewId}) => {
     const { data, isLoading: loading, error } = useApiData(viewId);
     const graphvizRef = useRef(null);
@@ -19,26 +16,26 @@ export const View = ({viewId}) => {
     useEffect(() => {
         if (!data) return;
         const {data: content, headers} = data;
-        const contentType = headers['content-type'].replaceAll('+getViewContent', '')
 
-        if (contentType === 'text/json' && viewId === "model_dotview" && graphvizRef.current) {
+        if (!content.results[0].result) return;
+
+        const contentType = content.results[0].result.contentType;
+
+        if (contentType === 'text/dot' && graphvizRef.current) {
             graphviz(graphvizRef.current).renderDot(content.results[0].result.data)
         }
     }, [data]);
 
-    const displayContent = useCallback((content, headers) => {
+    const displayContent = useCallback((content, contentType) => {
         if (!content) {
             return <div className="error-message">No content available.</div>;
         }
 
-        if (!headers)
-            return;
-        
-        const contentType = headers['content-type'].replaceAll('+getViewContent', '')
-
         if (contentType === 'text/json') {
-            if (viewId === 'xy2') {
+            if (viewId === 'char_example_xy') {
                 const parsedChartData = parseNivoChartData(content);
+
+                console.log(parsedChartData)
 
                 return (
                     <div className="graph">
@@ -194,12 +191,6 @@ export const View = ({viewId}) => {
                         />
                     </div>
                 );
-            } else if (viewId === 'model_dotview') {
-                return (
-                    <div className="content-container graphviz-container">
-                        <div ref={graphvizRef}/>
-                    </div>
-                );
             } else {
                 return (
                     <div className="content-container">
@@ -207,13 +198,19 @@ export const View = ({viewId}) => {
                     </div>
                 );
             }
+        } else if (contentType === 'text/dot') {
+            return (
+                <div className="content-container graphviz-container">
+                    <div ref={graphvizRef}/>
+                </div>
+            );
         } else if (contentType === 'text/html') {
             return (
                 <div className="content-container html-content">
                     <div dangerouslySetInnerHTML={{__html: content}}/>
                 </div>
             );
-        } else if (contentType === 'image/svg+xml') {
+        } else if (contentType === 'image/svg') {
             return (
                 <div className="content-container">
                     <div dangerouslySetInnerHTML={{__html: content}}/>
@@ -251,13 +248,21 @@ export const View = ({viewId}) => {
     const parseNivoChartData = (content) => {
         const result = [];
         for (let key of Object.keys(content)) {
-            const cosData = content?.[key]?.data || {};
+            const cosData = content?.[key] || {};
             const cosLine = {
                 id: key,
-                data: Object.keys(cosData).map(key => ({x: parseFloat(key), y: cosData[key]})),
+                data: cosData.map(val => {
+                    const key = Object.keys(val)[0]
+
+                    return {
+                        x: parseFloat(key),
+                        y: parseFloat(val[key])
+                    }
+                })
             };
             result.push(cosLine)
         }
+        console.log(result)
         return result;
     };
 
@@ -300,5 +305,5 @@ export const View = ({viewId}) => {
         return <div className="error-message">Error: {dataContent.results[0].error}</div>;
     }
 
-    return displayContent(dataContent.results[0].result.data, headers);
+    return displayContent(dataContent.results[0].result.data, dataContent.results[0].result.contentType);
 }

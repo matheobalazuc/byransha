@@ -33,7 +33,7 @@ public class OSNode extends BNode {
 		@Override
 		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
 				BBGraph node) throws Throwable {
-			return new EndpointTextResponse(comment, pw -> {
+			return new EndpointTextResponse("text/html", pw -> {
 				pw.println("<ul>");
 				try {
 					pw.println("<li>IP adress: " + InetAddress.getLocalHost().getHostName());

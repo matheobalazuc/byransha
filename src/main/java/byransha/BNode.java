@@ -38,7 +38,10 @@ public class BNode {
 
 	public BNode(BBGraph g) {
 		if (g != null) {
-			id = g.newID();
+			while (g.findByID(g.idCount) != null) {
+				g.incrementIDCount();
+			}
+			id = g.idCount;
 			this.graph = g;
 			g.accept(this);
 		} else if (this instanceof BBGraph thisGraph) {
@@ -48,7 +51,6 @@ public class BNode {
 			throw new IllegalStateException();
 		}
 	}
-
 
 	public List<Ref> ins() {
 		return refs == null ? graph.findRefsTO(this) : refs;
