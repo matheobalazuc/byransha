@@ -27,9 +27,7 @@ public class CurrentNode extends NodeEndpoint<BNode> {
 		r.set("to_string", new TextNode(currentNode.toString()));
 		r.set("can read", new TextNode("" + currentNode.canSee(user)));
 		r.set("can write", new TextNode("" + currentNode.canSee(user)));
-
 		r.set("views", new View.Views(graph).exec(inputJson, user, webServer, exchange, currentNode).toJson());
-
 		return new EndpointJsonResponse(r, this);
 	}
 }

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -36,7 +37,7 @@ public class BBGraph extends BNode {
 	public final List<BNode> nodes;
 	private Map<Class<? extends BNode>, List<BNode>> byClass;
 	private Int2ObjectMap<BNode> byID;// = new Int2ObjectOpenHashMap<>();
-	int idCount = 1;
+//	int idCount = 1;
 
 	public BBGraph(File directory) {
 		super(null);
@@ -125,7 +126,10 @@ public class BBGraph extends BNode {
 
 	public void forEachNode(Consumer<BNode> h) {
 		for (var n : nodes) {
+			System.err.println(n.getClass());
+			System.err.println(nodes.size());
 			h.accept(n);
+			System.err.println(nodes.size());
 		}
 	}
 
@@ -142,9 +146,11 @@ public class BBGraph extends BNode {
 
 	public long countNodes() {
 		var r = new AtomicLong();
+
 		forEachNode(n -> {
 			r.incrementAndGet();
 		});
+
 		return r.get();
 	}
 
@@ -287,5 +293,7 @@ public class BBGraph extends BNode {
 			return new EndpointJsonResponse(g.toNivoJSON(), dialects.nivoNetwork);
 		}
 	}
+
+	
 
 }

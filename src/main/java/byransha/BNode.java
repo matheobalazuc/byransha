@@ -38,18 +38,17 @@ public class BNode {
 
 	public BNode(BBGraph g) {
 		if (g != null) {
-			id = g.idCount++;
+			id = g.newID();
 			this.graph = g;
 			g.accept(this);
+		} else if (this instanceof BBGraph thisGraph) {
+			id = 0;
+			graph = thisGraph;
 		} else {
-			if (this instanceof BBGraph bbg) {
-				id = 0;
-				graph = bbg;
-			} else {
-				throw new IllegalStateException();
-			}
+			throw new IllegalStateException();
 		}
 	}
+
 
 	public List<Ref> ins() {
 		return refs == null ? graph.findRefsTO(this) : refs;
