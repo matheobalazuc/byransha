@@ -12,6 +12,11 @@ public class Office extends BNode {
 		// TODO Auto-generated constructor stub
 	}
 
+	@Override
+	public String getDescription() {
+		return "Office: " + (name != null ? name.get() : "Unnamed");
+	}
+
 	StringNode name;
 	ListNode<Person> users;
 	IntNode surface;

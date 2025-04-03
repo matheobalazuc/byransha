@@ -13,6 +13,11 @@ import byransha.web.WebServer;
 
 final public class LabView extends NodeEndpoint<Lab> {
 
+	@Override
+	public String getDescription() {
+		return "LabView description";
+	}
+
 	public LabView(BBGraph db) {
 		super(db);
 	}

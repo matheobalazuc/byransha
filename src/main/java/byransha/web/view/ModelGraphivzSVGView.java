@@ -13,6 +13,11 @@ import toools.extern.Proces;
 
 public class ModelGraphivzSVGView extends NodeEndpoint<BBGraph> implements TechnicalView {
 
+	@Override
+	public String getDescription() {
+		return "ModelGraphivzSVGView provides a graphical representation of the model in SVG format.";
+	}
+
 	public ModelGraphivzSVGView(BBGraph db) {
 		super(db);
 	}

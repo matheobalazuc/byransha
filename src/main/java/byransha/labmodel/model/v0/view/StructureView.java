@@ -13,6 +13,11 @@ import byransha.web.WebServer;
 
 final public class StructureView extends NodeEndpoint<Structure> {
 
+	@Override
+	public String getDescription() {
+		return "StructureView for managing structure-related endpoints.";
+	}
+
 	public StructureView(BBGraph g) {
 		super(g);
 	}

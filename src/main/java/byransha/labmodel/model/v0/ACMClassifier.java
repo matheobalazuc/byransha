@@ -21,4 +21,9 @@ public class ACMClassifier extends BNode {
 		return code + ": " + descr;
 	}
 
+	@Override
+	public String getDescription() {
+		return descr;
+	}
+
 }

@@ -27,4 +27,9 @@ public class ToStringView extends NodeEndpoint<BNode> implements DevelopmentView
 			BNode node) {
 		return new EndpointTextResponse("text/plain", pw -> pw.print(node.toString()));
 	}
+
+	@Override
+	public String getDescription() {
+		return "ToStringView for BNode";
+	}
 }

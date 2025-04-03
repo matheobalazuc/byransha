@@ -14,6 +14,11 @@ import com.sun.net.httpserver.HttpsExchange;
 
 public class Edit extends NodeEndpoint<BNode> {
 
+    @Override
+    public String getDescription() {
+        return "Edit endpoint for BNode";
+    }
+
     public Edit(BBGraph g) {
         super(g);
     }

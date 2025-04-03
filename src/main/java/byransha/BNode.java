@@ -30,11 +30,15 @@ import byransha.web.View;
 import byransha.web.WebServer;
 import toools.reflect.Clazz;
 
-public class BNode {
+public abstract class BNode {
 	public String comment;
 	private List<Ref> refs;
 	public final BBGraph graph;
 	private int id;
+
+
+	public abstract String getDescription();
+
 
 	public BNode(BBGraph g) {
 		if (g != null) {
@@ -242,6 +246,10 @@ public class BNode {
 	}
 
 	public static class BasicView extends NodeEndpoint<BNode> implements View {
+		@Override
+		public String getDescription() {
+			return "BasicView for BNode";
+		}
 		public BasicView(BBGraph g) {
 			super(g);
 		}
@@ -272,6 +280,11 @@ public class BNode {
 	}
 
 	public static class Nav2 extends NodeEndpoint<BNode> implements View {
+
+		@Override
+		public String getDescription() {
+			return "Nav2 view for BNode";
+		}
 		public Nav2(BBGraph g) {
 			super(g);
 		}
@@ -301,6 +314,11 @@ public class BNode {
 	}
 
 	public static class GraphView extends NodeEndpoint<BNode> implements View {
+
+		@Override
+		public String getDescription() {
+			return "GraphView for BNode";
+		}
 
 		public GraphView(BBGraph db) {
 			super(db);
@@ -332,6 +350,11 @@ public class BNode {
 	}
 
 	public static class OutNodeDistribution extends NodeEndpoint<BNode> implements View {
+
+		@Override
+		public String getDescription() {
+			return "OutNodeDistribution view for BNode";
+		}
 
 		public OutNodeDistribution(BBGraph db) {
 			super(db);

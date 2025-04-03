@@ -12,4 +12,8 @@ public class Device extends BNode {
 
 	public StringNode serialNumber;
 
+	@Override
+	public String getDescription() {
+		return "Device with serial number: " + (serialNumber != null ? serialNumber.toString() : "unknown");
+	}
 }

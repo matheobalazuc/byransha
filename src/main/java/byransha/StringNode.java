@@ -24,4 +24,9 @@ public class StringNode extends ValuedNode<String> {
 		return super.get();
 	}
 
+	@Override
+	public String getDescription() {
+		return "StringNode: " + get();
+	}
+
 }

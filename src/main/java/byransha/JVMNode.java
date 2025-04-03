@@ -18,7 +18,17 @@ public class JVMNode extends BNode {
 		super(db);
 	}
 
+	@Override
+	public String getDescription() {
+		return "JVMNode description";
+	}
+
 	public static class View extends NodeEndpoint<BBGraph> implements TechnicalView {
+
+		@Override
+		public String getDescription() {
+			return "View description";
+		}
 
 		public View(BBGraph g) {
 			super(g);
@@ -51,6 +61,11 @@ public class JVMNode extends BNode {
 
 		public Kill(BBGraph db) {
 			super(db);
+		}
+
+		@Override
+		public String getDescription() {
+			return "Kill endpoint for JVMNode";
 		}
 
 		@Override

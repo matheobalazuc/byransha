@@ -7,6 +7,11 @@ import byransha.SetNode;
 import byransha.StringNode;
 
 public class Structure extends BNode {
+
+	@Override
+	public String getDescription() {
+		return "Structure: " + name.get();
+	}
 	public StringNode name = new StringNode(graph);
 	public SetNode<Structure> subStructures = new SetNode<>(graph);
 	public ListNode<Person> members = new ListNode<>(graph);

@@ -62,6 +62,11 @@ import toools.text.TextUtilities;
  */
 
 public class WebServer extends BNode {
+
+	@Override
+	public String getDescription() {
+		return "WebServer node handling HTTP and HTTPS requests.";
+	}
 	public static void main(String[] args) throws Exception {
 		var argList = List.of(args);
 		var argMap = new HashMap<String, String>();
@@ -429,6 +434,11 @@ public class WebServer extends BNode {
 
 	public static class Info extends NodeEndpoint<WebServer> {
 
+		@Override
+		public String getDescription() {
+			return "Provides information about the WebServer node.";
+		}
+
 		public Info(BBGraph db) {
 			super(db);
 		}
@@ -451,6 +461,11 @@ public class WebServer extends BNode {
 	}
 
 	public static class LogsView extends NodeEndpoint<WebServer> {
+		@Override
+		public String getDescription() {
+			return "Provides a view of the logs for the WebServer node.";
+		}
+
 		public LogsView(BBGraph db) {
 			super(db);
 		}
@@ -470,6 +485,10 @@ public class WebServer extends BNode {
 	}
 
 	public static class EndpointCallDistributionView extends NodeEndpoint<WebServer> {
+		@Override
+		public String getDescription() {
+			return "Provides a distribution view of endpoint calls for the WebServer node.";
+		}
 		public EndpointCallDistributionView(BBGraph db) {
 			super(db);
 		}

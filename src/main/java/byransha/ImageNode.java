@@ -13,4 +13,9 @@ public class ImageNode extends ValuedNode<byte[]> {
 	public void fromString(String s) {
 		set(Base64.getDecoder().decode(s.getBytes()));
 	}
+
+	@Override
+	public String getDescription() {
+		return "ImageNode containing Base64-encoded image data";
+	}
 }

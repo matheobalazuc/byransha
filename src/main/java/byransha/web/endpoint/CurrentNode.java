@@ -14,6 +14,11 @@ import byransha.web.WebServer;
 
 public class CurrentNode extends NodeEndpoint<BNode> {
 
+	@Override
+	public String getDescription() {
+		return "CurrentNode description";
+	}
+
 	public CurrentNode(BBGraph db) {
 		super(db);
 	}

@@ -11,4 +11,9 @@ public class IntNode extends ValuedNode<Integer> {
 	public void fromString(String s) {
 		set(Integer.valueOf(s));
 	}
+
+	@Override
+	public String getDescription() {
+		return "IntNode with value: " + get();
+	}
 }

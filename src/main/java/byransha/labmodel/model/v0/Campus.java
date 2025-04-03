@@ -10,6 +10,11 @@ public class Campus extends BNode {
 		super(g);
 	}
 
+	@Override
+	public String getDescription() {
+		return "Campus: " + name.get();
+	}
+
 	StringNode name = new StringNode(graph);
 	ListNode<Office> offices = new ListNode<>(graph);
 

@@ -15,6 +15,11 @@ import byransha.web.WebServer;
 
 public class Endpoints extends NodeEndpoint<BNode> {
 
+	@Override
+	public String getDescription() {
+		return "Endpoints for managing BNode operations.";
+	}
+
 	public Endpoints(BBGraph db) {
 		super(db);
 	}
@@ -29,6 +34,7 @@ public class Endpoints extends NodeEndpoint<BNode> {
 			nn.set("name", new TextNode(e.name()));
 			nn.set("endpoint target type", new TextNode(e.getTargetNodeType().getName()));
 			nn.set("applicable to current node", BooleanNode.valueOf(currentNode.matches(e)));
+			nn.set("description", new TextNode(e.getDescription()));
 			data.add(nn);
 		});
 

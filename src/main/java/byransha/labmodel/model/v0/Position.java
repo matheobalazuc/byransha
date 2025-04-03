@@ -9,6 +9,12 @@ public class Position extends BNode {
 		super(g);
 		// TODO Auto-generated constructor stub
 	}
+	
+	@Override
+	public String getDescription() {
+		return "Position node in the graph";
+	}
+
 	Structure employer;
 	DateNode from;
 	DateNode to;

@@ -16,6 +16,11 @@ import java.util.ArrayList;
 
 public class NodeIDs extends NodeEndpoint<BBGraph> implements View {
 
+	@Override
+	public String getDescription() {
+		return "NodeIDs endpoint provides a list of node IDs.";
+	}
+
 	public NodeIDs(BBGraph db) {
 		super(db);
 	}

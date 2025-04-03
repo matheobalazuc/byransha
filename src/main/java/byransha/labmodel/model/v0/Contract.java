@@ -13,6 +13,11 @@ public class Contract extends BNode {
 		// TODO Auto-generated constructor stub
 	}
 
+	@Override
+	public String getDescription() {
+		return "Contract Node";
+	}
+
 	StringNode name;
 	Person holder;
 	List<Person> subHolders;

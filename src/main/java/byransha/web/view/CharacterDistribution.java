@@ -13,7 +13,12 @@ import byransha.web.NodeEndpoint;
 import byransha.web.View;
 import byransha.web.WebServer;
 
-public class CharacterDistribution extends NodeEndpoint<BNode> implements View{
+public class CharacterDistribution extends NodeEndpoint<BNode> implements View {
+
+	@Override
+	public String getDescription() {
+		return "CharacterDistribution description";
+	}
 
 	public CharacterDistribution(BBGraph g) {
 		super(g);

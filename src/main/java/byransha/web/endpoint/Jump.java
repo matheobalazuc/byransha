@@ -14,6 +14,11 @@ import byransha.web.WebServer;
 
 public class Jump extends NodeEndpoint<BNode> {
 
+	@Override
+	public String getDescription() {
+		return "Jump endpoint for navigating to a target node.";
+	}
+
 	public Jump(BBGraph g) {
 		super(g);
 	}

@@ -6,6 +6,11 @@ import byransha.StringNode;
 
 public class EtatCivil extends BNode {
 
+	@Override
+	public String getDescription() {
+		return "EtatCivil Node";
+	}
+
 	public StringNode firstName = new StringNode(graph);
 	public StringNode name = new StringNode(graph);
 	public StringNode familyNameBeforeMariage = new StringNode(graph);

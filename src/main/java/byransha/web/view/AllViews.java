@@ -18,6 +18,11 @@ import byransha.web.WebServer;
 
 final public class AllViews extends NodeEndpoint<BNode> implements DevelopmentView {
 
+	@Override
+	public String getDescription() {
+		return "Description for AllViews";
+	}
+
 	public AllViews(BBGraph db) {
 		super(db);
 	}

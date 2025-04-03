@@ -13,6 +13,11 @@ public class Byransha extends BNode {
 		super(db);
 	}
 
+	@Override
+	public String getDescription() {
+		return "Byransha Node Description";
+	}
+
 	public static final String VERSION = "0.0.1";
 
 	interface JSONable {

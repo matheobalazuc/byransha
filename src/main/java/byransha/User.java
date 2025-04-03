@@ -16,6 +16,11 @@ import toools.text.TextUtilities;
 
 public class User extends BNode {
 
+	@Override
+	public String getDescription() {
+		return "User: " + name.get();
+	}
+
 	public StringNode name;
 	public StringNode passwordNode;
 	public Stack<BNode> stack = new Stack<BNode>();
@@ -50,6 +55,11 @@ public class User extends BNode {
 	public static class UserView extends NodeEndpoint<User> implements TechnicalView {
 		public UserView(BBGraph g) {
 			super(g);
+		}
+
+		@Override
+		public String getDescription() {
+			return "UserView for managing user-related operations.";
 		}
 
 		@Override

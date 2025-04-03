@@ -10,6 +10,11 @@ public class MapNode<N extends BNode> extends BNode {
 		// TODO Auto-generated constructor stub
 	}
 
+	@Override
+	public String getDescription() {
+		return "MapNode with " + l.size() + " entries";
+	}
+
 	private final Map<String, N> l = new HashMap<>();
 
 	@Override

@@ -34,6 +34,11 @@ public class BBGraph extends BNode {
 	private Int2ObjectMap<BNode> byID;// = new Int2ObjectOpenHashMap<>();
 	int idCount = 1;
 
+	@Override
+	public String getDescription() {
+		return "BBGraph: A graph representation for BNodes.";
+	}
+
 	public BBGraph(File directory) {
 		super(null);
 		nodes = new ArrayList<BNode>();
@@ -321,6 +326,11 @@ public class BBGraph extends BNode {
 
 	public static class DBView extends NodeEndpoint<BBGraph> implements TechnicalView {
 
+		@Override
+		public String getDescription() {
+			return "DBView: A technical view for BBGraph.";
+		}
+
 		public DBView(BBGraph g) {
 			super(g);
 		}
@@ -345,9 +355,15 @@ public class BBGraph extends BNode {
 		public boolean sendContentByDefault() {
 			return false;
 		}
+
 	}
 
 	public static class GraphView extends NodeEndpoint<BBGraph> {
+
+		@Override
+		public String getDescription() {
+			return "GraphView: A graphical representation of BBGraph.";
+		}
 
 		public GraphView(BBGraph db) {
 			super(db);

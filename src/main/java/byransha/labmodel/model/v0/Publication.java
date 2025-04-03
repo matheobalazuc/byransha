@@ -11,6 +11,11 @@ public class Publication extends BNode {
 		// TODO Auto-generated constructor stub
 	}
 
+	@Override
+	public String getDescription() {
+		return "Publication: " + title.get();
+	}
+
 	public StringNode title = new StringNode(graph);
 	private ListNode<Person> positions = new ListNode<>(graph);
 
