@@ -47,12 +47,11 @@ public abstract class Endpoint extends BNode {
 	public final String name() {
 		var name = getClass().getSimpleName();
 		
-		/*
 		var enclosingClass = getClass().getEnclosingClass();
 
 		if (enclosingClass != null) {
 			name += enclosingClass.getSimpleName() + "_" + name;
-		}*/
+		}
 
 		return TextUtilities.camelToSnake(name);
 	}
