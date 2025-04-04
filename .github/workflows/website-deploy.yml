@@ -23,7 +23,7 @@ jobs:
         working-directory: src/main/java/frontend
 
       - name: Build frontend
-        run: bun run client:build
+        run: bun run build
         working-directory: src/main/java/frontend
 
       - name: Commit build files

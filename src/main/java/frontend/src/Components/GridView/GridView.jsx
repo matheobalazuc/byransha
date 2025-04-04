@@ -22,7 +22,6 @@ const GridView = () => {
         jumpMutation.mutate(`target=${nodeId}`);
     }, []);
 
-
     if (isLoading) {
         return (
             <Box
