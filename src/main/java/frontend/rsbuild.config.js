@@ -16,5 +16,8 @@ export default defineConfig({
             root: '../../../../build/frontend'
         }
     },
+    server: {
+        port: 5173
+    },
     plugins: [pluginReact()],
 });
