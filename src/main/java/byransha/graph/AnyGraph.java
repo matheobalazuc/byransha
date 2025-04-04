@@ -19,12 +19,12 @@ import byransha.web.EndpointResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
 
-public class BGraph {
+public class AnyGraph {
 	public List<BVertex> nodes = new ArrayList<BVertex>();
 	public List<BLinks> links = new ArrayList<BLinks>();
 
 	public static void main(String[] args) {
-		var g = new BGraph();
+		var g = new AnyGraph();
 		g.newArc(new BVertex("a"), new BVertex("b"));
 		System.out.println(g.toNivoJSON().toPrettyString());
 	}

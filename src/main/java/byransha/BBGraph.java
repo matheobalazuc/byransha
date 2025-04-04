@@ -19,7 +19,7 @@ import javax.net.ssl.SSLSession;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-import byransha.graph.BGraph;
+import byransha.graph.AnyGraph;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.EndpointJsonResponse.dialects;
 import byransha.web.EndpointResponse;
@@ -229,11 +229,15 @@ public class BBGraph extends BNode {
 	synchronized void accept(BNode n) {
 		if (n instanceof NodeEndpoint ne) {
 			var alreadyIn = findEndpoint(ne.getClass());
+
+			if (alreadyIn != null)
+				throw new IllegalArgumentException("endpoint with same class already there: " + alreadyIn);
 			
-			if (alreadyIn != null) 
-				throw new IllegalArgumentException("endpoint already there: " + alreadyIn);
-		
-			
+			 alreadyIn = findEndpoint(ne.name());
+
+			if (alreadyIn != null)
+				throw new IllegalArgumentException("endpoint with same name already there: " + alreadyIn);
+
 		}
 
 		var already = findByID(n.id());
@@ -378,7 +382,7 @@ public class BBGraph extends BNode {
 	}
 
 	public NodeEndpoint<?> findEndpoint(String name) {
-		return (NodeEndpoint<?>) find(NodeEndpoint.class, e -> e.name().matches(name));
+		return (NodeEndpoint<?>) find(NodeEndpoint.class, e -> e.name().equalsIgnoreCase(name));
 	}
 
 	public static class DBView extends NodeEndpoint<BBGraph> implements TechnicalView {
@@ -420,7 +424,7 @@ public class BBGraph extends BNode {
 
 		@Override
 		public String getDescription() {
-			return "GraphView: A graphical representation of BBGraph.";
+			return "gives a NIVO text representing the graph";
 		}
 
 		public GraphNivoView(BBGraph db) {
@@ -430,7 +434,7 @@ public class BBGraph extends BNode {
 		@Override
 		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
 				BBGraph db) {
-			var g = new BGraph();
+			var g = new AnyGraph();
 
 			db.forEachNode(v -> {
 				g.addVertex(v.toVertex());
@@ -439,6 +443,7 @@ public class BBGraph extends BNode {
 					a.label = s;
 				});
 			});
+
 			return new EndpointJsonResponse(g.toNivoJSON(), dialects.nivoNetwork);
 		}
 	}

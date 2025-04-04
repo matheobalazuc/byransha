@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.BBGraph.Ref;
-import byransha.graph.BGraph;
+import byransha.graph.AnyGraph;
 import byransha.graph.BVertex;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.EndpointJsonResponse.dialects;
@@ -339,7 +339,7 @@ public abstract class BNode {
 
 		@Override
 		public EndpointResponse exec(ObjectNode in, User u, WebServer webServer, HttpsExchange exchange, BNode n) {
-			var g = new BGraph();
+			var g = new AnyGraph();
 			g.addVertex(n.toVertex());
 
 			n.forEachOut((s, o) -> {

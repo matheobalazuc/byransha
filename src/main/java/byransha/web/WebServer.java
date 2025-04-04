@@ -46,7 +46,7 @@ import byransha.ListNode;
 import byransha.Log;
 import byransha.OSNode;
 import byransha.User;
-import byransha.graph.BGraph;
+import byransha.graph.AnyGraph;
 import byransha.labmodel.model.v0.Picture;
 import byransha.labmodel.model.v0.view.LabView;
 import byransha.labmodel.model.v0.view.StructureView;
@@ -152,7 +152,7 @@ public class WebServer extends BNode {
 		new StructureView(g);
 		new NodeEndpoints(g);
 		new SetValue(g);
-		new BGraph.Classes(g);
+		new AnyGraph.Classes(g);
 		new Edit(g);
 
 		try {
