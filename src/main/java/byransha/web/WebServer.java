@@ -73,17 +73,13 @@ import toools.text.TextUtilities;
  */
 
 public class WebServer extends BNode {
+	static File d = new File(System.getProperty("user.home") + "/." + BBGraph.class.getPackageName());
+
 	public static void main(String[] args) throws Exception {
 		var argList = List.of(args);
 		var argMap = new HashMap<String, String>();
 		argList.stream().map(a -> a.split("=")).forEach(a -> argMap.put(a[0], a[1]));
 		BBGraph g = instantiateGraph(argMap);
-
-		if (g.directory != null) {
-			System.out.println("loading DB from " + g.directory);
-
-		}
-
 		int port = Integer.valueOf(argMap.getOrDefault("-port", "8080"));
 		new WebServer(g, port);
 	}
@@ -91,17 +87,21 @@ public class WebServer extends BNode {
 	public static BBGraph instantiateGraph(Map<String, String> argMap)
 			throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
 			NoSuchMethodException, SecurityException, ClassNotFoundException, IOException {
-		var d = new File(System.getProperty("user.home") + "/." + BBGraph.class.getPackageName());
 
 		if (d.exists()) {
 			var g = (BBGraph) Class.forName(Files.readString(new File(d, "dbClass.txt").toPath()))
 					.getConstructor(File.class).newInstance(d);
+			System.out.println("loading DB from " + g.directory);
 
 			g.loadFromDisk(n -> System.out.println("loading node " + n),
 					(n, s) -> System.out.println("loading arc " + n + ", " + s));
 			return g;
 		} else {
-			return new BBGraph(null);
+			if (argMap.containsKey("--createDB")) {
+				return new BBGraph(d);
+			} else {
+				return new BBGraph(null);
+			}
 		}
 	}
 
@@ -268,7 +268,7 @@ public class WebServer extends BNode {
 					for (var endpoint : endpoints) {
 						ObjectNode er = new ObjectNode(null);
 						er.set("endpoint", new TextNode(endpoint.name()));
-						er.set("reponse_type", new TextNode(endpoint.type()));
+						er.set("response_type", new TextNode(endpoint.type()));
 						long startTimeNs2 = System.nanoTime();
 
 						try {
