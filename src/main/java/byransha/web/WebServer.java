@@ -136,10 +136,10 @@ public class WebServer extends BNode {
 		new CharacterDistribution(g);
 		new CharExampleXY(g);
 		new User.UserView(g);
-		new BBGraph.GraphView(g);
+		new BBGraph.GraphNivoView(g);
 		new OSNode.View(g);
 		new JVMNode.View(g);
-		new BNode.GraphView(g);
+		new BNode.InOutsNivoView(g);
 		new ModelGraphivzSVGView(g);
 		new Nav2(g);
 		new OutNodeDistribution(g);
@@ -273,6 +273,7 @@ public class WebServer extends BNode {
 					for (var endpoint : endpoints) {
 						ObjectNode er = new ObjectNode(null);
 						er.set("endpoint", new TextNode(endpoint.name()));
+						er.set("endpoint_class", new TextNode(endpoint.getClass().getName()));
 						er.set("response_type", new TextNode(endpoint.type().name()));
 						long startTimeNs2 = System.nanoTime();
 

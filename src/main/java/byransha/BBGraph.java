@@ -416,14 +416,14 @@ public class BBGraph extends BNode {
 
 	}
 
-	public static class GraphView extends NodeEndpoint<BBGraph> {
+	public static class GraphNivoView extends NodeEndpoint<BBGraph> {
 
 		@Override
 		public String getDescription() {
 			return "GraphView: A graphical representation of BBGraph.";
 		}
 
-		public GraphView(BBGraph db) {
+		public GraphNivoView(BBGraph db) {
 			super(db);
 		}
 

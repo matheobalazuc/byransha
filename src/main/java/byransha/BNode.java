@@ -321,14 +321,14 @@ public abstract class BNode {
 		return v;
 	}
 
-	public static class GraphView extends NodeEndpoint<BNode> implements View {
+	public static class InOutsNivoView extends NodeEndpoint<BNode> implements View {
 
 		@Override
 		public String getDescription() {
-			return "GraphView for BNode";
+			return "generate a NIVO description of the graph";
 		}
 
-		public GraphView(BBGraph db) {
+		public InOutsNivoView(BBGraph db) {
 			super(db);
 		}
 
