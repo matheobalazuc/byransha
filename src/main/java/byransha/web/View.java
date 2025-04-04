@@ -33,8 +33,6 @@ public interface View {
 					ev.set("label", new TextNode(e.label()));
 					ev.set("id", new TextNode("" + e.id()));
 					ev.set("target", new TextNode(e.getTargetNodeType().getName()));
-					ev.set("development", new TextNode("" + e.isDevelopmentView()));
-					ev.set("technical", new TextNode("" + e.isTechnicalView()));
 					ev.set("can read", new TextNode("" + e.canSee(user)));
 					ev.set("can write", new TextNode("" + e.canSee(user)));
 
