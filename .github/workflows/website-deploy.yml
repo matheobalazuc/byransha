@@ -14,18 +14,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: npm
-          cache-dependency-path: src/main/java/frontend/package-lock.json
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
 
       - name: Install dependencies
-        run: npm ci
+        run: bun install
         working-directory: src/main/java/frontend
 
       - name: Build frontend
-        run: npm run build
+        run: bun run client:build
         working-directory: src/main/java/frontend
 
       - name: Commit build files
