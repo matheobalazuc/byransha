@@ -1,15 +1,11 @@
 package byransha.labmodel.model.v0;
 
-import byransha.BNode;
 import byransha.BBGraph;
+import byransha.BNode;
 import byransha.StringNode;
 
 public class EtatCivil extends BNode {
 
-	@Override
-	public String getDescription() {
-		return "EtatCivil Node";
-	}
 
 	public StringNode firstName = new StringNode(graph);
 	public StringNode name = new StringNode(graph);
@@ -20,8 +16,18 @@ public class EtatCivil extends BNode {
 	public StringNode countryOfBirth = new StringNode(graph);
 	public StringNode address = new StringNode(graph);
 
+
 	public EtatCivil(BBGraph g) {
 		super(g);
-		// TODO Auto-generated constructor stub
+	}
+
+	public EtatCivil(BBGraph g, int id) {
+		super(g, id);
+	}
+  
+  
+	@Override
+	public String getDescription() {
+		return "EtatCivil Node";
 	}
 }

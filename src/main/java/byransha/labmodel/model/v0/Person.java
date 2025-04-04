@@ -24,11 +24,11 @@ public class Person extends BNode {
 	public ImageNode pics = new ImageNode(graph);
 	public BooleanNode hdr = new BooleanNode(graph);
 
-	public StringNode badgeNumber = new StringNode(graph);
-	public StringNode website = new StringNode(graph);
-	public StringNode faxNumber = new StringNode(graph);
+	public StringNode badgeNumber = new StringNode(graph, null);
+	public StringNode website = new StringNode(graph, null);
+	public StringNode faxNumber = new StringNode(graph, null);
 	public ResearchGroup researchGroup;
-	public StringNode phdDate = new StringNode(graph);
+	public StringNode phdDate = new StringNode(graph, null);
 
 	public ListNode<StringNode> phoneNumbers = new ListNode<>(graph);
 	protected ListNode<EmailNode> emailAddresses  = new ListNode<>(graph);

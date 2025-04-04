@@ -30,7 +30,7 @@ public class NodeEndpoints extends NodeEndpoint<WebServer> {
 			return null;
 		} else {
 			var data = new ArrayNode(null);
-			webServer.endpoints.values().stream().filter(e -> currentNode.matches(e))
+			graph.findAll(NodeEndpoint.class, e -> true).stream().filter(e -> currentNode.matches(e))
 					.forEach(e -> data.add(new TextNode(e.name())));
 
 			return new EndpointJsonResponse(data, this);

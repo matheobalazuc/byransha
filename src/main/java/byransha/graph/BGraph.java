@@ -5,8 +5,18 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+import com.sun.net.httpserver.HttpsExchange;
 
+import byransha.BBGraph;
 import byransha.BNode;
+import byransha.User;
+import byransha.web.EndpointJsonResponse;
+import byransha.web.EndpointResponse;
+import byransha.web.NodeEndpoint;
+import byransha.web.WebServer;
 
 public class BGraph {
 	public List<BVertex> nodes = new ArrayList<BVertex>();
@@ -65,5 +75,21 @@ public class BGraph {
 		}
 
 		return v;
+	}
+
+	public static class Classes extends NodeEndpoint<BNode> {
+
+		public Classes(BBGraph db) {
+			super(db);
+		}
+
+		@Override
+		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
+				BNode node) throws Throwable {
+			var a = new ArrayNode(null);
+			graph.forEachNode(n -> a.add(new TextNode(n.getClass().getName())));
+			return new EndpointJsonResponse(a, this);
+		}
+
 	}
 }

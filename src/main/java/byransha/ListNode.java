@@ -8,7 +8,6 @@ import java.util.function.BiConsumer;
 public class ListNode<N extends BNode> extends BNode {
 	 public ListNode(BBGraph db) {
 		super(db);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

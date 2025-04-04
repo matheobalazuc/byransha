@@ -29,7 +29,7 @@ public class Endpoints extends NodeEndpoint<BNode> {
 		var currentNode = user.currentNode();
 
 		var data = new ArrayNode(null);
-		webServer.endpoints.values().forEach(e -> {
+		graph.findAll(NodeEndpoint.class, e -> true).forEach(e -> {
 			var nn = new ObjectNode(null);
 			nn.set("name", new TextNode(e.name()));
 			nn.set("endpoint target type", new TextNode(e.getTargetNodeType().getName()));

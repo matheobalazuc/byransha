@@ -6,7 +6,7 @@ import byransha.ImageNode;
 import byransha.StringNode;
 
 public class Country extends BNode {
-	StringNode name = new StringNode(graph);
+	StringNode name = new StringNode(graph, null);
 	ImageNode flag;
 
 	public Country(BBGraph g) {

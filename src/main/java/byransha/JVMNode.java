@@ -12,7 +12,7 @@ import byransha.web.TechnicalView;
 import byransha.web.WebServer;
 import toools.text.TextUtilities;
 
-public class JVMNode extends BNode {
+public class JVMNode extends BNode implements VirtualNode {
 
 	public JVMNode(BBGraph db) {
 		super(db);
@@ -58,7 +58,6 @@ public class JVMNode extends BNode {
 	}
 
 	public static class Kill extends NodeEndpoint<JVMNode> {
-
 		public Kill(BBGraph db) {
 			super(db);
 		}

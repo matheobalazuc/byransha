@@ -1,18 +1,14 @@
 package byransha.labmodel.model.v0;
 
-import byransha.BNode;
 import byransha.BBGraph;
+import byransha.BNode;
 import byransha.ListNode;
 import byransha.SetNode;
 import byransha.StringNode;
 
 public class Structure extends BNode {
 
-	@Override
-	public String getDescription() {
-		return "Structure: " + name.get();
-	}
-	public StringNode name = new StringNode(graph);
+	public StringNode name = new StringNode(graph, null);
 	public SetNode<Structure> subStructures = new SetNode<>(graph);
 	public ListNode<Person> members = new ListNode<>(graph);
 	public Person director;
@@ -21,6 +17,11 @@ public class Structure extends BNode {
 
 	public Structure(BBGraph g) {
 		super(g);
+	}
+
+	@Override
+	public String getDescription() {
+		return "Structure: " + name.get();
 	}
 
 	public double occupationRatio() {
@@ -35,4 +36,7 @@ public class Structure extends BNode {
 		return offices.l.stream().mapToDouble(o -> o.surface.get()).sum();
 	}
 
+	protected String label() {
+		return name.get();
+	}
 }
