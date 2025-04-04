@@ -14,6 +14,11 @@ public class Person extends BNode {
 		// TODO Auto-generated constructor stub
 	}
 
+	@Override
+	public String getDescription() {
+		return "Person node in the graph";
+	}
+
 	public EtatCivil etatCivil = new EtatCivil(graph);
 	public ListNode<Position> positions = new ListNode<>(graph);
 	public ImageNode pics = new ImageNode(graph);

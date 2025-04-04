@@ -9,4 +9,9 @@ public class Building extends BNode {
 		super(g);
 		// TODO Auto-generated constructor stub
 	}
+
+	@Override
+	public String getDescription() {
+		return "Building description";
+	}
 }

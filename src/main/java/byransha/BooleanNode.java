@@ -23,4 +23,9 @@ public class BooleanNode extends ValuedNode<Boolean> {
 	public Boolean get() {
 		return super.get();
 	}
+
+	@Override
+	public String getDescription() {
+		return "BooleanNode: " + get();
+	}
 }

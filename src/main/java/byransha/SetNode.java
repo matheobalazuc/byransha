@@ -5,6 +5,11 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 
 public class SetNode<N extends BNode> extends BNode {
+
+	@Override
+	public String getDescription() {
+		return "SetNode containing " + l.size() + " elements.";
+	}
 	public SetNode(BBGraph db) {
 		super(db);
 	}

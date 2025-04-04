@@ -10,6 +10,11 @@ public class ListNode<N extends BNode> extends BNode {
 		super(db);
 	}
 
+	@Override
+	public String getDescription() {
+		return "ListNode containing " + l.size() + " elements.";
+	}
+
 	public final List<N> l = new ArrayList<>();
 
 	@Override

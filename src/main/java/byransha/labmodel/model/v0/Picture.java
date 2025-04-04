@@ -13,6 +13,11 @@ import byransha.web.WebServer;
 
 public class Picture extends ValuedNode<byte[]> {
 
+	@Override
+	public String getDescription() {
+		return "Picture node containing image data";
+	}
+
 	public Picture(BBGraph db) {
 		super(db);
 	}
@@ -27,6 +32,11 @@ public class Picture extends ValuedNode<byte[]> {
 		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
 				Picture node) {
 			return new EndpointBinaryResponse("image/jpeg", node.get());
+		}
+
+		@Override
+		public String getDescription() {
+			return "Endpoint for Picture nodes";
 		}
 	}
 

@@ -16,6 +16,11 @@ import java.util.ArrayList;
 
 public class Nodes extends NodeEndpoint<BNode> {
 
+	@Override
+	public String getDescription() {
+		return "Nodes endpoint description";
+	}
+
 	public Nodes(BBGraph db) {
 		super(db);
 	}

@@ -22,6 +22,11 @@ import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
 
 public class ModelDOTView extends NodeEndpoint<BBGraph> implements DevelopmentView {
+
+	@Override
+	public String getDescription() {
+		return "ModelDOTView provides a DOT representation of the graph.";
+	}
 	public ModelDOTView(BBGraph db) {
 		super(db);
 	}

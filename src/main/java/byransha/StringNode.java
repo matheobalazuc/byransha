@@ -47,6 +47,11 @@ public class StringNode extends ValuedNode<String> {
 
 	}
 
+
+	@Override
+	public String getDescription() {
+		return "StringNode: " + get();
+	}
 	public void setAsLabelFor(BNode n) {
 		labelFor = n;
 	}

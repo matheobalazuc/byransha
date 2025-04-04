@@ -15,11 +15,21 @@ import byransha.web.WebServer;
 
 public class OSNode extends BNode {
 
+	@Override
+	public String getDescription() {
+		return "OSNode description";
+	}
+
 	public OSNode(BBGraph db) {
 		super(db);
 	}
 
 	public static class View extends NodeEndpoint<BBGraph> implements TechnicalView {
+
+		@Override
+		public String getDescription() {
+			return "OSNode.View description";
+		}
 
 		public View(BBGraph g) {
 			super(g);

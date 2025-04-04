@@ -12,6 +12,11 @@ import byransha.web.WebServer;
 
 public class Authenticate extends NodeEndpoint<BBGraph> {
 
+	@Override
+	public String getDescription() {
+		return "Authenticate endpoint for user login.";
+	}
+
 	public Authenticate(BBGraph db) {
 		super(db);
 	}

@@ -7,6 +7,7 @@ import byransha.SetNode;
 import byransha.StringNode;
 
 public class Structure extends BNode {
+
 	public StringNode name = new StringNode(graph, null);
 	public SetNode<Structure> subStructures = new SetNode<>(graph);
 	public ListNode<Person> members = new ListNode<>(graph);
@@ -16,6 +17,11 @@ public class Structure extends BNode {
 
 	public Structure(BBGraph g) {
 		super(g);
+	}
+
+	@Override
+	public String getDescription() {
+		return "Structure: " + name.get();
 	}
 
 	public double occupationRatio() {

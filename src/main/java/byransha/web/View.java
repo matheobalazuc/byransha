@@ -23,6 +23,11 @@ public interface View {
 		}
 
 		@Override
+		public String getDescription() {
+			return "Description of Views";
+		}
+
+		@Override
 		public EndpointJsonResponse exec(ObjectNode inputJson, User user, WebServer webServer, HttpsExchange exchange,
 				BNode currentNode) {
 			ArrayNode viewsNode = new ArrayNode(null);

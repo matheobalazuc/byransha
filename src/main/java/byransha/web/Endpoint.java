@@ -85,6 +85,11 @@ public abstract class Endpoint extends BNode {
 		}
 
 		@Override
+		public String getDescription() {
+			return "Description of Endpoint.V";
+		}
+
+		@Override
 		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
 				Endpoint node) throws Throwable {
 			return new EndpointTextResponse("text/html", pw -> {

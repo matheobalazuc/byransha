@@ -15,6 +15,11 @@ import toools.src.Source;
 
 public class SourceView extends NodeEndpoint<BNode> implements DevelopmentView {
 
+	@Override
+	public String getDescription() {
+		return "SourceView description";
+	}
+
 	public SourceView(BBGraph db) {
 		super(db);
 	}

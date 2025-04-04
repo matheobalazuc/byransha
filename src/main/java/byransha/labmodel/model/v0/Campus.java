@@ -6,12 +6,17 @@ import byransha.ListNode;
 import byransha.StringNode;
 
 public class Campus extends BNode {
-	public Campus(BBGraph g) {
+	ListNode<Office> offices = new ListNode<>(graph);
+
+  public Campus(BBGraph g) {
 		super(g);
 	}
 
-	StringNode name = new StringNode(graph, null);
-	ListNode<Office> offices = new ListNode<>(graph);
+	@Override
+	public String getDescription() {
+		return "Campus: " + name.get();
+	}
+
 
 //	ListNode<Building> buildings;
 	public Office findOffice(String name) {

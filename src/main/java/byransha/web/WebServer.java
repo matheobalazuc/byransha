@@ -75,7 +75,7 @@ import toools.text.TextUtilities;
 public class WebServer extends BNode {
 	public static File defaultDBDirectory = new File(System.getProperty("user.home") + "/." + BBGraph.class.getPackageName());
 
-	public static void main(String[] args) throws Exception {
+  public static void main(String[] args) throws Exception {
 		var argList = List.of(args);
 		var argMap = new HashMap<String, String>();
 		argList.stream().map(a -> a.split("=")).forEach(a -> argMap.put(a[0], a[1]));
@@ -183,6 +183,10 @@ public class WebServer extends BNode {
 		httpsServer.createContext("/", http -> processRequest((HttpsExchange) http).send(http));
 		httpsServer.setExecutor(Executors.newCachedThreadPool());
 		httpsServer.start();
+	}
+	@Override
+	public String getDescription() {
+		return "serves HTTP requests from the frontend";
 	}
 
 	@Override
@@ -433,6 +437,11 @@ public class WebServer extends BNode {
 
 	public static class Info extends NodeEndpoint<WebServer> {
 
+		@Override
+		public String getDescription() {
+			return "Provides information about the WebServer node.";
+		}
+
 		public Info(BBGraph db) {
 			super(db);
 		}
@@ -455,6 +464,11 @@ public class WebServer extends BNode {
 	}
 
 	public static class LogsView extends NodeEndpoint<WebServer> {
+		@Override
+		public String getDescription() {
+			return "Provides a view of the logs for the WebServer node.";
+		}
+
 		public LogsView(BBGraph db) {
 			super(db);
 		}
@@ -474,6 +488,10 @@ public class WebServer extends BNode {
 	}
 
 	public static class EndpointCallDistributionView extends NodeEndpoint<WebServer> {
+		@Override
+		public String getDescription() {
+			return "Provides a distribution view of endpoint calls for the WebServer node.";
+		}
 		public EndpointCallDistributionView(BBGraph db) {
 			super(db);
 		}

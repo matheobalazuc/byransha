@@ -13,4 +13,8 @@ public class Country extends BNode {
 		super(g);
 	}
 
+	@Override
+	public String getDescription() {
+		return "Country: " + (name != null ? name.toString() : "Unnamed");
+	}
 }

@@ -8,6 +8,11 @@ import com.sun.net.httpserver.HttpsExchange;
 
 public class SetValue extends NodeEndpoint<BNode> {
 
+    @Override
+    public String getDescription() {
+        return "SetValue endpoint for modifying node values.";
+    }
+
     public SetValue(BBGraph g) {
         super(g);
     }

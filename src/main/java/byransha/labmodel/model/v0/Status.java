@@ -11,4 +11,8 @@ public class Status extends BNode {
 		super(g);
 	}
 
+	@Override
+	public String getDescription() {
+		return "Status node";
+	}
 }
