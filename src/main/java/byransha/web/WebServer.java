@@ -243,8 +243,8 @@ public class WebServer extends BNode {
 				long uptimeMs = ManagementFactory.getRuntimeMXBean().getUptime();
 				response.set("uptimeMs", new TextNode(Duration.ofMillis(uptimeMs).toString()));
 
-				response.set("compliant_endpoints",
-						graph.findEndpoint(Endpoints.class).exec(new ObjectNode(null), user, this, https).toJson());
+				//response.set("compliant_endpoints",
+				//		graph.findEndpoint(Endpoints.class).exec(new ObjectNode(null), user, this, https).toJson());
 
 				if (!inputJson2sendBack.isEmpty())
 					response.set("request", inputJson2sendBack);
@@ -253,7 +253,7 @@ public class WebServer extends BNode {
 					response.set("username", new TextNode(user.name.get()));
 				}
 
-				var endpoints = endpoints(path.substring(5), user.currentNode()).stream().filter(e -> e instanceof View).toList();
+				var endpoints = endpoints(path.substring(5), user.currentNode());
 //				System.err.println(endpoints);
 
 				if (inputJson.remove("raw") != null) {
@@ -344,7 +344,7 @@ public class WebServer extends BNode {
 		}
 
 		if (endpointName == null || endpointName.isEmpty()) {
-			return endpointsUsableFrom(currentNode);
+			return endpointsUsableFrom(currentNode).stream().filter(e -> e instanceof View).toList();
 		} else {
 			var e = graph.findEndpoint(endpointName);
 

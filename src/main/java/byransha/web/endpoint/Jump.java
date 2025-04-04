@@ -26,7 +26,9 @@ public class Jump extends NodeEndpoint<BNode> {
 	@Override
 	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
 			BNode currentNode) throws Throwable {
+		System.err.println(in);
 		var targetID = requireParm(in, "target").asInt();
+		System.err.println(in);
 		var target = node(targetID);
 		Objects.requireNonNull(target, "no such node: " + targetID);
 		user.stack.push(target); // effective jump
