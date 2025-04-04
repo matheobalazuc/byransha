@@ -30,7 +30,7 @@ public class ModelGraphivzSVGView extends NodeEndpoint<BBGraph> implements Techn
 	@Override
 	public EndpointBinaryResponse exec(ObjectNode in, User u, WebServer webServer, HttpsExchange exchange, BBGraph db)
 			throws Throwable {
-		var dot = new ModelDOTView(graph).exec(in, u, webServer, exchange, db);
+		var dot = graph.findEndpoint(ModelDOTView.class).exec(in, u, webServer, exchange, db);
 		var stdout = Proces.exec("dot", dot.data.getBytes(), "-Tsvg");
 		return new EndpointBinaryResponse("image/svg", stdout);
 //		return Proces.exec("fdp", dot, "-Tsvg", "-Gmaxiter=10000", "-GK=1");

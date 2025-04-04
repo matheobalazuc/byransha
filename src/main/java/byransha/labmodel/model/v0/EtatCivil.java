@@ -5,8 +5,6 @@ import byransha.BNode;
 import byransha.StringNode;
 
 public class EtatCivil extends BNode {
-
-
 	public StringNode firstName = new StringNode(graph, null);
 	public StringNode name = new StringNode(graph, null);
 	public StringNode familyNameBeforeMariage = new StringNode(graph, null);

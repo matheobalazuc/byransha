@@ -273,7 +273,7 @@ public class WebServer extends BNode {
 					for (var endpoint : endpoints) {
 						ObjectNode er = new ObjectNode(null);
 						er.set("endpoint", new TextNode(endpoint.name()));
-						er.set("response_type", new TextNode(endpoint.type()));
+						er.set("response_type", new TextNode(endpoint.type().name()));
 						long startTimeNs2 = System.nanoTime();
 
 						try {

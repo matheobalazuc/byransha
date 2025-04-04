@@ -56,14 +56,17 @@ public abstract class NodeEndpoint<N extends BNode> extends Endpoint {
 		return Arrays.stream(ids).mapToObj(id -> node(id)).toList();
 	}
 
-	public String type() {
-		if (this instanceof DevelopmentView) {
-			return "development";
-		} else if (this instanceof TechnicalView) {
-			return "technical";
-		} else {
-			return "normal";
-		}
+	public enum TYPE {
+		development, technical, business
 	}
 
+	public TYPE type() {
+		if (this instanceof DevelopmentView) {
+			return TYPE.development;
+		} else if (this instanceof TechnicalView) {
+			return TYPE.technical;
+		} else {
+			return TYPE.business;
+		}
+	}
 }
