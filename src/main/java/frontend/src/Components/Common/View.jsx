@@ -163,7 +163,7 @@ export const View = ({viewId}) => {
                         />
                     </div>
                 )
-            } else if (viewId === 'graph_view_bnode_graph_view') {
+            } else if (viewId === 'graph_view') {
                 return (
                     <div className="graph">
                         <ResponsiveNetwork
