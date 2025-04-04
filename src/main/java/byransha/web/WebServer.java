@@ -58,6 +58,7 @@ import byransha.web.endpoint.NodeEndpoints;
 import byransha.web.endpoint.NodeIDs;
 import byransha.web.endpoint.Nodes;
 import byransha.web.endpoint.SetValue;
+import byransha.web.endpoint.Edit;
 import byransha.web.view.AllViews;
 import byransha.web.view.CharExampleXY;
 import byransha.web.view.CharacterDistribution;
@@ -152,6 +153,7 @@ public class WebServer extends BNode {
 		new NodeEndpoints(g);
 		new SetValue(g);
 		new BGraph.Classes(g);
+		new Edit(g);
 
 		try {
 			Path classPathFile = new File(Byransha.class.getPackageName() + "-classpath.lst").toPath();
