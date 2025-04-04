@@ -11,7 +11,7 @@ export default defineConfig({
         }
     },
     output: {
-        cleanDistPath: true,
+        cleanDistPath: process.env.NODE_ENV === 'production',
         distPath: {
             root: '../../../../build/frontend'
         }

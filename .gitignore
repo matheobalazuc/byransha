@@ -73,3 +73,5 @@ deploy.exclude.lst
 coverage/
 .jacoco/
 bun.lock
+
+build/frontend/

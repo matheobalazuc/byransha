@@ -170,7 +170,7 @@ export const View = ({viewId}) => {
                             data={{
                                 nodes: content.nodes.map((node) => ({
                                     ...node,
-                                    id: node.label
+                                    id: node.endpoint
                                 })).reduce((accumulator, current) => {
                                     if (!accumulator.find((item) => item.id === current.id)) {
                                         accumulator.push(current);
