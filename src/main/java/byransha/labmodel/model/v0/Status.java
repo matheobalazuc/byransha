@@ -5,7 +5,7 @@ import byransha.BNode;
 import byransha.StringNode;
 
 public class Status extends BNode {
-	StringNode name = new StringNode(graph);
+	StringNode name = new StringNode(graph, null);
 
 	public Status(BBGraph g) {
 		super(g);

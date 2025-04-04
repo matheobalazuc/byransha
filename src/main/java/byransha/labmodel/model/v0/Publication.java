@@ -11,7 +11,7 @@ public class Publication extends BNode {
 		// TODO Auto-generated constructor stub
 	}
 
-	public StringNode title = new StringNode(graph);
+	public StringNode title = new StringNode(graph, null);
 	private ListNode<Person> positions = new ListNode<>(graph);
 
 	@Override

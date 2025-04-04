@@ -1,5 +1,6 @@
 package byransha.web;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -15,8 +16,17 @@ public abstract class Endpoint extends BNode {
 	public int nbCalls = 0;
 	public long timeSpentNs = 0;
 
-	public Endpoint(BBGraph db) {
+	protected Endpoint(BBGraph db) {
 		super(db);
+	}
+
+	public static <E extends Endpoint> E create(Class<E> e, BBGraph g) {
+		try {
+			return e.getConstructor(BBGraph.class).newInstance(g);
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException | SecurityException e1) {
+			throw new IllegalStateException(e1);
+		}
 	}
 
 	public abstract EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange)
@@ -36,11 +46,13 @@ public abstract class Endpoint extends BNode {
 
 	public final String name() {
 		var name = getClass().getSimpleName();
+		
+		/*
 		var enclosingClass = getClass().getEnclosingClass();
 
 		if (enclosingClass != null) {
 			name += enclosingClass.getSimpleName() + "_" + name;
-		}
+		}*/
 
 		return TextUtilities.camelToSnake(name);
 	}
@@ -80,8 +92,8 @@ public abstract class Endpoint extends BNode {
 				pw.println("<li>name: " + node.name());
 				pw.println("<li>label: " + node.label());
 				pw.println("<li>target: " + node.getTargetNodeType().getName());
-				
-				if(node instanceof View v) {
+
+				if (node instanceof View v) {
 					pw.println("<li>development" + isDevelopmentView());
 					pw.println("<li>technical" + node.isTechnicalView());
 					pw.println("<li>content by default" + v.sendContentByDefault());

@@ -10,7 +10,7 @@ public class Campus extends BNode {
 		super(g);
 	}
 
-	StringNode name = new StringNode(graph);
+	StringNode name = new StringNode(graph, null);
 	ListNode<Office> offices = new ListNode<>(graph);
 
 //	ListNode<Building> buildings;

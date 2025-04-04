@@ -46,6 +46,7 @@ import byransha.ListNode;
 import byransha.Log;
 import byransha.OSNode;
 import byransha.User;
+import byransha.graph.BGraph;
 import byransha.labmodel.model.v0.Picture;
 import byransha.labmodel.model.v0.view.LabView;
 import byransha.labmodel.model.v0.view.StructureView;
@@ -79,8 +80,8 @@ public class WebServer extends BNode {
 		BBGraph g = instantiateGraph(argMap);
 
 		if (g.directory != null) {
-			g.loadFromDisk(n -> System.out.println("loading node " + n),
-					(n, s) -> System.out.println("loading arc " + n + ", " + s));
+			System.out.println("loading DB from " + g.directory);
+
 		}
 
 		int port = Integer.valueOf(argMap.getOrDefault("-port", "8080"));
@@ -90,16 +91,17 @@ public class WebServer extends BNode {
 	public static BBGraph instantiateGraph(Map<String, String> argMap)
 			throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
 			NoSuchMethodException, SecurityException, ClassNotFoundException, IOException {
-		System.out.println("loading DB");
+		var d = new File(System.getProperty("user.home") + "/." + BBGraph.class.getPackageName());
 
-		if (argMap.containsKey("-dbDirectory")) {
-			var d = new File(argMap.get("-dbDirectory"));
-			return (BBGraph) Class.forName(Files.readString(new File(d, "dbClass.txt").toPath()))
+		if (d.exists()) {
+			var g = (BBGraph) Class.forName(Files.readString(new File(d, "dbClass.txt").toPath()))
 					.getConstructor(File.class).newInstance(d);
-		} else if (argMap.containsKey("-dbClass")) {
-			return (BBGraph) Class.forName(argMap.get("-dbClass")).getConstructor().newInstance(null);
+
+			g.loadFromDisk(n -> System.out.println("loading node " + n),
+					(n, s) -> System.out.println("loading arc " + n + ", " + s));
+			return g;
 		} else {
-			return new BBGraph(new File(System.getProperty("user.home") + "/." + BBGraph.class.getPackageName()));
+			return new BBGraph(null);
 		}
 	}
 
@@ -110,7 +112,6 @@ public class WebServer extends BNode {
 	final OSNode operatingSystem;
 
 	List<User> nbRequestsInProgress = Collections.synchronizedList(new ArrayList<>());
-	public Map<String, NodeEndpoint<?>> endpoints = new HashMap<>();
 
 	private HttpsServer httpsServer;
 	public final List<Log> logs = new ArrayList<>();
@@ -120,38 +121,38 @@ public class WebServer extends BNode {
 		jvm = new JVMNode(g);
 		byransha = new Byransha(g);
 		operatingSystem = new OSNode(g);
-		registerEndpoint(new CurrentNode(g));
-		registerEndpoint(new View.Views(g));
-		registerEndpoint(new Jump(g));
-		registerEndpoint(new Endpoints(g));
-		registerEndpoint(new JVMNode.Kill(g));
-		registerEndpoint(new Authenticate(g));
-		registerEndpoint(new NodeIDs(g));
-		registerEndpoint(new Nodes(g));
-		registerEndpoint(new EndpointCallDistributionView(g));
-		registerEndpoint(new Info(g));
-		registerEndpoint(new LogsView(g));
-
-		registerEndpoint(new BasicView(g));
-		registerEndpoint(new CharacterDistribution(g));
-		registerEndpoint(new CharExampleXY(g));
-		registerEndpoint(new User.UserView(g));
-		registerEndpoint(new BBGraph.GraphView(g));
-		registerEndpoint(new OSNode.View(g));
-		registerEndpoint(new JVMNode.View(g));
-		registerEndpoint(new BNode.GraphView(g));
-		registerEndpoint(new ModelGraphivzSVGView(g));
-		registerEndpoint(new Nav2(g));
-		registerEndpoint(new OutNodeDistribution(g));
-		registerEndpoint(new Picture.V(g));
-		registerEndpoint(new AllViews(g));
-		registerEndpoint(new LabView(g));
-		registerEndpoint(new ModelDOTView(g));
-		registerEndpoint(new SourceView(g));
-		registerEndpoint(new ToStringView(g));
-		registerEndpoint(new StructureView(g));
-		registerEndpoint(new NodeEndpoints(g));
-		registerEndpoint(new SetValue(g));
+		new CurrentNode(g);
+		new View.Views(g);
+		new Jump(g);
+		new Endpoints(g);
+		new JVMNode.Kill(g);
+		new Authenticate(g);
+		new NodeIDs(g);
+		new Nodes(g);
+		new EndpointCallDistributionView(g);
+		new Info(g);
+		new LogsView(g);
+		new BasicView(g);
+		new CharacterDistribution(g);
+		new CharExampleXY(g);
+		new User.UserView(g);
+		new BBGraph.GraphView(g);
+		new OSNode.View(g);
+		new JVMNode.View(g);
+		new BNode.GraphView(g);
+		new ModelGraphivzSVGView(g);
+		new Nav2(g);
+		new OutNodeDistribution(g);
+		new Picture.V(g);
+		new AllViews(g);
+		new LabView(g);
+		new ModelDOTView(g);
+		new SourceView(g);
+		new ToStringView(g);
+		new StructureView(g);
+		new NodeEndpoints(g);
+		new SetValue(g);
+		new BGraph.Classes(g);
 
 		try {
 			Path classPathFile = new File(Byransha.class.getPackageName() + "-classpath.lst").toPath();
@@ -203,13 +204,6 @@ public class WebServer extends BNode {
 		return activeUsers;
 	}
 
-	private void registerEndpoint(NodeEndpoint<?> e) {
-		if (endpoints.containsKey(e.name()))
-			throw new IllegalStateException("endpoint already registered: " + e.name());
-
-		endpoints.put(e.name(), e);
-	}
-
 	static final File frontendDir = new File("build/frontend");
 
 	private HTTPResponse processRequest(HttpsExchange https) {
@@ -242,10 +236,10 @@ public class WebServer extends BNode {
 				response.set("session ID", new TextNode(Long.toHexString(Math.abs(https.getSSLSession().hashCode()))));
 				response.set("backend version", new TextNode(Byransha.VERSION));
 				long uptimeMs = ManagementFactory.getRuntimeMXBean().getUptime();
-				response.set("uptime", new TextNode(Duration.ofMillis(uptimeMs).toString()));
+				response.set("uptimeMs", new TextNode(Duration.ofMillis(uptimeMs).toString()));
 
 				response.set("compliant_endpoints",
-						new Endpoints(graph).exec(new ObjectNode(null), user, this, https).toJson());
+						graph.findEndpoint(Endpoints.class).exec(new ObjectNode(null), user, this, https).toJson());
 
 				if (!inputJson2sendBack.isEmpty())
 					response.set("request", inputJson2sendBack);
@@ -288,11 +282,11 @@ public class WebServer extends BNode {
 						}
 
 						double duration = System.nanoTime() - startTimeNs2;
-						synchronized(endpoint) {
+						synchronized (endpoint) {
 							endpoint.nbCalls++;
 							endpoint.timeSpentNs += duration;
 						}
-						er.set("duration", new DoubleNode(duration));
+						er.set("durationNs", new DoubleNode(duration));
 						resultsNode.add(er);
 					}
 				}
@@ -344,9 +338,9 @@ public class WebServer extends BNode {
 		}
 
 		if (endpointName == null || endpointName.isEmpty()) {
-			return List.of(new CurrentNode(graph));
+			return List.of(graph.findEndpoint(CurrentNode.class));
 		} else {
-			var e = endpoints.get(endpointName);
+			var e = graph.findEndpoint(endpointName);
 
 			if (e == null) {
 				throw new IllegalArgumentException("no such endpoint: " + endpointName);
@@ -359,7 +353,7 @@ public class WebServer extends BNode {
 	public List<NodeEndpoint> endpointsUsableFrom(BNode n) {
 		List<NodeEndpoint> r = new ArrayList<>();
 
-		for (var v : endpoints.values()) {
+		for (var v : graph.findAll(NodeEndpoint.class, e -> true)) {
 			if (v.getTargetNodeType().isAssignableFrom(n.getClass())) {
 				r.add(v);
 			}
@@ -489,7 +483,7 @@ public class WebServer extends BNode {
 		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
 				WebServer ws) {
 			var d = new Byransha.Distribution();
-			webServer.endpoints.values().forEach(e -> d.addXY(e.name(), e.nbCalls));
+			graph.findAll(NodeEndpoint.class, e -> true).forEach(e -> d.addXY(e.name(), e.nbCalls));
 			return new EndpointJsonResponse(d.toJson(), "logs");
 		}
 	}

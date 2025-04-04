@@ -15,9 +15,13 @@ public abstract class ValuedNode<V> extends BNode {
 		super(db);
 	}
 
+	public ValuedNode(BBGraph db, int id) {
+		super(db, id);
+	}
+
 	@Override
 	public String toString() {
-		return super.toString() + "(" + get() + ")";
+		return super.toString() + "(value=\"" + get() + "\")";
 	}
 
 	@Override
@@ -64,7 +68,13 @@ public abstract class ValuedNode<V> extends BNode {
 
 		try {
 //			System.out.println(graph.findRefsTO(this));
-			Files.write(valueFile.toPath(), value.toString().getBytes());
+			if (value == null) {
+				if (valueFile.exists()) {
+					valueFile.delete();
+				}
+			} else {
+				Files.write(valueFile.toPath(), value.toString().getBytes());
+			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

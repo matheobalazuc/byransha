@@ -39,12 +39,13 @@ public class BBGraph extends BNode {
 	int idCount = 1;
 
 	public BBGraph(File directory) {
-		super(null);
+		super(null, 0);
+		this.directory = directory;
 		nodes = new ArrayList<BNode>();
-		accept(this);
 		new User(this, "user", "test");
 		new User(this, "admin", "test");
-		this.directory = directory;
+
+		accept(this);
 	}
 
 	public static class Ref {
@@ -59,6 +60,14 @@ public class BBGraph extends BNode {
 		@Override
 		public String toString() {
 			return source + "." + role;
+		}
+	}
+
+	public synchronized int nextID() {
+		for (int i = 1;; ++i) {
+			if (findByID(i) == null) {
+				return i;
+			}
 		}
 	}
 
@@ -81,24 +90,31 @@ public class BBGraph extends BNode {
 		forEachNode(n -> loadOuts(n, setRelation));
 	}
 
+	/*
+	 * Loads all nodes from all class directories from the disk
+	 */
 	private void instantiateNodes(Consumer<BNode> newNodeInstantiated) {
 		File[] files = directory.listFiles();
 		if (files == null)
 			return;
 		else {
-			for (File classDir : directory.listFiles()) {
+			for (File classDir : files) {
 				String className = classDir.getName();
 				var nodeClass = (Class<? extends BNode>) Clazz.findClassOrFail(className);
 
 				for (File nodeDir : classDir.listFiles()) {
-					try {
-						var constructor = nodeClass.getConstructor(BBGraph.class);
-						BNode node = constructor.newInstance(graph);
-						node.setID(Integer.valueOf(nodeDir.getName().substring(1)));
-						newNodeInstantiated.accept(node);
-					} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-							| InvocationTargetException | NoSuchMethodException | SecurityException err) {
-						throw new RuntimeException(err);
+					int id = Integer.valueOf(nodeDir.getName().substring(1));
+
+					// don't create the graph node twice!
+					if (id != 0) {
+						try {
+							var constructor = nodeClass.getConstructor(BBGraph.class, int.class);
+							BNode node = constructor.newInstance(graph, id);
+							newNodeInstantiated.accept(node);
+						} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+								| InvocationTargetException | NoSuchMethodException | SecurityException err) {
+							throw new RuntimeException(err);
+						}
 					}
 				}
 			}
@@ -206,13 +222,26 @@ public class BBGraph extends BNode {
 	}
 
 	synchronized void accept(BNode n) {
+		if (n instanceof NodeEndpoint ne) {
+			var alreadyIn = findEndpoint(ne.getClass());
+			
+			if (alreadyIn != null) 
+				throw new IllegalArgumentException("endpoint already there: " + alreadyIn);
+		
+			
+		}
+
 		var already = findByID(n.id());
 
 		if (already != null)
-			throw new IllegalStateException("can't add node " + n + " with id " + n.id() + " because of : " + already);
+			throw new IllegalStateException("can't add node " + n + " because its ID is already taken by: " + already);
 
 		synchronized (nodes) {
 			nodes.add(n);
+
+			if (n.directory() != null) {
+				n.saveOuts(BBGraph.sysoutPrinter);
+			}
 		}
 
 		if (byClass != null) {
@@ -288,16 +317,24 @@ public class BBGraph extends BNode {
 	}
 
 	public synchronized <C extends BNode> C find(Class<C> nodeClass, Predicate<C> p) {
+		var l = findAll(nodeClass, p);
+		return l.isEmpty() ? null : l.getFirst();
+	}
+
+	public synchronized <C extends BNode> List<C> findAll(Class<C> nodeClass, Predicate<C> p) {
+		var r = new ArrayList<C>();
+
 		if (byClass != null) {
 			for (var s : byClass.entrySet()) {
 				if (nodeClass.isAssignableFrom(s.getKey())) {
 					synchronized (s.getValue()) {
 						for (var node : s.getValue()) {
-							// Ensure the node is of the correct type before casting
+							// ensure the node is of the correct type before casting
 							if (nodeClass.isInstance(node)) {
 								C nn = nodeClass.cast(node);
+
 								if (p.test(nn)) {
-									return nn;
+									r.add(nn);
 								}
 							}
 						}
@@ -311,14 +348,14 @@ public class BBGraph extends BNode {
 					if (nodeClass.isInstance(node)) {
 						C nn = nodeClass.cast(node);
 						if (p.test(nn)) {
-							return nn;
+							r.add(nn);
 						}
 					}
 				}
 			}
 		}
 
-		return null;
+		return r;
 	}
 
 	public List<User> users() {
@@ -329,6 +366,14 @@ public class BBGraph extends BNode {
 
 	public User findUser(SSLSession s) {
 		return find(User.class, u -> u.session != null && Arrays.equals(u.session.getId(), s.getId()));
+	}
+
+	public <N extends BNode, NE extends NodeEndpoint<N>> NE findEndpoint(Class<NE> c) {
+		return find(c, e -> true);
+	}
+
+	public NodeEndpoint<?> findEndpoint(String name) {
+		return (NodeEndpoint<?>) find(NodeEndpoint.class, e -> e.name().matches(name));
 	}
 
 	public static class DBView extends NodeEndpoint<BBGraph> implements TechnicalView {
@@ -380,10 +425,6 @@ public class BBGraph extends BNode {
 			});
 			return new EndpointJsonResponse(g.toNivoJSON(), dialects.nivoNetwork);
 		}
-	}
-
-	public void incrementIDCount() {
-		idCount++;
 	}
 
 }

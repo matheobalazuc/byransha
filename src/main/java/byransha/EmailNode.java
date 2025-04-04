@@ -6,8 +6,8 @@ public class EmailNode extends StringNode {
 		super(g, s);
 	}
 
-	public EmailNode(BBGraph g) {
-		super(g);
+	public EmailNode(BBGraph g, int id) {
+		super(g, id);
 	}
 
 	public static final String re = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";

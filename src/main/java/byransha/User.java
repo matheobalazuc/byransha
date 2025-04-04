@@ -23,11 +23,15 @@ public class User extends BNode {
 
 	public User(BBGraph g, String u, String password) {
 		super(g);
-		name = new StringNode(g);
-		passwordNode = new StringNode(g);
-		passwordNode.set(password);
+		name = new StringNode(g, null);
+		name.setAsLabelFor(this);
 		name.set(u);
+
+		passwordNode = new StringNode(g, null);
+		passwordNode.set(password);
 	}
+	
+
 
 	public BNode currentNode() {
 		return stack.isEmpty() ? null : stack.peek();

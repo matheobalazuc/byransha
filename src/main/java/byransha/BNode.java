@@ -34,19 +34,20 @@ public class BNode {
 	public String comment;
 	private List<Ref> refs;
 	public final BBGraph graph;
-	private int id;
+	private final int id;
 
 	public BNode(BBGraph g) {
+		this(g, g == null ? 0 : g.nextID());
+	}
+
+	public BNode(BBGraph g, int id) {
+		this.id = id;
+
 		if (g != null) {
-			while (g.findByID(g.idCount) != null) {
-				g.incrementIDCount();
-			}
-			id = g.idCount;
 			this.graph = g;
 			g.accept(this);
 		} else if (this instanceof BBGraph thisGraph) {
-			id = 0;
-			graph = thisGraph;
+			this.graph = thisGraph;
 		} else {
 			throw new IllegalStateException();
 		}
@@ -180,12 +181,19 @@ public class BNode {
 			try {
 				var symlink = new File(outD, name);// + "@" + outNode.id());
 				writingFiles.accept(symlink);
+
+				if (symlink.exists()) {
+					symlink.delete();
+				}
+
 				Files.createSymbolicLink(symlink.toPath(), outNode.directory().toPath());
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
 		});
 	}
+
+
 
 	public void saveIns(Consumer<File> writingFiles) {
 		var inD = new File(directory(), "ins");
@@ -227,10 +235,6 @@ public class BNode {
 		return id;
 	}
 
-	public void setID(int id) {
-		this.id = id;
-	}
-
 	@Override
 	public final int hashCode() {
 		return System.identityHashCode(this);
@@ -253,7 +257,13 @@ public class BNode {
 			n.set("class", new TextNode(node.getClass().getName()));
 			n.set("id", new TextNode("" + node.id()));
 			n.set("comment", new TextNode(node.comment));
-			n.set("directory", new TextNode(node.directory().getAbsolutePath()));
+
+			var d = node.directory();
+			
+			if (d != null) {
+				n.set("directory", new TextNode(d.getAbsolutePath()));
+			}
+			
 			n.set("out-degree", new TextNode("" + node.outDegree()));
 			n.set("outs", new TextNode(
 					node.outs().entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).toList().toString()));
