@@ -107,7 +107,7 @@ const GridView = () => {
             <Typography
                 variant="h4"
                 gutterBottom
-                sx={{²
+                sx={{
                     marginBottom: '32px',
                     color: '#1a237e',
                     fontWeight: 'bold',
