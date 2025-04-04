@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import {useMutation, useQuery} from '@tanstack/react-query';
 import axios from 'axios';
 
 // Custom hook to fetch API data with TanStack Query
@@ -17,3 +17,12 @@ export const useApiData = (endpoints, params = {}) => {
         }
     });
 };
+
+export const useApiMutation = (endpoints, options = {}) => {
+    return useMutation({
+        mutationFn: (data) => {
+            return axios.get(`${import.meta.env.VITE_API_BASE_URL}/${endpoints}?${data}`)
+        },
+        ...options
+    });
+}

@@ -1,14 +1,25 @@
 import { useNavigate } from 'react-router-dom';
-import { Box, Card, CardContent, CircularProgress, Grid2, Typography } from '@mui/material';
-import React from 'react';
+import {Box, Button, Card, CardContent, CircularProgress, Grid2, Typography} from '@mui/material';
+import React, {useCallback} from 'react';
 import { View } from "../Common/View.jsx";
 import { useTitle } from "../../global/useTitle.jsx";
-import {useApiData} from '../../hooks/useApiData';
+import {useApiData, useApiMutation} from '../../hooks/useApiData';
 
 const GridView = () => {
     const navigate = useNavigate();
     useTitle("Views");
-    const { data, isLoading, error } = useApiData('current_node');
+    const { data, isLoading, error, refetch } = useApiData('current_node');
+    const { data: navData, isLoading: navIsLoading, error: navIsError, refetch: refetchNav } = useApiData('nav2bnode_nav2');
+    const jumpMutation = useApiMutation('jump', {
+        onSuccess: (data, variables, context) => {
+            refetch()
+            refetchNav()
+        },
+    })
+
+    const jumpToNode = useCallback((nodeId) => {
+        jumpMutation.mutate(`target=${nodeId}`)
+    }, [])
 
     if (isLoading) {
         return (
@@ -37,6 +48,23 @@ const GridView = () => {
 
     return (
         <Box sx={{ padding: { xs: '5px', md: '40px' }, maxWidth: '100%', margin: '0 auto' }}>
+            {
+                navIsLoading || jumpMutation.isPending && <CircularProgress />
+            }
+            <Box>
+                {
+                    navData && Object.keys(navData.data.results[0].result.data.ins).map((inNode) => {
+                        return <Button onClick={() => jumpToNode(navData.data.results[0].result.data.ins[inNode])} variant="contained">{inNode} ({navData.data.results[0].result.data.ins[inNode]})</Button>
+                    })
+                }
+            </Box>
+            <Box sx={{ paddingY: '10px'}}>
+                {
+                    navData && Object.keys(navData.data.results[0].result.data.outs).map((outNode) => {
+                        return <Button onClick={() => jumpToNode(navData.data.results[0].result.data.outs[outNode])} variant="contained">{outNode} ({navData.data.results[0].result.data.outs[outNode]})</Button>
+                    })
+                }
+            </Box>
             <Typography variant="h4" gutterBottom sx={{ marginBottom: '32px' }}>
                 Views
             </Typography>

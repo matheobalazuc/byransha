@@ -163,11 +163,26 @@ export const View = ({viewId}) => {
                         />
                     </div>
                 )
-            } else if (viewId === 'nivo') {
+            } else if (viewId === 'graph_view_bnode_graph_view') {
                 return (
                     <div className="graph">
                         <ResponsiveNetwork
-                            data={content}
+                            data={{
+                                nodes: content.nodes.map((node) => ({
+                                    ...node,
+                                    id: node.label
+                                })).reduce((accumulator, current) => {
+                                    if (!accumulator.find((item) => item.id === current.id)) {
+                                        accumulator.push(current);
+                                    }
+                                    return accumulator;
+                                }, []),
+                                links: content.links.map((link) => ({
+                                    ...link,
+                                    target: link.target.label,
+                                    source: link.source.label
+                                }))
+                            }}
                             margin={{top: 0, right: 0, bottom: 0, left: 0}}
                             linkDistance={e => e.distance}
                             centeringStrength={0.3}
