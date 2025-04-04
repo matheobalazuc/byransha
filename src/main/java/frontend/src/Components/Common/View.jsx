@@ -78,9 +78,9 @@ export const View = ({viewId}) => {
                         />
                     </div>
                 );
-            } else if (viewId === 'distribution') {
+            } else if (viewId.endsWith('_distribution')) {
                 const barChartData = parseBarChartData(content);
-                const keys = Object.keys(Object.values(content).reduce((a, b) => Object.assign({}, a, b))).sort();
+                const keys = Object.values(content).length > 0 ? Object.keys(Object.values(content).reduce((a, b) => Object.assign({}, a, b)), []).sort() : [];
                 return (
                     <div className="graph">
                         <ResponsiveBar
