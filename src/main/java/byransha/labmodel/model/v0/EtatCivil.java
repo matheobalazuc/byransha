@@ -7,14 +7,14 @@ import byransha.StringNode;
 public class EtatCivil extends BNode {
 
 
-	public StringNode firstName = new StringNode(graph);
-	public StringNode name = new StringNode(graph);
-	public StringNode familyNameBeforeMariage = new StringNode(graph);
-	public StringNode birthDate = new StringNode(graph);
-	public StringNode cityOfBirth = new StringNode(graph);
-	public StringNode nationality = new StringNode(graph);
-	public StringNode countryOfBirth = new StringNode(graph);
-	public StringNode address = new StringNode(graph);
+	public StringNode firstName = new StringNode(graph, null);
+	public StringNode name = new StringNode(graph, null);
+	public StringNode familyNameBeforeMariage = new StringNode(graph, null);
+	public StringNode birthDate = new StringNode(graph, null);
+	public StringNode cityOfBirth = new StringNode(graph, null);
+	public StringNode nationality = new StringNode(graph, null);
+	public StringNode countryOfBirth = new StringNode(graph, null);
+	public StringNode address = new StringNode(graph, null);
 
 
 	public EtatCivil(BBGraph g) {

@@ -1,14 +1,15 @@
 package byransha.labmodel.model.v0;
 
-import byransha.BNode;
 import byransha.BBGraph;
+import byransha.BNode;
 import byransha.ListNode;
 import byransha.StringNode;
 
 public class Campus extends BNode {
+	StringNode name = new StringNode(graph, null);
 	ListNode<Office> offices = new ListNode<>(graph);
 
-  public Campus(BBGraph g) {
+	public Campus(BBGraph g) {
 		super(g);
 	}
 
@@ -16,7 +17,6 @@ public class Campus extends BNode {
 	public String getDescription() {
 		return "Campus: " + name.get();
 	}
-
 
 //	ListNode<Building> buildings;
 	public Office findOffice(String name) {

@@ -36,10 +36,6 @@ public abstract class BNode {
 	public final BBGraph graph;
 	private final int id;
 
-
-	public abstract String getDescription();
-
-
 	public BNode(BBGraph g) {
 		this(g, g == null ? 0 : g.nextID());
 	}
@@ -56,6 +52,8 @@ public abstract class BNode {
 			throw new IllegalStateException();
 		}
 	}
+
+	public abstract String getDescription();
 
 	public List<Ref> ins() {
 		return refs == null ? graph.findRefsTO(this) : refs;
@@ -197,8 +195,6 @@ public abstract class BNode {
 		});
 	}
 
-
-
 	public void saveIns(Consumer<File> writingFiles) {
 		var inD = new File(directory(), "ins");
 
@@ -254,6 +250,7 @@ public abstract class BNode {
 		public String getDescription() {
 			return "BasicView for BNode";
 		}
+
 		public BasicView(BBGraph g) {
 			super(g);
 		}
@@ -267,11 +264,11 @@ public abstract class BNode {
 			n.set("comment", new TextNode(node.comment));
 
 			var d = node.directory();
-			
+
 			if (d != null) {
 				n.set("directory", new TextNode(d.getAbsolutePath()));
 			}
-			
+
 			n.set("out-degree", new TextNode("" + node.outDegree()));
 			n.set("outs", new TextNode(
 					node.outs().entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).toList().toString()));
@@ -295,6 +292,7 @@ public abstract class BNode {
 		public String getDescription() {
 			return "Nav2 view for BNode";
 		}
+
 		public Nav2(BBGraph g) {
 			super(g);
 		}

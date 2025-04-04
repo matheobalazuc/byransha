@@ -1,6 +1,7 @@
 package byransha.graph;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -87,8 +88,15 @@ public class BGraph {
 		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
 				BNode node) throws Throwable {
 			var a = new ArrayNode(null);
-			graph.forEachNode(n -> a.add(new TextNode(n.getClass().getName())));
+			var classes = new HashSet<Class>();
+			graph.forEachNode(n -> classes.add(n.getClass()));
+			classes.forEach(c -> a.add(new TextNode(c.getName())));
 			return new EndpointJsonResponse(a, this);
+		}
+
+		@Override
+		public String getDescription() {
+			return "list all classes in the graph";
 		}
 
 	}
