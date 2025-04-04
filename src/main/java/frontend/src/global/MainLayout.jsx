@@ -12,13 +12,15 @@ const MainLayout = () => {
     const hideSidebar = location.pathname.startsWith("/grid");
     const [visitedPages, setVisitedPages] = useState(location.pathname === "/home" || location.pathname === "/grid" ? [] : [location.pathname]);
 
-    const { data, isLoading, error } = useApiData('current_node');
+    const { data, isLoading, error } = useApiData('');
+
+    console.log(data)
 
     const NAVIGATION = !isLoading && !error && data?.data?.results
-        ? data.data.results[0].result.data.views.data.map((view, index) => ({
+        ? data.data.results.map((view, index) => ({
             kind: 'link',
-            title: view.label,
-            segment: `information/${view.label.replaceAll(' ', '_')}`,
+            title: view.endpoint,
+            segment: `information/${view.endpoint.replaceAll(' ', '_')}`,
             icon: <MenuOutlinedIcon />
         }))
         : [{ kind: 'link', title: 'Loading...', segment: 'home', icon: <MenuOutlinedIcon /> }];

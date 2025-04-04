@@ -6,7 +6,7 @@ import { useTitle } from "../../global/useTitle";
 import {useApiData} from '../../hooks/useApiData';
 
 const HomePage = () => {
-    const { data, isLoading } = useApiData('current_node');
+    const { data, isLoading } = useApiData('');
     useTitle("Home");
 
     console.log(data)
@@ -35,10 +35,10 @@ const HomePage = () => {
             <h1>Vue du Noeud Courant</h1>
             <h3>Vues Disponibles:</h3>
             <ul>
-                {data.data.results[0].result.data.views.data.map((view, index) => (
+                {data.data.results.map((view, index) => (
                     <li key={view.id}>
-                        <Link to={`/information/${view.label.replaceAll(' ',  '_')}`}>
-                            <strong>{view.label}</strong>
+                        <Link to={`/information/${view.endpoint.replaceAll(' ',  '_')}`}>
+                            <strong>{view.endpoint}</strong>
                         </Link>
                     </li>
                 ))}

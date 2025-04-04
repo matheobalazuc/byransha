@@ -8,7 +8,7 @@ import { useApiData, useApiMutation } from '../../hooks/useApiData';
 const GridView = () => {
     const navigate = useNavigate();
     useTitle("Views");
-    const { data, isLoading, error, refetch } = useApiData('current_node');
+    const { data, isLoading, error, refetch } = useApiData('');
     const { data: navData, isLoading: navIsLoading, error: navIsError, refetch: refetchNav } = useApiData('nav2');
     const jumpMutation = useApiMutation('jump', {
         onSuccess: () => {
@@ -53,7 +53,7 @@ const GridView = () => {
         );
     }
 
-    const views = data.data.results[0].result.data.views.data || [];
+    const views = data.data.results || [];
 
     return (
         <Box
@@ -137,7 +137,7 @@ const GridView = () => {
                                 display: 'flex',
                                 flexDirection: 'column',
                             }}
-                            onClick={() => navigate(`/information/${view.label.replaceAll(' ', '_')}`)}
+                            onClick={() => navigate(`/information/${view.endpoint.replaceAll(' ', '_')}`)}
                         >
                             <CardContent
                                 sx={{
@@ -158,7 +158,7 @@ const GridView = () => {
                                         fontWeight: '600',
                                     }}
                                 >
-                                    {view.label}
+                                    {view.endpoint}
                                 </Typography>
                                 <Typography
                                     variant="body2"
@@ -178,7 +178,7 @@ const GridView = () => {
                                     }}
                                 >
                                     Content:
-                                    <View viewId={view.label.replaceAll(' ', '_')} />
+                                    <View viewId={view.endpoint.replaceAll(' ', '_')} />
                                 </Typography>
                             </CardContent>
                         </Card>
