@@ -163,7 +163,7 @@ export const View = ({viewId}) => {
                         />
                     </div>
                 )
-            } else if (viewId === 'graph_view') {
+            } else if (viewId.endsWith('nivo_view')) {
                 return (
                     <div className="graph">
                         <ResponsiveNetwork
