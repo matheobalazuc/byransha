@@ -25,7 +25,7 @@ jobs:
         working-directory: src/main/java/frontend
 
       - name: Build frontend
-        run: npm run build:ci
+        run: npm run build
         working-directory: src/main/java/frontend
 
       - name: Commit build files

@@ -5,7 +5,7 @@ import axios from 'axios';
 export const useApiData = (endpoints, params = {}) => {
     const queryParams = new URLSearchParams({ ...params }).toString();
     const queryString = queryParams ? `?${queryParams}` : '';
-    const url = `${import.meta.env.VITE_API_BASE_URL}/${endpoints}${queryString}`;
+    const url = `${import.meta.env.PUBLIC_API_BASE_URL}/${endpoints}${queryString}`;
 
     return useQuery({
         queryKey: ['apiData', endpoints, params], // Unique key for caching
@@ -21,7 +21,7 @@ export const useApiData = (endpoints, params = {}) => {
 export const useApiMutation = (endpoints, options = {}) => {
     return useMutation({
         mutationFn: (data) => {
-            return axios.get(`${import.meta.env.VITE_API_BASE_URL}/${endpoints}?${data}`)
+            return axios.get(`${import.meta.env.PUBLIC_API_BASE_URL}/${endpoints}?${data}`)
         },
         ...options
     });
