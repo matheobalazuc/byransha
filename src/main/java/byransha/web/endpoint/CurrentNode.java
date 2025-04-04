@@ -1,5 +1,6 @@
 package byransha.web.endpoint;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
@@ -9,7 +10,6 @@ import byransha.BNode;
 import byransha.User;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.NodeEndpoint;
-import byransha.web.View;
 import byransha.web.WebServer;
 
 public class CurrentNode extends NodeEndpoint<BNode> {
@@ -27,8 +27,13 @@ public class CurrentNode extends NodeEndpoint<BNode> {
 		r.set("to_string", new TextNode(currentNode.toString()));
 		r.set("can read", new TextNode("" + currentNode.canSee(user)));
 		r.set("can write", new TextNode("" + currentNode.canSee(user)));
-		r.set("views",
-				graph.findEndpoint(View.Views.class).exec(inputJson, user, webServer, exchange, currentNode).toJson());
+		var a = new ArrayNode(null);
+
+		for (var e : webServer.endpointsUsableFrom(currentNode)) {
+			a.add(new TextNode(e.name()));
+		}
+
+		r.set("views", a);
 		return new EndpointJsonResponse(r, this);
 	}
 }

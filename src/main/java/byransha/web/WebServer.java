@@ -73,12 +73,13 @@ import toools.text.TextUtilities;
  */
 
 public class WebServer extends BNode {
-	static File d = new File(System.getProperty("user.home") + "/." + BBGraph.class.getPackageName());
+	public static File defaultDBDirectory = new File(System.getProperty("user.home") + "/." + BBGraph.class.getPackageName());
 
 	public static void main(String[] args) throws Exception {
 		var argList = List.of(args);
 		var argMap = new HashMap<String, String>();
 		argList.stream().map(a -> a.split("=")).forEach(a -> argMap.put(a[0], a[1]));
+
 		BBGraph g = instantiateGraph(argMap);
 		int port = Integer.valueOf(argMap.getOrDefault("-port", "8080"));
 		new WebServer(g, port);
@@ -88,20 +89,18 @@ public class WebServer extends BNode {
 			throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
 			NoSuchMethodException, SecurityException, ClassNotFoundException, IOException {
 
-		if (d.exists()) {
-			var g = (BBGraph) Class.forName(Files.readString(new File(d, "dbClass.txt").toPath()))
-					.getConstructor(File.class).newInstance(d);
+		if (defaultDBDirectory.exists()) {
+			var g = (BBGraph) Class.forName(Files.readString(new File(defaultDBDirectory, "dbClass.txt").toPath()))
+					.getConstructor(File.class).newInstance(defaultDBDirectory);
 			System.out.println("loading DB from " + g.directory);
 
 			g.loadFromDisk(n -> System.out.println("loading node " + n),
 					(n, s) -> System.out.println("loading arc " + n + ", " + s));
 			return g;
+		} else if (argMap.containsKey("--createDB")) {
+			return new BBGraph(defaultDBDirectory);
 		} else {
-			if (argMap.containsKey("--createDB")) {
-				return new BBGraph(d);
-			} else {
-				return new BBGraph(null);
-			}
+			return new BBGraph(null);
 		}
 	}
 
@@ -338,7 +337,7 @@ public class WebServer extends BNode {
 		}
 
 		if (endpointName == null || endpointName.isEmpty()) {
-			return List.of(graph.findEndpoint(CurrentNode.class));
+			return endpointsUsableFrom(currentNode);
 		} else {
 			var e = graph.findEndpoint(endpointName);
 
