@@ -231,12 +231,14 @@ public class BBGraph extends BNode {
 			var alreadyIn = findEndpoint(ne.getClass());
 
 			if (alreadyIn != null)
-				throw new IllegalArgumentException("endpoint with same class already there: " + alreadyIn);
-			
-			 alreadyIn = findEndpoint(ne.name());
+				throw new IllegalArgumentException("adding " + ne + ", " + "endpoint with same class '"
+						+ ne.getClass().getName() + "' already there: " + alreadyIn.getClass().getName());
+
+			alreadyIn = findEndpoint(ne.name());
 
 			if (alreadyIn != null)
-				throw new IllegalArgumentException("endpoint with same name already there: " + alreadyIn);
+				throw new IllegalArgumentException("adding " + ne + ", " + "endpoint with same name '"
+						+ ne.getClass().getName() + "' already there: " + alreadyIn.getClass().getName());
 
 		}
 

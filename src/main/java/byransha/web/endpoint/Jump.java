@@ -30,6 +30,6 @@ public class Jump extends NodeEndpoint<BNode> {
 		var target = node(targetID);
 		Objects.requireNonNull(target, "no such node: " + targetID);
 		user.stack.push(target); // effective jump
-		return new CurrentNode(graph).exec(in, user, webServer, exchange, target);
+		return graph.findEndpoint(CurrentNode.class).exec(in, user, webServer, exchange, target);
 	}
 }

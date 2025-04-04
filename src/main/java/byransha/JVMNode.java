@@ -20,18 +20,18 @@ public class JVMNode extends BNode implements VirtualNode {
 
 	@Override
 	public String getDescription() {
-		return "JVMNode description";
+		return "represents the server's JVM";
 	}
 
 	public static class View extends NodeEndpoint<BBGraph> implements TechnicalView {
 
-		@Override
-		public String getDescription() {
-			return "View description";
-		}
-
 		public View(BBGraph g) {
 			super(g);
+		}
+
+		@Override
+		public String getDescription() {
+			return "describes the server's JVM";
 		}
 
 		@Override
