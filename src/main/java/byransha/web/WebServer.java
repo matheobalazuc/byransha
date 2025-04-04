@@ -253,7 +253,7 @@ public class WebServer extends BNode {
 					response.set("username", new TextNode(user.name.get()));
 				}
 
-				var endpoints = endpoints(path.substring(5), user.currentNode());
+				var endpoints = endpoints(path.substring(5), user.currentNode()).stream().filter(e -> e instanceof View).toList();
 //				System.err.println(endpoints);
 
 				if (inputJson.remove("raw") != null) {
