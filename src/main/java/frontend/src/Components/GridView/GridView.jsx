@@ -9,7 +9,7 @@ const GridView = () => {
     const navigate = useNavigate();
     useTitle("Views");
     const { data, isLoading, error, refetch } = useApiData('current_node');
-    const { data: navData, isLoading: navIsLoading, error: navIsError, refetch: refetchNav } = useApiData('nav2bnode_nav2');
+    const { data: navData, isLoading: navIsLoading, error: navIsError, refetch: refetchNav } = useApiData('nav2');
     const jumpMutation = useApiMutation('jump', {
         onSuccess: (data, variables, context) => {
             refetch()
