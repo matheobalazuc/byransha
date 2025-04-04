@@ -21,7 +21,7 @@ public class Structure extends BNode {
 
 	@Override
 	public String getDescription() {
-		return "Structure: " + name.get();
+		return "a physical structure having members, offices, sub-structures";
 	}
 
 	public double occupationRatio() {
