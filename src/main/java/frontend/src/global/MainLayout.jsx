@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from "react";
 import { Outlet, useLocation, useNavigate, Link as RouterLink } from "react-router-dom";
 import { DashboardLayout, PageContainer } from "@toolpad/core";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import { Box, MenuItem, Select, Typography, Breadcrumbs, Link, Stack } from "@mui/material";
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { useApiData } from '../hooks/useApiData';
+import IconButton from '@mui/material/IconButton';
+import Menu from '@mui/material/Menu';
+import {GiMooringBollard} from "react-icons/gi";
+import {useState, useEffect} from "react";
 
 const MainLayout = () => {
     const navigate = useNavigate();
@@ -11,7 +15,10 @@ const MainLayout = () => {
     const [currentView, setCurrentView] = useState(location.pathname.startsWith("/grid") ? "grid" : "default");
     const hideSidebar = location.pathname.startsWith("/grid");
     const [visitedPages, setVisitedPages] = useState(location.pathname === "/home" || location.pathname === "/grid" ? [] : [location.pathname]);
+    const [showFullHistory, setShowFullHistory] = useState(false);
 
+    const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+    const open =  Boolean(anchorEl);
     const { data, isLoading, error } = useApiData('');
 
     console.log(data)
@@ -60,7 +67,17 @@ const MainLayout = () => {
         navigate(path);
     };
 
-    const visiblePages = visitedPages.length > 3 ? visitedPages.slice(-2) : visitedPages;
+    const handleClick = (event) => {
+        if (event) {
+            setAnchorEl(event.currentTarget);
+        }
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    const visiblePages = showFullHistory ? visitedPages : (visitedPages.length > 3 ? visitedPages.slice(-2) : visitedPages);
 
     return (
         <Box sx={{
@@ -90,16 +107,18 @@ const MainLayout = () => {
                                 '& .MuiSvgIcon-root': { cursor: 'pointer' },
                                 height: '40px'
                             }}>
-                                <img src="/logo.svg" alt="I3S" color={"inherit"} width={'100%'} height={'100%'}/>
+                                <img src="/logo.svg" alt="I3S" width='100%' height='100%'/>
                             </Box>
                             <Breadcrumbs separator=">" aria-label="breadcrumb">
                                 <Link component={RouterLink} to={currentView === "grid" ? "/grid" : "/home"} color="inherit">
                                     {currentView === "grid" ? "Grid" : "Home"}
                                 </Link>
-                                {visitedPages.length > 3 && (
-                                    <Typography color="textPrimary">...</Typography>
+                                {visitedPages.length > 3 && !showFullHistory && (
+                                    <IconButton onClick={handleClick} size="small" sx={{ color: 'inherit' }}>
+                                        <MoreHorizIcon color="action" />
+                                    </IconButton>
                                 )}
-                                {visiblePages.map((page, index) => (
+                                {visiblePages.map((page) => (
                                     <Link
                                         component="button"
                                         color="inherit"
@@ -110,6 +129,20 @@ const MainLayout = () => {
                                     </Link>
                                 ))}
                             </Breadcrumbs>
+                            <Menu
+                                anchorEl={anchorEl}
+                                open={Boolean(anchorEl)}
+                                onClose={handleClose}
+                            >
+                                {visitedPages.map((page) => (
+                                    <MenuItem
+                                        key={page}
+                                        onClick={() => { handleBreadcrumbClick(page); handleClose(); }}
+                                    >
+                                        {page}
+                                    </MenuItem>
+                                ))}
+                            </Menu>
                         </Stack>),
                     toolbarActions: () => (
                         <Box sx={{
