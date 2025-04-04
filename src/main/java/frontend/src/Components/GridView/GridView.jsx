@@ -8,7 +8,7 @@ import { useApiData, useApiMutation } from '../../hooks/useApiData';
 const GridView = () => {
     const navigate = useNavigate();
     useTitle("Views");
-    const { data, isLoading, error, refetch } = useApiData('');
+    const { data, isLoading, error, refetch } = useApiData(''); // Assuming endpoint is still correct
     const { data: navData, isLoading: navIsLoading, error: navIsError, refetch: refetchNav } = useApiData('nav2bnode_nav2');
     const jumpMutation = useApiMutation('jump', {
         onSuccess: () => {
@@ -16,7 +16,6 @@ const GridView = () => {
             refetchNav();
         },
     });
-
 
     const jumpToNode = useCallback((nodeId) => {
         jumpMutation.mutate(`target=${nodeId}`);
@@ -30,10 +29,10 @@ const GridView = () => {
                     justifyContent: "center",
                     alignItems: "center",
                     height: "100vh",
-                    bgcolor: '#e0e7ff',
+                    bgcolor: '#ffffff',
                 }}
             >
-                <CircularProgress sx={{ color: '#1e88e5' }} /> {/* Blue spinner */}
+                <CircularProgress sx={{ color: '#1e88e5' }} />
             </Box>
         );
     }
@@ -56,13 +55,27 @@ const GridView = () => {
 
     const views = data.data.results || [];
 
+    // Function to determine card content background color based on response_type
+    const getCardContentBackgroundColor = (view) => {
+        switch (view.response_type) {
+            case "business":
+                return '#d1e3f6'; //blue for business
+            case "development":
+                return '#e0f2e9'; //teal for development
+            case "technical":
+                return '#f9e1cc'; //orange for technical
+            default:
+                return '#ffffff';
+        }
+    };
+
     return (
         <Box
             sx={{
                 padding: { xs: '10px', md: '40px' },
                 maxWidth: '100%',
                 margin: '0 auto',
-                bgcolor: '#e8eaf6',
+                bgcolor: '#ffffff',
                 minHeight: '100vh',
             }}
         >
@@ -127,7 +140,7 @@ const GridView = () => {
                                 cursor: 'pointer',
                                 aspectRatio: '1',
                                 transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                                bgcolor: '#ffffff',
+                                // No bgcolor, keeping card transparent
                                 border: '1px solid #e0e0e0',
                                 borderRadius: 2,
                                 '&:hover': {
@@ -147,7 +160,7 @@ const GridView = () => {
                                     display: 'flex',
                                     flexDirection: 'column',
                                     overflow: 'hidden',
-                                    bgcolor: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+                                    bgcolor: getCardContentBackgroundColor(view), // Color based on response_type
                                 }}
                             >
                                 <Typography
