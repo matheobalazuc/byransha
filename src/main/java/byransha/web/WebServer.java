@@ -45,8 +45,11 @@ import byransha.JVMNode;
 import byransha.ListNode;
 import byransha.Log;
 import byransha.OSNode;
+import byransha.StringNode;
 import byransha.User;
 import byransha.graph.AnyGraph;
+import byransha.labmodel.model.v0.EtatCivil;
+import byransha.labmodel.model.v0.Person;
 import byransha.labmodel.model.v0.Picture;
 import byransha.labmodel.model.v0.view.LabView;
 import byransha.labmodel.model.v0.view.StructureView;
@@ -101,7 +104,13 @@ public class WebServer extends BNode {
 		} else if (argMap.containsKey("--createDB")) {
 			return new BBGraph(defaultDBDirectory);
 		} else {
-			return new BBGraph(null);
+			var g =  new BBGraph(null);
+			var p = new Person(g);
+			p.etatCivil = new EtatCivil(g);
+			p.etatCivil.name = new StringNode(g, "Caro");
+			p.etatCivil.firstName = new StringNode(g, "George");
+			p.etatCivil.nationality = new StringNode(g, "FR");
+			return g;
 		}
 	}
 

@@ -9,15 +9,7 @@ import byransha.ListNode;
 import byransha.StringNode;
 
 public class Person extends BNode {
-	public Person(BBGraph g) {
-		super(g);
-		// TODO Auto-generated constructor stub
-	}
 
-	@Override
-	public String getDescription() {
-		return "Person node in the graph";
-	}
 
 	public EtatCivil etatCivil = new EtatCivil(graph);
 	public ListNode<Position> positions = new ListNode<>(graph);
@@ -43,5 +35,14 @@ public class Person extends BNode {
 	@Override
 	public String toString() {
 		return etatCivil.name.get();
+	}
+	
+	public Person(BBGraph g) {
+		super(g);
+	}
+
+	@Override
+	public String getDescription() {
+		return "a physical person working in the lab";
 	}
 }
