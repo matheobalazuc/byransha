@@ -9,17 +9,11 @@ import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.BBGraph;
 import byransha.BNode;
+import byransha.Changer;
 import byransha.User;
 import toools.text.TextUtilities;
 
 public abstract class Endpoint extends BNode {
-	public int nbCalls = 0;
-	public long timeSpentNs = 0;
-
-	protected Endpoint(BBGraph db) {
-		super(db);
-	}
-
 	public static <E extends Endpoint> E create(Class<E> e, BBGraph g) {
 		try {
 			return e.getConstructor(BBGraph.class).newInstance(g);
@@ -28,6 +22,14 @@ public abstract class Endpoint extends BNode {
 			throw new IllegalStateException(e1);
 		}
 	}
+
+	public int nbCalls = 0;
+	public long timeSpentNs = 0;
+
+	protected Endpoint(BBGraph db) {
+		super(db);
+	}
+
 
 	public abstract EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange)
 			throws Throwable;
@@ -46,7 +48,7 @@ public abstract class Endpoint extends BNode {
 
 	public final String name() {
 		var name = getClass().getSimpleName();
-		
+
 		var enclosingClass = getClass().getEnclosingClass();
 
 		if (enclosingClass != null) {
@@ -76,6 +78,10 @@ public abstract class Endpoint extends BNode {
 
 	public boolean isTechnicalView() {
 		return TechnicalView.class.isAssignableFrom(getClass());
+	}
+	
+	public boolean isChanger() {
+		return Changer.class.isAssignableFrom(getClass());
 	}
 
 	public static class V extends NodeEndpoint<Endpoint> {

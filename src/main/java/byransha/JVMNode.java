@@ -57,7 +57,7 @@ public class JVMNode extends BNode implements VirtualNode {
 		}
 	}
 
-	public static class Kill extends NodeEndpoint<JVMNode> {
+	public static class Kill extends NodeEndpoint<JVMNode> implements Changer {
 		public Kill(BBGraph db) {
 			super(db);
 		}

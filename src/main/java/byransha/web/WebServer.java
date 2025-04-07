@@ -122,7 +122,7 @@ public class WebServer extends BNode {
 		byransha = new Byransha(g);
 		operatingSystem = new OSNode(g);
 		new CurrentNode(g);
-		new View.Views(g);
+		new Views(g);
 		new Jump(g);
 		new Endpoints(g);
 		new JVMNode.Kill(g);
@@ -344,7 +344,7 @@ public class WebServer extends BNode {
 		}
 
 		if (endpointName == null || endpointName.isEmpty()) {
-			return endpointsUsableFrom(currentNode).stream().filter(e -> e instanceof View).toList();
+			return endpointsUsableFrom(currentNode).stream().filter(e -> !e.isChanger()).toList();
 		} else {
 			var e = graph.findEndpoint(endpointName);
 
