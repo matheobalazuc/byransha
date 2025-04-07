@@ -7,9 +7,9 @@ import byransha.ListNode;
 import byransha.StringNode;
 
 public class Office extends BNode {
+	
 	public Office(BBGraph g) {
 		super(g);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -17,7 +17,7 @@ public class Office extends BNode {
 		return "Office: " + (name != null ? name.get() : "Unnamed");
 	}
 
-	StringNode name;
+	public StringNode name;
 	ListNode<Person> users;
 	IntNode surface;
 	IntNode capacity;

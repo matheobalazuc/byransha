@@ -49,6 +49,7 @@ import byransha.StringNode;
 import byransha.User;
 import byransha.graph.AnyGraph;
 import byransha.labmodel.model.v0.EtatCivil;
+import byransha.labmodel.model.v0.Office;
 import byransha.labmodel.model.v0.Person;
 import byransha.labmodel.model.v0.Picture;
 import byransha.labmodel.model.v0.view.LabView;
@@ -56,10 +57,13 @@ import byransha.labmodel.model.v0.view.StructureView;
 import byransha.web.endpoint.Authenticate;
 import byransha.web.endpoint.CurrentNode;
 import byransha.web.endpoint.Endpoints;
+import byransha.web.endpoint.EtatCivilEndpoint;
 import byransha.web.endpoint.Jump;
 import byransha.web.endpoint.NodeEndpoints;
 import byransha.web.endpoint.NodeIDs;
 import byransha.web.endpoint.Nodes;
+import byransha.web.endpoint.OfficeEndpoint;
+import byransha.web.endpoint.PersonEndpoint;
 import byransha.web.endpoint.SetValue;
 import byransha.web.endpoint.Edit;
 import byransha.web.view.AllViews;
@@ -110,6 +114,10 @@ public class WebServer extends BNode {
 			p.etatCivil.name = new StringNode(g, "Caro");
 			p.etatCivil.firstName = new StringNode(g, "George");
 			p.etatCivil.nationality = new StringNode(g, "FR");
+
+			var office = new Office(g);
+			office.name = new StringNode(g, "Office");
+
 			return g;
 		}
 	}
@@ -163,6 +171,9 @@ public class WebServer extends BNode {
 		new SetValue(g);
 		new AnyGraph.Classes(g);
 		new Edit(g);
+		new PersonEndpoint(g);
+		new EtatCivilEndpoint(g);
+		new OfficeEndpoint(g);
 
 		try {
 			Path classPathFile = new File(Byransha.class.getPackageName() + "-classpath.lst").toPath();

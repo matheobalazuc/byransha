@@ -53,6 +53,10 @@ public class BBGraph extends BNode {
 		accept(this);
 	}
 
+	public <T extends BNode> T findNode(Class<T> clazz) {
+		return this.findAll(clazz, n -> true).stream().findFirst().orElse(null);
+	}
+
 	public static class Ref {
 		final String role;
 		final BNode source;

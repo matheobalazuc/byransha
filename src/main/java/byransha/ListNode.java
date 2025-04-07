@@ -50,4 +50,8 @@ public class ListNode<N extends BNode> extends BNode {
 		return l.get(new Random().nextInt(l.size()));
 	}
 
+	public Object[] getAll() {
+		return l.toArray();
+	}
+
 }
