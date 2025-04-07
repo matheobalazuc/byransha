@@ -36,7 +36,7 @@ public class Views extends NodeEndpoint<BNode> implements View {
 			ev.set("can read", new TextNode("" + e.canSee(user)));
 			ev.set("can write", new TextNode("" + e.canSee(user)));
 
-			if (e instanceof View v && v.sendContentByDefault()) {
+			if (e.getClass() != Views.class && e instanceof View v && v.sendContentByDefault()) {
 				try {
 					ev.set("result", e.exec(inputJson, user, webServer, exchange, user).toJson());
 				} catch (Throwable err) {
