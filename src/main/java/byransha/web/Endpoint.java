@@ -46,7 +46,7 @@ public abstract class Endpoint extends BNode {
 		throw new IllegalStateException();
 	}
 
-	public final String name() {
+	public String name() {
 		var name = getClass().getSimpleName();
 
 		var enclosingClass = getClass().getEnclosingClass();

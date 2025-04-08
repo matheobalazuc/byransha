@@ -5,34 +5,40 @@ import java.lang.reflect.Field;
 import byransha.BNode;
 import byransha.ListNode;
 
-public class htmlNode {
+public class AutoHtmlNodeGenerator {
 
     public static String generateHtmlForNode(BNode node) {
         if (node == null) {
+            // Handle null node case
             return generateHtmlDocument("<p>No data available for this node.</p>", "No Data View");
         }
 
+        // Generate HTML content based on the node's fields
         StringBuilder htmlBuilder = new StringBuilder();
         htmlBuilder.append("<div class=\"container\">");
         htmlBuilder.append("<ul class=\"list\">");
 
+        // Use reflection to get the fields of the node
         for (Field field : node.getClass().getDeclaredFields()) {
             field.setAccessible(true);
             try {
                 Object value = field.get(node);
                 String fieldName = field.getName();
-
+                // Check if the field is a ListNode
                 htmlBuilder.append("<li class=\"list-item\">");
                 htmlBuilder.append("<strong>").append(fieldName).append(":</strong> ");
                 if (value instanceof BNode) {
+                    // If the field is a BNode, generate HTML for it
                     for (Field subField : value.getClass().getDeclaredFields()) {
                         subField.setAccessible(true);
                         Object subValue = subField.get(value);
                         String subFieldName = subField.getName();
+                        // Append the sub-field name and value
                         htmlBuilder.append("<br><strong>").append(subFieldName).append(":</strong> ");
                         htmlBuilder.append(subValue != null ? subValue.toString() : "<em>N/A</em>");
                     }
                 } else {
+                    // If the field is a ListNode, iterate through its elements
                     htmlBuilder.append(value != null ? value.toString() : "<em>N/A</em>");
                 }
                 htmlBuilder.append("</li>");
@@ -44,10 +50,12 @@ public class htmlNode {
         htmlBuilder.append("</ul>");
         htmlBuilder.append("</div>");
 
+        // Generate the HTML document with a title
         String title = node.getClass().getSimpleName() + " View";
         return generateHtmlDocument(htmlBuilder.toString(), title);
     }
 
+    // Generates a complete HTML document with the given body content and title
     private static String generateHtmlDocument(String bodyContent, String title) {
         StringBuilder htmlBuilder = new StringBuilder();
         htmlBuilder.append("<!DOCTYPE html>");
